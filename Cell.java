@@ -10,7 +10,11 @@ public class Cell {
 	textField = t;
     }
 
-    public void clearBorder() {
+    public void select() {
+	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+    }
+
+    public void deselect() {
 	textField.setBorder(UIManager.getBorder("TextField.border"));
     }
     
