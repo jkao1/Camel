@@ -35,7 +35,6 @@ public class Spreadsheet extends JFrame {
 		cell.select();
 		selected = cell;
 	    }
-		
 
 	    cell.textField.addMouseListener(new MouseListener() {
 		    public void mousePressed(MouseEvent e) {
@@ -44,7 +43,10 @@ public class Spreadsheet extends JFrame {
 			selected = cell;
 		    }
 		    public void mouseClicked(MouseEvent e){}
-		    public void mouseReleased(MouseEvent e){}
+		    public void mouseReleased(MouseEvent e){
+			Point p = e.getLocationOnScreen();
+			System.out.println(""+p.getX()+", "+p.getY());
+		    }
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
 		});
@@ -52,6 +54,11 @@ public class Spreadsheet extends JFrame {
 	    ss.add(cell.textField);
 	    cells[i] = cell;
 	}
+    }
+
+    public static void main(String[] args) {
+	Spreadsheet s = new Spreadsheet();
+	s.setVisible(true);
     }
     
 }
