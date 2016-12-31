@@ -1,7 +1,7 @@
 public class Cell {
 
     private int _value;
-    private boolean isSelected;
+    public boolean isSelected;
 
     public Cell() {	
     }
