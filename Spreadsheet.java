@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -19,33 +20,45 @@ public class Spreadsheet extends JFrame {
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(rows,cols,-5,-5));
 
+	initialize();
+    }
+
+    private void initialize() {
 	cells = new Cell[rows*cols];
 	
 	for (int i = 0; i < cells.length; i++) {
-	    cells[i] = new Cell();
+	    
 	    JTextField t = new JTextField();
-	    t.setText(String.valueOf(cells[i].getValue()));
+	    	        
 	    t.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 			int cellNum = Integer.parseInt(e.getActionCommand());
 			int v = Integer.parseInt(t.getText());
-			cells[cellNum].setValue(v);
-			System.out.println(""+cellNum+", "+v);
+			cells[cellNum].setValue(v);		        
 		    }
 		});
 	    t.setActionCommand(String.valueOf(i));
-	    ss.add(t);
+
+	    t.addMouseListener(new MouseListener() {
+		    public void mousePressed(MouseEvent e) {
+			clearBorders();
+			Border border = BorderFactory.createLineBorder(Color.BLUE, 5);
+			t.setBorder(border);
+		    }
+		    public void mouseClicked(MouseEvent e){}
+		    public void mouseReleased(MouseEvent e){}
+		    public void mouseEntered(MouseEvent e){}
+		    public void mouseExited(MouseEvent e){}
+		});
+
+	    cells[i] = new Cell(t);
+	    ss.add(cells[i].textField);
 	}
-    }
-    
-    private int getSum() {
-	int s = 0;
-	for (Cell c : cells) {
-	    if (c.isSelected) {
-		s += c.getValue();
-	    }
-	}
-	return s;
     }
 
+    private void clearBorders(int p) {
+	for (Cell c : cells) {
+	    c.textField.setBorder();
+	}
+    }
 }
