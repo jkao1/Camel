@@ -1,6 +1,8 @@
 public class Driver {
-
-    Spreadsheet s = new Spreadsheet();
-    s.setVisible(true);
+    
+    public static void main(String[] args) {
+	Spreadsheet s = new Spreadsheet();
+	s.setVisible(true);
+    }
 
 }

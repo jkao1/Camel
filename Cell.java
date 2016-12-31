@@ -4,6 +4,7 @@ public class Cell {
     public boolean isSelected;
 
     public Cell() {	
+	_value = 0;
     }
 
     public Cell(int v) {

@@ -4,31 +4,31 @@ import java.awt.*;
 public class Spreadsheet extends JFrame {
 
     private Container ss;
-    private Cell[] cells;
+    private Cell[] cells;    
 
-    private int rows = 5;
-    private int cols = 5;
+    private int rows = 10, cols = 10;
 
     public Spreadsheet() {
 	this.setTitle("Squirrel");
-	this.setSize(1280,960);
+	this.setSize(960,720);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+	this.setResizable(false);
 
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(rows,cols));
 	
 	initCells();
-	for (Cell c : cells) {
-	    JTextField l = new JTextField(5);
-	    l.setText(String.valueOf(c.getValue));	    
-	}
     }
 
     private void initCells() {
 	cells = new Cell[rows*cols];
-	for (int i = 0; i < rows * cols; i++) {
-	    cells[0] = new Cell();
+	
+	for (int i = 0; i < cells.length; i++) {
+	    cells[i] = new Cell();
+	    JTextField t = new JTextField();
+	    t.setText(String.valueOf(cells[i].getValue()));
+	    ss.add(t);		      
 	}
     }
 
