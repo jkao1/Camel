@@ -24,6 +24,7 @@ public class Spreadsheet extends JFrame {
     }
 
     private void initialize() {
+	int prevSelectedCell = 0;
 	cells = new Cell[rows*cols];
 	
 	for (int i = 0; i < cells.length; i++) {
@@ -41,7 +42,8 @@ public class Spreadsheet extends JFrame {
 
 	    t.addMouseListener(new MouseListener() {
 		    public void mousePressed(MouseEvent e) {
-			clearBorders();
+		        cells[prevSelectedCell].clearBorder();
+			prevSelectedCell = i;
 			Border border = BorderFactory.createLineBorder(Color.BLUE, 5);
 			t.setBorder(border);
 		    }
@@ -55,10 +57,5 @@ public class Spreadsheet extends JFrame {
 	    ss.add(cells[i].textField);
 	}
     }
-
-    private void clearBorders(int p) {
-	for (Cell c : cells) {
-	    c.textField.setBorder();
-	}
-    }
+    
 }
