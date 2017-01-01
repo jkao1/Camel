@@ -9,7 +9,7 @@ public class Spreadsheet extends JFrame {
     private Cell[] cells;
     private Cell selected;
 
-    private int rows = 20, cols = 10;
+    private int rows = 25, cols = 12;
 
     public Spreadsheet() {
 	this.setTitle("Squirrel");
@@ -19,7 +19,7 @@ public class Spreadsheet extends JFrame {
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	ss.setLayout(new GridLayout(rows,cols,-5,-5));
+	ss.setLayout(new GridLayout(rows,cols,-6,-6));
 
 	initialize();
     }
@@ -45,7 +45,7 @@ public class Spreadsheet extends JFrame {
 		    public void mouseClicked(MouseEvent e){}
 		    public void mouseReleased(MouseEvent e){
 			Point p = e.getLocationOnScreen();
-			System.out.println(""+p.getX()+", "+p.getY());
+			System.out.println(""+releasedCell(p));
 		    }
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
@@ -55,7 +55,21 @@ public class Spreadsheet extends JFrame {
 	    cells[i] = cell;
 	}
     }
-
+    
+    private int releasedCell(Point p) {
+	int tfWidth = (int) (cells[1].textField.getLocationOnScreen().getX() - cells[0].textField.getLocationOnScreen().getX());
+	int tfHeight = (int) (cells[1].textField.getLocationOnScreen().getY() - cells[0].textField.getLocationOnScreen().getY());
+	
+        int i = 0;
+	while (cells[i].textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
+	    i++;
+	}
+	while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
+	    i += cols;
+	}
+	return i;
+    }
+    
     public static void main(String[] args) {
 	Spreadsheet s = new Spreadsheet();
 	s.setVisible(true);
