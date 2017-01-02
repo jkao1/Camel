@@ -3,15 +3,15 @@ import java.awt.*;
 
 public class Cell implements Comparable<Cell> {
 
-    public JTextField textField;
+    public JTextField textField; 
     public int cellNum;
 
-    public Cell(JTextField t, int i) {
+    public Cell(JTextField t, int i) { 
 	textField = t;
 	cellNum = i;
     }
 
-    public void select() {
+    public void select() { 
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
     }
 

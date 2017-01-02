@@ -6,9 +6,10 @@ import java.awt.event.*;
 public class Spreadsheet extends JFrame {
 
     private Container ss;
-    private Cell[] cells;
-    private Cell[] highlighted;
     private Cell selected;
+
+    private Cell[] cells;
+    private int[] highlighted;
 
     private int rows = 25, cols = 12;
 
@@ -29,6 +30,7 @@ public class Spreadsheet extends JFrame {
     private void initialize()
     {
 	cells = new Cell[rows*cols];
+	highlighted = new int[rows*cols];
 	
 	for (int i = 0; i < cells.length; i++) {
 	    
@@ -41,7 +43,12 @@ public class Spreadsheet extends JFrame {
 
 	    cell.textField.addMouseListener(new MouseListener() {
 		    public void mousePressed(MouseEvent e) {
-			selected.deselect();			
+			selected.deselect();
+			for (int i : highlighted) {
+			    cells[i].dehighlight();
+			}
+			highlighted = new int[rows*cols];			
+			
 			cell.select();
 			selected = cell;
 		    }
@@ -49,6 +56,7 @@ public class Spreadsheet extends JFrame {
 		    public void mouseReleased(MouseEvent e){
 			Point p = e.getLocationOnScreen();
 			highlightCells(cell.cellNum, releasedCellNum(p));
+			sum();
 		    }
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
@@ -76,15 +84,35 @@ public class Spreadsheet extends JFrame {
 	return i;
     }
 
-    private void highlightCells(int a, int b)
+    private void highlightCells(int x, int y)
     {
-	for (int i = a+1; i <= b; i++) {
-	    if (i % cols >= a % cols && i / cols >= a / cols &&
-		i % cols <= b % cols && i / cols <= b / cols) {
+	int j = 0;
+	int a = Math.min(x,y);
+	int b = Math.max(x,y);
+
+	if (a % cols > b % cols) {
+	    int d = a % cols - b % cols;
+	    a -= d;
+	    b += d;
+	}
+	
+	for (int i = a; i <= b; i++) {
+	    if (i % cols >= a % cols && i / cols >= a / cols && i % cols <= b % cols && i / cols <= b / cols) {
 		cells[i].highlight();
+		highlighted[j] = i;
+		j++;
 	    }
 	}
-    }	
+    }
+
+    private int sum() {
+	int s = 0;
+	for (int i : highlighted) {
+	    s += cells[i].getValue();
+	}
+	System.out.println(s);
+	return s;
+    }    
 	 
     public static void main(String[] args)
     {
