@@ -7,12 +7,14 @@ public class Spreadsheet extends JFrame {
 
     private Container ss;
     private Cell selected;
+    private int rows = 25, cols = 12;
 
     private Cell[] cells;
     private int[] highlighted;
 
-    private int rows = 25, cols = 12;
+    private JLabel sum, mean;
 
+    
     public Spreadsheet()
     {
 	this.setTitle("Squirrel");
@@ -24,10 +26,12 @@ public class Spreadsheet extends JFrame {
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(rows,cols,-6,-6));
 
-	initialize();
+	initializeCells();
+	initializeText();
     }
 
-    private void initialize()
+    // draws cells
+    private void initializeCells()
     {
 	cells = new Cell[rows*cols];
 	highlighted = new int[rows*cols];
@@ -56,7 +60,6 @@ public class Spreadsheet extends JFrame {
 		    public void mouseReleased(MouseEvent e){
 			Point p = e.getLocationOnScreen();
 			highlightCells(cell.cellNum, releasedCellNum(p));
-			sum();
 		    }
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
@@ -68,7 +71,7 @@ public class Spreadsheet extends JFrame {
 	    cells[i] = cell;
 	}
     }
-    
+
     private int releasedCellNum(Point p)
     {
 	int tfWidth = (int) (cells[1].textField.getLocationOnScreen().getX() - cells[0].textField.getLocationOnScreen().getX());
@@ -98,19 +101,18 @@ public class Spreadsheet extends JFrame {
 	
 	for (int i = a; i <= b; i++) {
 	    if (i % cols >= a % cols && i / cols >= a / cols && i % cols <= b % cols && i / cols <= b / cols) {
-		cells[i].highlight();
+		cells[i].highlight(); 
 		highlighted[j] = i;
 		j++;
 	    }
 	}
     }
 
-    private int sum() {
+    private int sumCells() {
 	int s = 0;
 	for (int i : highlighted) {
 	    s += cells[i].getValue();
 	}
-	System.out.println(s);
 	return s;
     }    
 	 
