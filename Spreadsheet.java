@@ -5,6 +5,7 @@ import java.awt.event.*;
 
 public class Spreadsheet extends JFrame {
 
+    private JFrame frame;
     private Container ss;
     private Cell selected;
     private JLabel sum, mean;
@@ -20,7 +21,9 @@ public class Spreadsheet extends JFrame {
 
     public Spreadsheet()
     {
-	this.setTitle("Squirrel");
+	frame = new JFrame("Spreadsheet");
+
+	this.setTitle("Spreadsheet");	
 	this.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
