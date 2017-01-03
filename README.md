@@ -1,4 +1,4 @@
-# Squirrel
+ # Squirrel
 
 - split work w/ window layout and inner layout of table
 - arraylist of table cells
