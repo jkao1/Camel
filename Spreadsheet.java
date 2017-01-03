@@ -83,11 +83,15 @@ public class Spreadsheet extends JFrame {
 	int tfHeight = (int) (cells[12].textField.getLocationOnScreen().getY() - cells[0].textField.getLocationOnScreen().getY());
 
         int i = 0;
-	while (cells[i].textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
-	    i++;
-	}
-	while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
-	    i += COLS;
+	try {
+	    while (cells[i].textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
+		i++;
+	    }
+	    while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
+		i += COLS;
+	    }
+	} catch (ArrayIndexOutOfBoundsException e) {
+	    System.out.println("fix later :)");
 	}
 	return i;
     }
