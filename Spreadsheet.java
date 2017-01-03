@@ -1,19 +1,17 @@
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class Spreadsheet extends JFrame {
 
     private JFrame frame;
     private Container ss;
     private Cell selected;
-    private JLabel sum, mean;
     
+    public static final int ROWS = 30, COLS = 12;
+
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 720;
-    private static final int ROWS = 25;
-    private static final int COLS = 12;
     private static final int BORDER_GAP = -6;
 
     private Cell[] cells;
@@ -24,14 +22,14 @@ public class Spreadsheet extends JFrame {
 	frame = new JFrame("Spreadsheet");
 
 	this.setTitle("Spreadsheet");	
-	this.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+	//this.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(ROWS,COLS,BORDER_GAP,BORDER_GAP));
-
+	
 	initializeCells();
     }
 
@@ -45,33 +43,6 @@ public class Spreadsheet extends JFrame {
 	    
 	    final Cell cell = new Cell(new JTextField(),i);
 	    
-	    if (i == 0) {
-		cell.select();
-		selected = cell;
-	    }
-
-	    cell.textField.addMouseListener(new MouseListener() {
-		    public void mousePressed(MouseEvent e) {
-			selected.deselect();
-			for (int i : highlighted) {
-			    cells[i].dehighlight();
-			}
-			highlighted = new int[ROWS*COLS];
-			
-			cell.select();
-			selected = cell;
-		    }
-		    public void mouseClicked(MouseEvent e){}
-		    public void mouseReleased(MouseEvent e){
-			Point p = e.getLocationOnScreen();
-			highlightCells(cell.cellNum, releasedCellNum(p));
-		    }
-		    public void mouseEntered(MouseEvent e){}
-		    public void mouseExited(MouseEvent e){}
-		});
-
-	    cell.setValue(i);
-
 	    ss.add(cell.textField);
 	    cells[i] = cell;
 	}
@@ -129,6 +100,7 @@ public class Spreadsheet extends JFrame {
     public static void main(String[] args)
     {
 	Spreadsheet s = new Spreadsheet();
+	s.pack();
 	s.setVisible(true);
     }
     
