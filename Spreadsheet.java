@@ -5,17 +5,16 @@ import java.awt.event.*;
 
 public class Spreadsheet extends JFrame {
 
-    private JFrame frame;
-    private Container ss;
-    private static Cell selected;
-    
     public static final int ROWS = 30, COLS = 12;
 
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 720;
     private static final int BORDER_GAP = -6;
 
-    public static Cell[] cells;
+    private JFrame frame;
+    private Container ss;
+    private Cell selected;
+    private Cell[] cells;
     private int[] highlighted;
 
     public Spreadsheet()
@@ -42,34 +41,36 @@ public class Spreadsheet extends JFrame {
 	
 	for (int i = 0; i < cells.length; i++) {
 	    
-	    final Cell cell = new Cell(new JTextField(),i);
+	    final Cell cell = new Cell(new JTextField(5),i);
 
-		cell.textField.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent e) {
-			    selected.deselect();
-			    for (int i : highlighted) {
-				cells[i].dehighlight();
-			    }
-			    highlighted = new int[ROWS*COLS];
+	    if (i == 0) selected = cell;
+
+	    cell.textField.addMouseListener(new MouseListener() {
+		    public void mousePressed(MouseEvent e) {
+			selected.deselect();
+			for (int i : highlighted) {
+			    cells[i].dehighlight();
+			}
+			highlighted = new int[ROWS*COLS];
 			
-			    cell.select();
-			    selected = cell;
-			}
-			public void mouseClicked(MouseEvent e){}
-			public void mouseReleased(MouseEvent e){
-			    Point p = e.getLocationOnScreen();
-			    highlightCells(cell.cellNum, releasedCellNum(p));
-			}
-			public void mouseEntered(MouseEvent e){}
-			public void mouseExited(MouseEvent e){}
-		    });
+			cell.select();
+			selected = cell;
+		    }
+		    public void mouseClicked(MouseEvent e){}
+		    public void mouseReleased(MouseEvent e){
+			Point p = e.getLocationOnScreen();
+			highlightCells(cell.cellNum, releasedCellNum(p));
+		    }
+		    public void mouseEntered(MouseEvent e){}
+		    public void mouseExited(MouseEvent e){}
+		});
 	    
 	    ss.add(cell.textField);
 	    cells[i] = cell;
 	}
     }
 
-    public static int releasedCellNum(Point p)
+    public int releasedCellNum(Point p)
     {
 	int tfWidth = (int) (cells[1].textField.getLocationOnScreen().getX() - cells[0].textField.getLocationOnScreen().getX());
 	int tfHeight = (int) (cells[12].textField.getLocationOnScreen().getY() - cells[0].textField.getLocationOnScreen().getY());
@@ -82,13 +83,12 @@ public class Spreadsheet extends JFrame {
 	    while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
-	} catch (ArrayIndexOutOfBoundsException e) {
-	    System.out.println("fix later :)");
-	}
+	} catch (ArrayIndexOutOfBoundsException e) {}
+
 	return i;
     }
 
-    private void highlightCells(int x, int y)
+    private boolean highlightCells(int x, int y)
     {
 	int j = 0;
 	int a = Math.min(x,y);
@@ -99,6 +99,8 @@ public class Spreadsheet extends JFrame {
 	    a -= d;
 	    b += d;
 	}
+
+	if (b > ROWS * COLS) return false;
 	
 	for (int i = a; i <= b; i++) {
 	    if (i % COLS >= a % COLS && i / COLS >= a / COLS && i % COLS <= b % COLS && i / COLS <= b / COLS) {
@@ -107,6 +109,8 @@ public class Spreadsheet extends JFrame {
 		j++;
 	    }
 	}
+
+	return true;
     }
 
     private int sumCells() 

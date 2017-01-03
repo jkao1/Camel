@@ -5,9 +5,8 @@ public class Cell implements Comparable<Cell> {
 
     public JTextField textField; 
     public int cellNum;
+    public boolean isSelected;
     public boolean isLabel;
-
-    private boolean isSelected;
     
     public Cell(JTextField t, int i) { 
 	textField = t;
@@ -28,16 +27,14 @@ public class Cell implements Comparable<Cell> {
 
     public void select() { 
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
-	isSelected = true;
     }
 
     public void deselect() {        
 	textField.setBorder(UIManager.getBorder("TextField.border"));
-	isSelected = false;
     }
 
     public void highlight() {
-	if (!isSelected) textField.setBackground(Color.GRAY);
+        textField.setBackground(new Color(178,215,254));
     }
 
     public void dehighlight() {
