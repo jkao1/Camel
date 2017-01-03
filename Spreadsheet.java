@@ -27,7 +27,6 @@ public class Spreadsheet extends JFrame {
 	ss.setLayout(new GridLayout(rows,cols,-6,-6));
 
 	initializeCells();
-	initializeText();
     }
 
     // draws cells
