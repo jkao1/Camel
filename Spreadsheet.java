@@ -43,7 +43,7 @@ public class Spreadsheet extends JFrame {
 	
 	for (int i = 0; i < cells.length; i++) {
 	    
-	    Cell cell = new Cell(new JTextField(),i);
+	    final Cell cell = new Cell(new JTextField(),i);
 	    
 	    if (i == 0) {
 		cell.select();
@@ -56,7 +56,7 @@ public class Spreadsheet extends JFrame {
 			for (int i : highlighted) {
 			    cells[i].dehighlight();
 			}
-			highlighted = new int[ROWS*COLS];			
+			highlighted = new int[ROWS*COLS];
 			
 			cell.select();
 			selected = cell;
