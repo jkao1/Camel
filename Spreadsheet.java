@@ -7,24 +7,27 @@ public class Spreadsheet extends JFrame {
 
     private Container ss;
     private Cell selected;
-    private int rows = 25, cols = 12;
+    private JLabel sum, mean;
+    
+    private static final int WINDOW_WIDTH = 960;
+    private static final int WINDOW_HEIGHT = 720;
+    private static final int ROWS = 25;
+    private static final int COLS = 12;
+    private static final int BORDER_GAP = -6;
 
     private Cell[] cells;
     private int[] highlighted;
 
-    private JLabel sum, mean;
-
-    
     public Spreadsheet()
     {
 	this.setTitle("Squirrel");
-	this.setSize(960,720);
+	this.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	ss.setLayout(new GridLayout(rows,cols,-6,-6));
+	ss.setLayout(new GridLayout(ROWS,COLS,BORDER_GAP,BORDER_GAP));
 
 	initializeCells();
     }
@@ -32,8 +35,8 @@ public class Spreadsheet extends JFrame {
     // draws cells
     private void initializeCells()
     {
-	cells = new Cell[rows*cols];
-	highlighted = new int[rows*cols];
+	cells = new Cell[ROWS*COLS];
+	highlighted = new int[ROWS*COLS];
 	
 	for (int i = 0; i < cells.length; i++) {
 	    
@@ -50,7 +53,7 @@ public class Spreadsheet extends JFrame {
 			for (int i : highlighted) {
 			    cells[i].dehighlight();
 			}
-			highlighted = new int[rows*cols];			
+			highlighted = new int[ROWS*COLS];			
 			
 			cell.select();
 			selected = cell;
@@ -81,7 +84,7 @@ public class Spreadsheet extends JFrame {
 	    i++;
 	}
 	while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
-	    i += cols;
+	    i += COLS;
 	}
 	return i;
     }
@@ -92,14 +95,14 @@ public class Spreadsheet extends JFrame {
 	int a = Math.min(x,y);
 	int b = Math.max(x,y);
 
-	if (a % cols > b % cols) {
-	    int d = a % cols - b % cols;
+	if (a % COLS > b % COLS) {
+	    int d = a % COLS - b % COLS;
 	    a -= d;
 	    b += d;
 	}
 	
 	for (int i = a; i <= b; i++) {
-	    if (i % cols >= a % cols && i / cols >= a / cols && i % cols <= b % cols && i / cols <= b / cols) {
+	    if (i % COLS >= a % COLS && i / COLS >= a / COLS && i % COLS <= b % COLS && i / COLS <= b / COLS) {
 		cells[i].highlight(); 
 		highlighted[j] = i;
 		j++;
@@ -107,7 +110,8 @@ public class Spreadsheet extends JFrame {
 	}
     }
 
-    private int sumCells() {
+    private int sumCells() 
+    {
 	int s = 0;
 	for (int i : highlighted) {
 	    s += cells[i].getValue();
