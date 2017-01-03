@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class Cell implements Comparable<Cell> {
 
@@ -13,27 +12,7 @@ public class Cell implements Comparable<Cell> {
     public Cell(JTextField t, int i) { 
 	textField = t;
 	cellNum = i;
-    	isLabel = true;
-
-	textField.addMouseListener(new MouseListener() {
-		public void mousePressed(MouseEvent e) {
-		    selected.deselect();
-		    for (int i : highlighted) {
-			Spreadsheet.cells[i].dehighlight();
-		    }
-		    highlighted = new int[Spreadsheet.ROWS*Spreadsheet.COLS];
-			
-		    cell.select();
-		    selected = cell;
-		}
-		public void mouseClicked(MouseEvent e){}
-		public void mouseReleased(MouseEvent e){
-		    Point p = e.getLocationOnScreen();
-		    highlightCells(cell.cellNum, releasedCellNum(p));
-		}
-		public void mouseEntered(MouseEvent e){}
-		public void mouseExited(MouseEvent e){}
-	    });
+	isLabel = true;
 	
 	if (i / Spreadsheet.COLS == 0 && i % Spreadsheet.COLS == 0) {}
 	else if (i / Spreadsheet.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));

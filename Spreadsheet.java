@@ -1,12 +1,13 @@
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class Spreadsheet extends JFrame {
 
     private JFrame frame;
     private Container ss;
-    private Cell selected;
+    private static Cell selected;
     
     public static final int ROWS = 30, COLS = 12;
 
@@ -14,7 +15,7 @@ public class Spreadsheet extends JFrame {
     private static final int WINDOW_HEIGHT = 720;
     private static final int BORDER_GAP = -6;
 
-    private Cell[] cells;
+    public static Cell[] cells;
     private int[] highlighted;
 
     public Spreadsheet()
@@ -42,13 +43,33 @@ public class Spreadsheet extends JFrame {
 	for (int i = 0; i < cells.length; i++) {
 	    
 	    final Cell cell = new Cell(new JTextField(),i);
+
+		cell.textField.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+			    selected.deselect();
+			    for (int i : highlighted) {
+				cells[i].dehighlight();
+			    }
+			    highlighted = new int[ROWS*COLS];
+			
+			    cell.select();
+			    selected = cell;
+			}
+			public void mouseClicked(MouseEvent e){}
+			public void mouseReleased(MouseEvent e){
+			    Point p = e.getLocationOnScreen();
+			    highlightCells(cell.cellNum, releasedCellNum(p));
+			}
+			public void mouseEntered(MouseEvent e){}
+			public void mouseExited(MouseEvent e){}
+		    });
 	    
 	    ss.add(cell.textField);
 	    cells[i] = cell;
 	}
     }
 
-    private int releasedCellNum(Point p)
+    public static int releasedCellNum(Point p)
     {
 	int tfWidth = (int) (cells[1].textField.getLocationOnScreen().getX() - cells[0].textField.getLocationOnScreen().getX());
 	int tfHeight = (int) (cells[12].textField.getLocationOnScreen().getY() - cells[0].textField.getLocationOnScreen().getY());
