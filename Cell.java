@@ -5,7 +5,6 @@ public class Cell implements Comparable<Cell> {
 
     public JTextField textField; 
     public int cellNum;
-    public boolean isSelected;
     public boolean isLabel;
     
     public Cell(JTextField t, int i) { 
