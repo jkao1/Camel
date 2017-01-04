@@ -29,10 +29,15 @@ public class Spreadsheet extends JFrame {
 
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
-	
-	initializeCells();
 
-	ss.add(new JLabel("asdf"));
+	initializeLabels();
+	initializeCells();
+    }
+
+    // writes labels
+    private void initializeLabels()
+    {
+	
     }
 
     // draws cells
