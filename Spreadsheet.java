@@ -9,7 +9,7 @@ public class Spreadsheet extends JFrame {
 
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 720;
-    private static final int BORDER_GAP = -6;
+    private static final int BORDER_GAP = 0;
 
     private JFrame frame;
     private Container ss;
@@ -21,15 +21,18 @@ public class Spreadsheet extends JFrame {
     {
 	frame = new JFrame("Camel");
 
-	this.setTitle("Spreadsheet");	
+	this.setTitle("Spreadsheet");
+	this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	ss.setLayout(new GridLayout(ROWS,COLS,BORDER_GAP,BORDER_GAP));
+	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
 	
 	initializeCells();
+
+	ss.add(new JLabel("asdf"));
     }
 
     // draws cells
@@ -124,7 +127,6 @@ public class Spreadsheet extends JFrame {
     public static void main(String[] args)
     {
 	Spreadsheet s = new Spreadsheet();
-	s.pack();
 	s.setVisible(true);
     }
     
