@@ -19,10 +19,9 @@ public class Spreadsheet extends JFrame {
 
     public Spreadsheet()
     {
-	frame = new JFrame("Spreadsheet");
+	frame = new JFrame("Camel");
 
 	this.setTitle("Spreadsheet");	
-	//this.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);

@@ -24,7 +24,7 @@ public class Cell implements Comparable<Cell> {
 	}
     }
 
-    public void select() { 
+    public void select() {
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
     }
 
