@@ -19,7 +19,7 @@ public class Cell implements Comparable<Cell> {
 	
 	if (isLabel) {
 	    textField.setEditable(false);
-	    dehighlight(); // uniform coloration
+	    deHighlight(); // uniform coloration
 	    Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	    textField.setFont(bold);
 	}
@@ -29,7 +29,7 @@ public class Cell implements Comparable<Cell> {
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
     }
 
-    public void deselect() {        
+    public void unSelect() {        
 	textField.setBorder(UIManager.getBorder("TextField.border"));
     }
 
@@ -37,11 +37,12 @@ public class Cell implements Comparable<Cell> {
         textField.setBackground(new Color(178,215,254));
     }
 
-    public void dehighlight() {
+    public void deHighlight() {
 	textField.setBackground(Color.WHITE);
     }
     
     public int getValue() {
+	if (textField.getText().equals("")) return 0;
 	return Integer.parseInt(textField.getText());
     }
     

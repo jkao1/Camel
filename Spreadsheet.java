@@ -7,24 +7,25 @@ import java.awt.event.*;
 
 public class Spreadsheet extends JFrame {
 
+    public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
 
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 720;
-    private static final int BORDER_GAP = 0;
+    private static int BORDER_GAP;
 
     private JFrame frame;
     private Container ss;
     private Cell selected;
-    private JLabel SUM, MEAN, STDEV;
+    private JLabel COUNT, SUM, MEAN;
 
     private ArrayList<Cell> cells;
-    private int[] highlighted;
+    private ArrayList<Cell> highlighted;
 
     public Spreadsheet()
     {
 	frame = new JFrame("Camel");
-
+	
 	this.setTitle("Spreadsheet");
 	this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	this.setLocation(100,100);
@@ -32,21 +33,27 @@ public class Spreadsheet extends JFrame {
 	this.setResizable(false);
 
 	ss = this.getContentPane();
+	if (OS.indexOf("mac") >= 0) BORDER_GAP = -6;
+	else BORDER_GAP = 0;
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
 
+	COUNT = new JLabel("COUNT: ");
 	SUM = new JLabel("SUM: ");
 	MEAN = new JLabel("MEAN: ");
-	STDEV = new JLabel("STDEV: ");
 	
 	initializeCells();
+
+	ss.add(new JLabel(""));
+	ss.add(COUNT);
+	ss.add(SUM);
+	ss.add(MEAN);
     }
 
     // draws cells
     private void initializeCells()
     {
 	cells = new ArrayList<Cell>();
-
-	highlighted = new int[ROWS*COLS];
+	highlighted = new ArrayList<Cell>();
 	
 	for (int i = 0; i < ROWS*COLS; i++) {
 
@@ -56,12 +63,10 @@ public class Spreadsheet extends JFrame {
 
 	    cell.textField.addMouseListener(new MouseListener() {
 		    public void mousePressed(MouseEvent e) {
-			selected.deselect();
-			for (int i : highlighted) {
-			    cells.get(i).dehighlight();
-			}
-			highlighted = new int[ROWS*COLS];
+			selected.unSelect();
 			
+			for (Cell c : highlighted) c.deHighlight();
+			highlighted.clear();
 			cell.select();
 			selected = cell;
 		    }
@@ -69,6 +74,7 @@ public class Spreadsheet extends JFrame {
 		    public void mouseReleased(MouseEvent e){
 			Point p = e.getLocationOnScreen();
 			highlightCells(cell.cellNum, releasedCellNum(p));
+			updateLabels();
 		    }
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
@@ -114,8 +120,7 @@ public class Spreadsheet extends JFrame {
 	for (int i = a; i <= b; i++) {
 	    if (i % COLS >= a % COLS && i / COLS >= a / COLS && i % COLS <= b % COLS && i / COLS <= b / COLS) {
 		cells.get(i).highlight(); 
-		highlighted[j] = i;
-		j++;
+		highlighted.add(cells.get(i));
 	    }
 	}
 
@@ -125,26 +130,24 @@ public class Spreadsheet extends JFrame {
     private void updateLabels()
     {
 	int s = 0;
-	for (int i : highlighted) {
-	    s += cells.get(i).getValue();
+	for (Cell c : highlighted) {
+	    if (c.getValue() == (int) (c.getValue())) {
+		s += c.getValue();
+	    }
 	}
+	COUNT.setText("COUNT: " + highlighted.size());
 	SUM.setText("SUM: " + s);
-	MEAN.setText("MEAN: " + (s / highlighted.length));
+	MEAN.setText("MEAN: " + ((double) (s) / highlighted.size()));	
     }
-
-    private int getSum() 
-    {
-	int s = 0;
-	for (int i : highlighted) {
-	    s += cells.get(i).getValue();
-	}
-	return s;
-    }    
-	 
+    
     public static void main(String[] args)
     {
-	Spreadsheet s = new Spreadsheet();
-	s.setVisible(true);
+	if (args.length > 0 && args[0].equals("cmd")) {
+	    System.out.println(OS);
+	} else {
+	    Spreadsheet s = new Spreadsheet();
+	    s.setVisible(true);
+	}
     }
     
 }
