@@ -19,6 +19,7 @@ public class Cell implements Comparable<Cell> {
 	
 	if (isLabel) {
 	    textField.setEditable(false);
+	    dehighlight(); // uniform coloration
 	    Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	    textField.setFont(bold);
 	}

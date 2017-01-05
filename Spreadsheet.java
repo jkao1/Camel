@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -14,7 +16,9 @@ public class Spreadsheet extends JFrame {
     private JFrame frame;
     private Container ss;
     private Cell selected;
-    private Cell[] cells;
+    private JLabel SUM, MEAN, STDEV;
+
+    private ArrayList<Cell> cells;
     private int[] highlighted;
 
     public Spreadsheet()
@@ -30,24 +34,22 @@ public class Spreadsheet extends JFrame {
 	ss = this.getContentPane();
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
 
-	initializeLabels();
-	initializeCells();
-    }
-
-    // writes labels
-    private void initializeLabels()
-    {
+	SUM = new JLabel("SUM: ");
+	MEAN = new JLabel("MEAN: ");
+	STDEV = new JLabel("STDEV: ");
 	
+	initializeCells();
     }
 
     // draws cells
     private void initializeCells()
     {
-	cells = new Cell[ROWS*COLS];
+	cells = new ArrayList<Cell>();
+
 	highlighted = new int[ROWS*COLS];
 	
-	for (int i = 0; i < cells.length; i++) {
-	    
+	for (int i = 0; i < ROWS*COLS; i++) {
+
 	    final Cell cell = new Cell(new JTextField(5),i);
 
 	    if (i == 0) selected = cell;
@@ -56,7 +58,7 @@ public class Spreadsheet extends JFrame {
 		    public void mousePressed(MouseEvent e) {
 			selected.deselect();
 			for (int i : highlighted) {
-			    cells[i].dehighlight();
+			    cells.get(i).dehighlight();
 			}
 			highlighted = new int[ROWS*COLS];
 			
@@ -73,21 +75,21 @@ public class Spreadsheet extends JFrame {
 		});
 	    
 	    ss.add(cell.textField);
-	    cells[i] = cell;
+	    cells.add(cell);
 	}
     }
 
     public int releasedCellNum(Point p)
     {
-	int tfWidth = (int) (cells[1].textField.getLocationOnScreen().getX() - cells[0].textField.getLocationOnScreen().getX());
-	int tfHeight = (int) (cells[12].textField.getLocationOnScreen().getY() - cells[0].textField.getLocationOnScreen().getY());
+	int tfWidth = (int) (cells.get(1).textField.getLocationOnScreen().getX() - cells.get(0).textField.getLocationOnScreen().getX());
+	int tfHeight = (int) (cells.get(12).textField.getLocationOnScreen().getY() - cells.get(0).textField.getLocationOnScreen().getY());
 
         int i = 0;
 	try {
-	    while (cells[i].textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
+	    while (cells.get(i).textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
 		i++;
 	    }
-	    while (cells[i].textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
+	    while (cells.get(i).textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
 	} catch (ArrayIndexOutOfBoundsException e) {}
@@ -95,7 +97,7 @@ public class Spreadsheet extends JFrame {
 	return i;
     }
 
-    private boolean highlightCells(int x, int y)
+    public boolean highlightCells(int x, int y)
     {
 	int j = 0;
 	int a = Math.min(x,y);
@@ -111,7 +113,7 @@ public class Spreadsheet extends JFrame {
 	
 	for (int i = a; i <= b; i++) {
 	    if (i % COLS >= a % COLS && i / COLS >= a / COLS && i % COLS <= b % COLS && i / COLS <= b / COLS) {
-		cells[i].highlight(); 
+		cells.get(i).highlight(); 
 		highlighted[j] = i;
 		j++;
 	    }
@@ -120,11 +122,21 @@ public class Spreadsheet extends JFrame {
 	return true;
     }
 
-    private int sumCells() 
+    private void updateLabels()
     {
 	int s = 0;
 	for (int i : highlighted) {
-	    s += cells[i].getValue();
+	    s += cells.get(i).getValue();
+	}
+	SUM.setText("SUM: " + s);
+	MEAN.setText("MEAN: " + (s / highlighted.length));
+    }
+
+    private int getSum() 
+    {
+	int s = 0;
+	for (int i : highlighted) {
+	    s += cells.get(i).getValue();
 	}
 	return s;
     }    
