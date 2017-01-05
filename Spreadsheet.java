@@ -33,8 +33,7 @@ public class Spreadsheet extends JFrame {
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	if (OS.indexOf("mac") >= 0) BORDER_GAP = -6;
-	else BORDER_GAP = 0;
+	variedStyles(); // styles based on OS
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
 
 	COUNT = new JLabel("COUNT: ");
@@ -49,8 +48,17 @@ public class Spreadsheet extends JFrame {
 	ss.add(MEAN);
     }
 
+    public void variedStyles()
+    {
+	if (OS.indexOf("mac") >= 0) {
+	    BORDER_GAP = -6;
+	} else {
+	    BORDER_GAP = 0;
+	}
+    }
+
     // draws cells
-    private void initializeCells()
+    public  void initializeCells()
     {
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
@@ -107,7 +115,7 @@ public class Spreadsheet extends JFrame {
 	    while (cells.get(i).textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
-	} catch (ArrayIndexOutOfBoundsException e) {}
+	} catch (IndexOutOfBoundsException e) {}
 
 	return i;
     }
@@ -116,13 +124,13 @@ public class Spreadsheet extends JFrame {
     {
 	if (x == y) return true;
 	
-	int j = 0;
+	// switches a % COLS and b % COLS to maintain top-left/bottom-right endpoints
 	int a = Math.min(x,y);
 	int b = Math.max(x,y);
-
 	if (a % COLS > b % COLS) {
-	    a -= a % COLS - b % COLS;
-	    b += a % COLS - b % COLS;
+	    int sw = a % COLS - b % COLS;
+	    a -= sw;
+	    b += sw;
 	}
 
 	if (b > ROWS * COLS) return false; // off the screen
@@ -137,15 +145,18 @@ public class Spreadsheet extends JFrame {
 	return true;
     }
 
-    private void updateLabels()
+    public void updateLabels()
     {
 	int s = 0;
+	int n = 0;
 	for (Cell c : highlighted) {
-	    s += c.getIntValue();	    
+	    if (c.textField.getText().equals("")) continue;
+	    s += c.getIntValue();
+	    n++;
 	}
 	COUNT.setText("COUNT: " + highlighted.size());
 	SUM.setText("SUM: " + s);
-	MEAN.setText("MEAN: " + ((double) (s) / highlighted.size()));	
+	MEAN.setText("MEAN: " + ((double) (s) / n));	
     }
     
     public static void main(String[] args)
