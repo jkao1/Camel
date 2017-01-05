@@ -62,6 +62,7 @@ public class Spreadsheet extends JFrame {
 	    if (i == 0) selected = cell;
 
 	    cell.textField.addMouseListener(new MouseListener() {
+		    
 		    public void mousePressed(MouseEvent e) {
 			selected.unSelect();
 			
@@ -70,12 +71,20 @@ public class Spreadsheet extends JFrame {
 			cell.select();
 			selected = cell;
 		    }
-		    public void mouseClicked(MouseEvent e){}
+		    
+		    public void mouseClicked(MouseEvent e){
+			if (e.getClickCount() == 2) {
+			    cell.textField.setEditable(true);
+			    cell.textField.getCaret().setVisible(true);
+			}
+		    }
+		    
 		    public void mouseReleased(MouseEvent e){
 			Point p = e.getLocationOnScreen();
 			highlightCells(cell.cellNum, releasedCellNum(p));
 			updateLabels();
 		    }
+		    
 		    public void mouseEntered(MouseEvent e){}
 		    public void mouseExited(MouseEvent e){}
 		});
@@ -105,17 +114,18 @@ public class Spreadsheet extends JFrame {
 
     public boolean highlightCells(int x, int y)
     {
+	if (x == y) return true;
+	
 	int j = 0;
 	int a = Math.min(x,y);
 	int b = Math.max(x,y);
 
 	if (a % COLS > b % COLS) {
-	    int d = a % COLS - b % COLS;
-	    a -= d;
-	    b += d;
+	    a -= a % COLS - b % COLS;
+	    b += a % COLS - b % COLS;
 	}
 
-	if (b > ROWS * COLS) return false;
+	if (b > ROWS * COLS) return false; // off the screen
 	
 	for (int i = a; i <= b; i++) {
 	    if (i % COLS >= a % COLS && i / COLS >= a / COLS && i % COLS <= b % COLS && i / COLS <= b / COLS) {
@@ -131,9 +141,7 @@ public class Spreadsheet extends JFrame {
     {
 	int s = 0;
 	for (Cell c : highlighted) {
-	    if (c.getValue() == (int) (c.getValue())) {
-		s += c.getValue();
-	    }
+	    s += c.getIntValue();	    
 	}
 	COUNT.setText("COUNT: " + highlighted.size());
 	SUM.setText("SUM: " + s);
