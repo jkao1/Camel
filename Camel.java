@@ -44,7 +44,6 @@ public class Camel extends JFrame {
 	this.setJMenuBar(mb);
 	
 	initializeCells();
-
     }
 
     public void variedStyles()
