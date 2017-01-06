@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class ExcelGUI extends JFrame implements ActionListener{
+public class ExcelGUI extends JFrame implements ActionListener {
     private JFrame frame = new JFrame("Squirrel Database Broswer");
     private Container pane;
     
