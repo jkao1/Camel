@@ -28,6 +28,7 @@ public class Cell implements Comparable<Cell> {
 
     public void select() {
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+	textField.requestFocus();
     }
 
     public void unSelect() {        
