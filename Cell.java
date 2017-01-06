@@ -11,6 +11,9 @@ public class Cell implements Comparable<Cell> {
 	textField = t;
 	cellNum = i;
 	isLabel = true;
+
+	textField.setEditable(false);
+	deHighlight(); // uniform coloration
 	
 	if (i / Spreadsheet.COLS == 0 && i % Spreadsheet.COLS == 0) {}
 	else if (i / Spreadsheet.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
@@ -18,7 +21,6 @@ public class Cell implements Comparable<Cell> {
         else isLabel = false;
 	
 	if (isLabel) {
-	    textField.setEditable(false);
 	    Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	    textField.setFont(bold);
 	}
@@ -26,22 +28,27 @@ public class Cell implements Comparable<Cell> {
 
     public void select() {
 	textField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+	textField.requestFocus();
     }
 
-    public void deselect() {        
+    public void unSelect() {        
 	textField.setBorder(UIManager.getBorder("TextField.border"));
+	textField.setEditable(false);
+	textField.getCaret().setVisible(false);
     }
 
     public void highlight() {
         textField.setBackground(new Color(178,215,254));
     }
 
-    public void dehighlight() {
+    public void deHighlight() {
 	textField.setBackground(Color.WHITE);
     }
     
-    public int getValue() {
-	return Integer.parseInt(textField.getText());
+    public int getIntValue() {
+	try {
+	    return Integer.parseInt(textField.getText());
+	} catch (NumberFormatException e) { return 0; }
     }
     
     public void setValue(int v) {
@@ -51,9 +58,9 @@ public class Cell implements Comparable<Cell> {
     public void setValue(String v) {
 	textField.setText(v);
     }
-
+    
     public int compareTo(Cell c) {
-	return Integer.compare(getValue(), c.getValue());
+	return Integer.compare(getIntValue(), c.getIntValue());
     }
     
 }
