@@ -7,8 +7,9 @@ public class ExcelGUI extends JFrame implements ActionListener{
     private Container pane;
     
     public ExcelGUI(){
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.setLayout(new BoxLayout(frame,BoxLayout.Y_AXIS));
+	this.setSize(720,360);
 	pane = this.getContentPane();
 	JButton b = new JButton("Find");
 	b.addActionListener(this);
@@ -19,18 +20,58 @@ public class ExcelGUI extends JFrame implements ActionListener{
 	JMenuBar mb = new JMenuBar();
 	JMenu menu1 = new JMenu("File");
 	mb.add(menu1);
-	frame.setJMenuBar(mb);
+	JMenuItem menuitem = new JMenuItem("New");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Open");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Save");
+	menu1.add(menuitem);
+	menu1 = new JMenu("Edit");
+	mb.add(menu1);
+	menuitem = new JMenuItem("Copy");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Paste");
+	menu1.add(menuitem);
+	menu1 = new JMenu("Insert");
+	mb.add(menu1);
+	menuitem = new JMenuItem("Table");
+	menu1.add(menuitem);
+       	menu1 = new JMenu("Data");
+	mb.add(menu1);
+	menuitem = new JMenuItem("Sort");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Filter");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Flash Fill");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Remove Duplicates");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Data Validation");
+	menu1.add(menuitem);
+	menuitem = new JMenuItem("Data Forecasting");
+	menu1.add(menuitem);
+	menu1.addSeparator();
+	JMenu menu2 = new JMenu("Graph");
+	menu1.add(menu2);
+	JMenuItem submenu = new JMenuItem("Data Plot");
+	menu2.add(submenu);
+	submenu = new JMenuItem("Histogram");
+	menu2.add(submenu);
+	submenu = new JMenuItem("Line Graph");
+	menu2.add(submenu);
+	submenu = new JMenuItem("Bar Graph");
+	menu2.add(submenu);
+	this.setJMenuBar(mb);
 	pane.add(b);
 	pane.add(b2);
     }
 
     public void actionPerformed(ActionEvent e){
-	String event = e.getActionCommand();
+	    String event = e.getActionCommand();
     }
 
     public static void main(String[]args){
 	ExcelGUI g = new ExcelGUI();
-	g.pack();
 	g.setDefaultLookAndFeelDecorated(true);
 	g.setVisible(true);
     }
