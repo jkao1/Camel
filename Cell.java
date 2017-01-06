@@ -32,6 +32,8 @@ public class Cell implements Comparable<Cell> {
 
     public void unSelect() {        
 	textField.setBorder(UIManager.getBorder("TextField.border"));
+	textField.setEditable(false);
+	textField.getCaret().setVisible(false);
     }
 
     public void highlight() {
