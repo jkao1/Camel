@@ -37,7 +37,7 @@ public class Camel extends JFrame {
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	variedStyles(); // styles based on OS
+	osDependentStyles(); // styles based on OS
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));	
 
 	createMenuBar();
@@ -46,7 +46,7 @@ public class Camel extends JFrame {
 	initializeCells();
     }
 
-    public void variedStyles()
+    public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
 	    BORDER_GAP = -6;
@@ -70,7 +70,6 @@ public class Camel extends JFrame {
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    //GraphInput g = new GraphInput();
-		    System.out.println("3");
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
@@ -173,7 +172,9 @@ public class Camel extends JFrame {
 	    while (cells.get(i).textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
-	} catch (IndexOutOfBoundsException e) {}
+	} catch (IndexOutOfBoundsException e) {
+	    // cursor went out of window
+	}
 
 	return i;
     }
