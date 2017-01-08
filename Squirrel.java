@@ -34,6 +34,7 @@ public class Squirrel extends JFrame {
 	this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+	this.setFocusTraversalKeysEnabled(false);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
