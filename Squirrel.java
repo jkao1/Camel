@@ -16,7 +16,7 @@ public class Squirrel extends JFrame {
 
     private JFrame frame;
     private Container ss;
-    GridBagConstraints c;
+    private GridBagConstraints c_Cell, c_Label;
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
@@ -41,7 +41,7 @@ public class Squirrel extends JFrame {
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS
 	ss.setLayout(new GridBagLayout());//(0,COLS,BORDER_GAP,BORDER_GAP);
-	c = new GridBagConstraints();
+	c_Cell = new GridBagConstraints();
 
 	createMenuBar();
 	this.setJMenuBar(mb);
@@ -142,23 +142,31 @@ public class Squirrel extends JFrame {
 		    public void keyTyped(KeyEvent e) {}
 		});
 
-	    c.fill = GridBagConstraints.HORIZONTAL;
-	    c.gridx = i % COLS;
-	    c.gridy = i / COLS;
-	    c.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
+	    c_Cell.fill = GridBagConstraints.HORIZONTAL;
+	    c_Cell.gridx = i % COLS;
+	    c_Cell.gridy = i / COLS;
+	    c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
 	    
-	    ss.add(cell.textField, c);
+	    ss.add(cell.textField, c_Cell);
 	    cells.add(cell);
 	}
 
+	c_Label = new GridBagConstraints();
+	c_Label.fill = GridBagConstraints.NONE;
+	c_Label.gridx = 0;
+	c_Label.gridy = ROWS + 2;
+	
 	count = new JLabel("COUNT: ");
+	c_Label.gridx++;
+	ss.add(count, c_Label);
+	
 	sum = new JLabel("SUM: ");
+	c_Label.gridx++;
+	ss.add(sum, c_Label);
+	
 	mean = new JLabel("MEAN: ");
-	/*
-	ss.add(new JLabel(""));
-	ss.add(count);
-	ss.add(sum);
-	ss.add(mean);*/
+	c_Label.gridx++;
+	ss.add(mean, c_Label);	
     }
 
     public void select(Cell c) {
