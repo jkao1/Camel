@@ -16,6 +16,7 @@ public class Squirrel extends JFrame {
 
     private JFrame frame;
     private Container ss;
+    GridBagConstraints c;
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
@@ -33,14 +34,14 @@ public class Squirrel extends JFrame {
 	frame = new JFrame("Camel");
 	
 	this.setTitle("Spreadsheet");
-	this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS
-	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));	
+	ss.setLayout(new GridBagLayout());//(0,COLS,BORDER_GAP,BORDER_GAP);
+	c = new GridBagConstraints();
 
 	createMenuBar();
 	this.setJMenuBar(mb);
@@ -51,7 +52,7 @@ public class Squirrel extends JFrame {
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
-	    BORDER_GAP = -6;
+	    BORDER_GAP = -3;
 	} else {
 	    BORDER_GAP = 0;
 	}
@@ -81,9 +82,7 @@ public class Squirrel extends JFrame {
 
     // draws cells
     public  void initializeCells()
-    {
-	textInput = new JTextField
-	
+    {	
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
 	
@@ -142,17 +141,24 @@ public class Squirrel extends JFrame {
 		    public void keyReleased(KeyEvent e) {}
 		    public void keyTyped(KeyEvent e) {}
 		});
-	    ss.add(cell.textField);
+
+	    c.fill = GridBagConstraints.HORIZONTAL;
+	    c.gridx = i % COLS;
+	    c.gridy = i / COLS;
+	    c.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
+	    
+	    ss.add(cell.textField, c);
 	    cells.add(cell);
 	}
 
 	count = new JLabel("COUNT: ");
 	sum = new JLabel("SUM: ");
 	mean = new JLabel("MEAN: ");
+	/*
 	ss.add(new JLabel(""));
 	ss.add(count);
 	ss.add(sum);
-	ss.add(mean);
+	ss.add(mean);*/
     }
 
     public void select(Cell c) {
@@ -234,6 +240,7 @@ public class Squirrel extends JFrame {
 	    System.out.println(OS);
 	} else {
 	    Squirrel s = new Squirrel();
+	    s.pack();
 	    s.setVisible(true);
 	}
     }
