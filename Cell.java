@@ -15,9 +15,9 @@ public class Cell implements Comparable<Cell> {
 	textField.setEditable(false);
 	deHighlight(); // uniform coloration
 	
-	if (i / Spreadsheet.COLS == 0 && i % Spreadsheet.COLS == 0) {}
-	else if (i / Spreadsheet.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
-	else if (i % Spreadsheet.COLS == 0) setValue(i / Spreadsheet.COLS);
+	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
+	else if (i / Squirrel.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
+	else if (i % Squirrel.COLS == 0) setValue(i / Squirrel.COLS);
         else isLabel = false;
 	
 	if (isLabel) {
