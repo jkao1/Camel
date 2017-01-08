@@ -20,7 +20,9 @@ public class Squirrel extends JFrame {
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
     private JMenuItem fileMenu_New, dataMenu_Graph;
-    private JLabel count, sum, mean; 
+    private JLabel count, sum, mean;
+    private JTextField textInput;
+	
     private Cell selected;
 
     private ArrayList<Cell> cells;
@@ -34,7 +36,6 @@ public class Squirrel extends JFrame {
 	this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-	this.setFocusTraversalKeysEnabled(false);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
@@ -80,7 +81,9 @@ public class Squirrel extends JFrame {
 
     // draws cells
     public  void initializeCells()
-    {	
+    {
+	textInput = new JTextField
+	
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
 	
@@ -98,7 +101,7 @@ public class Squirrel extends JFrame {
 		    public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() == 2) {
 			    cell.textField.setEditable(true);
-			    cell.textField.getCaret().setVisible(true);
+			    cell.textField.getCaret().setVisible(true); // shows cursor
 			}
 		    }		    
 		    public void mouseReleased(MouseEvent e) {
@@ -168,14 +171,16 @@ public class Squirrel extends JFrame {
 
         int i = 0;
 	try {
+	    // moves X by an interval of textfield's width until reaches Point p's X
 	    while (cells.get(i).textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
 		i++;
 	    }
+	    // moves Y by an interval of textfield's height until reaches Point p's Y
 	    while (cells.get(i).textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
 	} catch (IndexOutOfBoundsException e) {
-	    // cursor went out of window
+	    // pointer went out of window
 	}
 
 	return i;
