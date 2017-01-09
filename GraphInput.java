@@ -2,10 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GraphInput extends JFrame implements ItemListener{
+public class GraphInput extends JFrame implements ItemListener {
+
     private JFrame graphinput = new JFrame("Graph Input");
     private Container pane;
     private JPanel cards;
+
     final static String LINEPANEL = "Line Graph";
     final static String BARPANEL = "Bar Graph";
     final static String SCATTERPANEL = "Scatter Plot";
@@ -26,6 +28,7 @@ public class GraphInput extends JFrame implements ItemListener{
 	cb.addItemListener(this);
 	comboBoxPane.add(cb);
 
+<<<<<<< HEAD
 	JPanel lineCard = new JPanel();
 	lineCard.setLayout(new BoxLayout(lineCard,BoxLayout.Y_AXIS));
 	lineCard.add(new JLabel("Input:"));
@@ -35,6 +38,18 @@ public class GraphInput extends JFrame implements ItemListener{
 	lineButtons.add(new JButton("Ok"));
 	lineButtons.add(new JButton("Cancel"));
 	lineCard.add(lineButtons);
+=======
+	// 
+	JPanel card1 = new JPanel();
+	card1.setLayout(new BoxLayout(card1,BoxLayout.Y_AXIS));
+	card1.add(new JLabel("Input:"));
+	card1.add(new JTextField("INPUT RANGE", 5));
+	card1.add(new JCheckBox("Labels"));
+	JPanel c1buttons = new JPanel();
+	c1buttons.add(new JButton("Ok"));
+	c1buttons.add(new JButton("Cancel"));
+	card1.add(c1buttons);
+>>>>>>> f0402e8b0d96e39e12fa8ba6c47cbbd69a89fc88
 
 	JPanel barCard = new JPanel();
 	barCard.setLayout(new BoxLayout(barCard,BoxLayout.Y_AXIS));
