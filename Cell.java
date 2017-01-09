@@ -15,7 +15,7 @@ public class Cell implements Comparable<Cell> {
 	isLabel = true;
 
 	textField.setEditable(false);
-	deHighlight(); // uniform coloration
+	//deHighlight(); // uniform coloration
 	
 	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
 	else if (i / Squirrel.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
@@ -46,7 +46,7 @@ public class Cell implements Comparable<Cell> {
 
     public void deHighlight() {
 	if (isLabel) {
-	    //textField.setBackground(LABEL_COLOR);
+	    textField.setBackground(LABEL_COLOR);
 	} else {
 	    textField.setBackground(Color.WHITE);
 	}
@@ -64,6 +64,10 @@ public class Cell implements Comparable<Cell> {
 
     public void setValue(String v) {
 	textField.setText(v);
+    }
+
+    public String toString() {
+	return "" + (char) ('A' + cellNum % Squirrel.COLS - 1) + (cellNum / Squirrel.COLS);	
     }
     
     public int compareTo(Cell c) {

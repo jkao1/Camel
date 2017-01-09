@@ -120,6 +120,11 @@ public class Squirrel extends JFrame {
 	cellID = new JTextField();
 	ss.add(cellID, c_CellID);
 	textInput = new JTextField();
+	textInput.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    selected.setValue(textInput.getText());
+		}
+	    });
 	ss.add(textInput, c_TextInput);
 
 	for (int i = 0; i < ROWS*COLS; i++) {
@@ -153,18 +158,22 @@ public class Squirrel extends JFrame {
 			// up: arrow key up and shift-enter
 			if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
 			    select(cells.get(cell.cellNum - COLS));
+			    updateTexts();
 			}
 			// right: arrow key right and tab
 			else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
 			    select(cells.get(cell.cellNum + 1));
+			    updateTexts();
 			}
 			// down: arrow key down and enter
 			else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
 			    select(cells.get(cell.cellNum + COLS));
+			    updateTexts();
 			}
 			// left: arrow key left and shift-tab
 			else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
 			    select(cells.get(cell.cellNum - 1));
+			    updateTexts();
 			}
 			// catch independence
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
@@ -180,6 +189,7 @@ public class Squirrel extends JFrame {
 
 	    c_Cell.gridx = i % COLS;
 	    c_Cell.gridy = i / COLS + SS_START_LEVEL;
+	    c_Cell.weightx = 1;
 	    
 	    ss.add(cell.textField, c_Cell);
 	    cells.add(cell);
@@ -202,9 +212,20 @@ public class Squirrel extends JFrame {
 	selected.unSelect();
 	for (Cell h : highlighted) h.deHighlight();
 	highlighted.clear();
-	c.select();
-	selected = c;
-	updateMathLabels();
+
+	if (c.isLabel && cells.get(c.cellNum+1).isLabel) { // alphabetical label
+	    selected = cells.get(c.cellNum + COLS);
+	    selected.select();
+	    highlightCells(selected.cellNum, c.cellNum+ROWS*(COLS-1)); // highlights column
+	} else if (c.isLabel && cells.get(c.cellNum+COLS).isLabel) { // numerical label
+	    selected = cells.get(c.cellNum + 1);
+	    selected.select();
+	    highlightCells(c.cellNum+1, c.cellNum+COLS-1); // highlights row
+	} else {
+	    c.select();
+	    selected = c;
+	}
+	updateTexts();
     }
 
     public int releasedCellNum(Point p)
@@ -251,21 +272,32 @@ public class Squirrel extends JFrame {
 	    }
 	}
 
-	updateMathLabels();
+	updateTexts();
 	return true;
     }
 
     // updates COUNT/SUM/MEAN, called in public boolean highlightCells(int x, int y)
-    private void updateMathLabels()
+    private void updateTexts()
     {
-	int s = 0;
+	cellID.setText(selected.toString());
+	textInput.setText(selected.textField.getText());
+
+	// math labels sum and mean-count, respectively
+	int s = 0; 
 	int n = 0;
-	for (Cell c : highlighted) {
-	    if (c.textField.getText().equals("")) continue;
-	    s += c.getIntValue();
-	    n++;
+
+	if (highlighted.size() == 0) {
+	    s = selected.getIntValue();
+	    n = 1;
+	    count.setText("COUNT: " + 1);
+	} else {
+	    for (Cell c : highlighted) {
+		if (c.textField.getText().equals("")) continue;
+		s += c.getIntValue();
+		n++;
+	    }		
+	    count.setText("COUNT: " + highlighted.size());
 	}
-	count.setText("COUNT: " + highlighted.size());
 	sum.setText("SUM: " + s);
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
