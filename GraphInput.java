@@ -2,10 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GraphInput extends JFrame implements ItemListener{
+public class GraphInput extends JFrame implements ItemListener {
+
     private JFrame graphinput = new JFrame("Graph Input");
     private Container pane;
     private JPanel cards;
+
     final static String LINEPANEL = "Line Graph";
     final static String BARPANEL = "Bar Graph";
     final static String SCATTERPANEL = "Scatter Plot";
@@ -24,6 +26,7 @@ public class GraphInput extends JFrame implements ItemListener{
 	cb.addItemListener(this);
 	comboBoxPane.add(cb);
 
+	// 
 	JPanel card1 = new JPanel();
 	card1.setLayout(new BoxLayout(card1,BoxLayout.Y_AXIS));
 	card1.add(new JLabel("Input:"));

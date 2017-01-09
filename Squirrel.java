@@ -50,7 +50,7 @@ public class Squirrel extends JFrame {
 
 	this.pack();
     }
-
+    
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
@@ -77,8 +77,8 @@ public class Squirrel extends JFrame {
 	c_TextInput.fill = GridBagConstraints.HORIZONTAL;
 
 	c_Cell = new GridBagConstraints();
-	c_Cell.weightx = 0;
-	c_Cell.weighty = 0;
+	c_Cell.weightx = 1;
+	c_Cell.weighty = 1;
 	c_Cell.fill = GridBagConstraints.HORIZONTAL;
 	c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
 	
@@ -107,7 +107,6 @@ public class Squirrel extends JFrame {
 	dataMenu.add(dataMenu_Graph);
 
 	mb.add(dataMenu);
-
 	this.setJMenuBar(mb);
     }
 
@@ -312,5 +311,7 @@ public class Squirrel extends JFrame {
 	    s.setVisible(true);
 	}
     }
+    
+    public void 
     
 }

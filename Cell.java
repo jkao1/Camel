@@ -27,6 +27,7 @@ public class Cell implements Comparable<Cell> {
 	    textField.setFont(bold);
 	    textField.setBackground(LABEL_COLOR);
 	}
+	deHighlight();
     }
 
     public void select() {
