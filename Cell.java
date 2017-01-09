@@ -3,6 +3,8 @@ import java.awt.*;
 
 public class Cell implements Comparable<Cell> {
 
+    public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
+
     public JTextField textField; 
     public int cellNum;
     public boolean isLabel;
@@ -13,16 +15,17 @@ public class Cell implements Comparable<Cell> {
 	isLabel = true;
 
 	textField.setEditable(false);
-	deHighlight(); // uniform coloration
+	//deHighlight(); // uniform coloration
 	
-	if (i / Spreadsheet.COLS == 0 && i % Spreadsheet.COLS == 0) {}
-	else if (i / Spreadsheet.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
-	else if (i % Spreadsheet.COLS == 0) setValue(i / Spreadsheet.COLS);
+	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
+	else if (i / Squirrel.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
+	else if (i % Squirrel.COLS == 0) setValue(i / Squirrel.COLS);
         else isLabel = false;
 	
 	if (isLabel) {
 	    Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	    textField.setFont(bold);
+	    textField.setBackground(LABEL_COLOR);
 	}
     }
 
@@ -42,7 +45,11 @@ public class Cell implements Comparable<Cell> {
     }
 
     public void deHighlight() {
-	textField.setBackground(Color.WHITE);
+	if (isLabel) {
+	    textField.setBackground(LABEL_COLOR);
+	} else {
+	    textField.setBackground(Color.WHITE);
+	}
     }
     
     public int getIntValue() {
@@ -57,6 +64,10 @@ public class Cell implements Comparable<Cell> {
 
     public void setValue(String v) {
 	textField.setText(v);
+    }
+
+    public String toString() {
+	return "" + (char) ('A' + cellNum % Squirrel.COLS - 1) + (cellNum / Squirrel.COLS);	
     }
     
     public int compareTo(Cell c) {
