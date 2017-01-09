@@ -12,17 +12,19 @@ public class Squirrel extends JFrame {
 
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 720;
+    private static final int MATH_LABEL_START_LEVEL = 3;
+    private static final int SS_START_LEVEL = 1;
     private static int BORDER_GAP;
 
     private JFrame frame;
     private Container ss;
-    private GridBagConstraints c_Cell, c_Label;
+    private GridBagConstraints c_Cell, c_MathLabel, c_CellID, c_TextInput;
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
     private JMenuItem fileMenu_New, dataMenu_Graph;
     private JLabel count, sum, mean;
-    private JTextField textInput;
+    private JTextField cellID, textInput;
 	
     private Cell selected;
 
@@ -40,24 +42,51 @@ public class Squirrel extends JFrame {
 
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS
-	ss.setLayout(new GridBagLayout());//(0,COLS,BORDER_GAP,BORDER_GAP);
-	c_Cell = new GridBagConstraints();
+	ss.setLayout(new GridBagLayout());
+	initializeConstraints();
 
-	createMenuBar();
-	this.setJMenuBar(mb);
-	
+	createMenuBar();	
 	initializeCells();
+
+	this.pack();
     }
 
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
-	    BORDER_GAP = -3;
+	    BORDER_GAP = -1;
 	} else {
 	    BORDER_GAP = 0;
 	}
     }
 
+    public void initializeConstraints()
+    {
+	c_CellID = new GridBagConstraints();
+	c_CellID.gridx = 0;
+	c_CellID.gridy = 0;
+	c_CellID.gridwidth = 1;
+	c_CellID.weightx = 1;
+	c_CellID.fill = GridBagConstraints.HORIZONTAL;
+	
+	c_TextInput = new GridBagConstraints();
+	c_TextInput.gridx = 1;
+	c_TextInput.gridy = 0;
+	c_TextInput.gridwidth = COLS - c_CellID.gridwidth;
+	c_TextInput.weightx = 1;
+	c_TextInput.fill = GridBagConstraints.HORIZONTAL;
+
+	c_Cell = new GridBagConstraints();
+	c_Cell.weightx = 0;
+	c_Cell.weighty = 0;
+	c_Cell.fill = GridBagConstraints.HORIZONTAL;
+	c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
+	
+	c_MathLabel = new GridBagConstraints();
+	c_MathLabel.gridx = 0;
+	c_MathLabel.gridy = ROWS + MATH_LABEL_START_LEVEL;
+    }
+    
     public void createMenuBar()
     {
 	mb = new JMenuBar();
@@ -78,6 +107,8 @@ public class Squirrel extends JFrame {
 	dataMenu.add(dataMenu_Graph);
 
 	mb.add(dataMenu);
+
+	this.setJMenuBar(mb);
     }
 
     // draws cells
@@ -85,7 +116,12 @@ public class Squirrel extends JFrame {
     {	
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
-	
+
+	cellID = new JTextField();
+	ss.add(cellID, c_CellID);
+	textInput = new JTextField();
+	ss.add(textInput, c_TextInput);
+
 	for (int i = 0; i < ROWS*COLS; i++) {
 
 	    final Cell cell = new Cell(new JTextField(5),i);
@@ -142,31 +178,24 @@ public class Squirrel extends JFrame {
 		    public void keyTyped(KeyEvent e) {}
 		});
 
-	    c_Cell.fill = GridBagConstraints.HORIZONTAL;
 	    c_Cell.gridx = i % COLS;
-	    c_Cell.gridy = i / COLS;
-	    c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
+	    c_Cell.gridy = i / COLS + SS_START_LEVEL;
 	    
 	    ss.add(cell.textField, c_Cell);
 	    cells.add(cell);
 	}
-
-	c_Label = new GridBagConstraints();
-	c_Label.fill = GridBagConstraints.NONE;
-	c_Label.gridx = 0;
-	c_Label.gridy = ROWS + 2;
 	
 	count = new JLabel("COUNT: ");
-	c_Label.gridx++;
-	ss.add(count, c_Label);
+	c_MathLabel.gridx++;
+	ss.add(count, c_MathLabel);
 	
 	sum = new JLabel("SUM: ");
-	c_Label.gridx++;
-	ss.add(sum, c_Label);
+	c_MathLabel.gridx++;
+	ss.add(sum, c_MathLabel);
 	
 	mean = new JLabel("MEAN: ");
-	c_Label.gridx++;
-	ss.add(mean, c_Label);	
+	c_MathLabel.gridx++;
+	ss.add(mean, c_MathLabel);	
     }
 
     public void select(Cell c) {
@@ -175,7 +204,7 @@ public class Squirrel extends JFrame {
 	highlighted.clear();
 	c.select();
 	selected = c;
-	updateLabels();
+	updateMathLabels();
     }
 
     public int releasedCellNum(Point p)
@@ -222,12 +251,12 @@ public class Squirrel extends JFrame {
 	    }
 	}
 
-	updateLabels();
+	updateMathLabels();
 	return true;
     }
 
     // updates COUNT/SUM/MEAN, called in public boolean highlightCells(int x, int y)
-    private void updateLabels()
+    private void updateMathLabels()
     {
 	int s = 0;
 	int n = 0;
@@ -238,7 +267,7 @@ public class Squirrel extends JFrame {
 	}
 	count.setText("COUNT: " + highlighted.size());
 	sum.setText("SUM: " + s);
-	mean.setText("MEAN: " + ((double) (s) / n));	
+	mean.setText("MEAN: " + ((double) (s) / n));
     }
 	
     public static void main(String[] args)
@@ -248,7 +277,6 @@ public class Squirrel extends JFrame {
 	    System.out.println(OS);
 	} else {
 	    Squirrel s = new Squirrel();
-	    s.pack();
 	    s.setVisible(true);
 	}
     }

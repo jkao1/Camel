@@ -3,6 +3,8 @@ import java.awt.*;
 
 public class Cell implements Comparable<Cell> {
 
+    public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
+
     public JTextField textField; 
     public int cellNum;
     public boolean isLabel;
@@ -23,6 +25,7 @@ public class Cell implements Comparable<Cell> {
 	if (isLabel) {
 	    Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	    textField.setFont(bold);
+	    textField.setBackground(LABEL_COLOR);
 	}
     }
 
@@ -42,7 +45,11 @@ public class Cell implements Comparable<Cell> {
     }
 
     public void deHighlight() {
-	textField.setBackground(Color.WHITE);
+	if (isLabel) {
+	    //textField.setBackground(LABEL_COLOR);
+	} else {
+	    textField.setBackground(Color.WHITE);
+	}
     }
     
     public int getIntValue() {
