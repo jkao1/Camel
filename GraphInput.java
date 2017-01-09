@@ -78,30 +78,30 @@ public class GraphInput extends JFrame implements ItemListener{
 	c4buttons.add(new JButton("Cancel"));
 	card4.add(c4buttons);
 	
-	JPanel card5 = new JPanel();
-	card5.setLayout(new BoxLayout(card5,BoxLayout.Y_AXIS));
-	card5.add(new JLabel("Input:"));
-	card5.add(new JTextField("INPUT RANGE", 5));
-	card5.add(new JTextField("INPUT BIN RANGE",5));
-	card5.add(new JCheckBox("Labels"));
-	card5.add(new JLabel("Output:"));
-	card5.add(new JTextField("OUTPUT RANGE"));
-	card5.add(new JCheckBox("Chart"));
+	JPanel histocard = new JPanel();
+	histocard.setLayout(new BoxLayout(histocard,BoxLayout.Y_AXIS));
+	histocard.add(new JLabel("Input:"));
+	histocard.add(new JTextField("INPUT RANGE", 5));
+	histocard.add(new JTextField("INPUT BIN RANGE",5));
+	histocard.add(new JCheckBox("Labels"));
+	histocard.add(new JLabel("Output:"));
+	histocard.add(new JTextField("OUTPUT RANGE"));
+	histocard.add(new JCheckBox("Chart"));
 	JComboBox cb3 = new JComboBox(sortOptions);
-	cb2.setEditable(false);
-	cb2.addItemListener(this);
-	card5.add(cb3);		
-	JPanel c5buttons = new JPanel();
-	c5buttons.add(new JButton("Ok"));
-	c5buttons.add(new JButton("Cancel"));
-	card5.add(c5buttons);
+	cb3.setEditable(false);
+	cb3.addItemListener(this);
+	histocard.add(cb3);		
+	JPanel histobuttons = new JPanel();
+	histobuttons.add(new JButton("Ok"));
+	histobuttons.add(new JButton("Cancel"));
+	histocard.add(histobuttons);
 	
 	cards = new JPanel(new CardLayout());
 	cards.add(card1, LINEPANEL);
 	cards.add(card2, BARPANEL);
 	cards.add(card3, SCATTERPANEL);
 	cards.add(card4, PIEPANEL);
-	cards.add(card5, HISTOPANEL);
+	cards.add(histocard, HISTOPANEL);
 	
 	pane = this.getContentPane();
 	pane.add(comboBoxPane, BorderLayout.PAGE_START);

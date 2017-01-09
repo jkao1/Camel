@@ -51,23 +51,22 @@ public class ExcelGUI extends JFrame implements ActionListener{
 	menuitem = new JMenuItem("Data Forecasting");
 	menu1.add(menuitem);
 	menu1.addSeparator();
-	JMenu menu2 = new JMenu("Graph");
-	menu1.add(menu2);
-	JMenuItem submenu = new JMenuItem("Data Plot");
-	menu2.add(submenu);
-	submenu = new JMenuItem("Histogram");
-	menu2.add(submenu);
-	submenu = new JMenuItem("Line Graph");
-	menu2.add(submenu);
-	submenu = new JMenuItem("Bar Graph");
-	menu2.add(submenu);
+	menuitem = new JMenuItem("Graph");
+	menuitem.addActionListener(this);
+	menuitem.setActionCommand("graph");
+	menu1.add(menuitem);
 	this.setJMenuBar(mb);
 	pane.add(b);
 	pane.add(b2);
     }
 
+    
+    
     public void actionPerformed(ActionEvent e){
 	    String event = e.getActionCommand();
+	    if(event.equals("graph")){
+		GraphInput();
+	    }	
     }
 
     public static void main(String[]args){
