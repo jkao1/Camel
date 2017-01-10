@@ -101,7 +101,8 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    //GraphInput g = new GraphInput();
+		    GraphInput g = new GraphInput();
+		    g.setVisible(true);
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
