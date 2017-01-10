@@ -137,8 +137,8 @@ public class GraphInput extends JFrame implements ItemListener {
 	String event = e.getActionCommand();
     }
     
-    public static void main(String[]args){
-	GraphInput g = new GraphInput();
+   public static void main(String[]args){
+       GraphInput g = new GraphInput();
 	g.setVisible(true);
     }
 }
