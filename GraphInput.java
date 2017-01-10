@@ -14,7 +14,9 @@ public class GraphInput extends JFrame implements ItemListener {
     final static String PIEPANEL = "Pie Graph";
     final static String HISTOPANEL = "Histogram";
     final String[] sortOptions = {"No Sort","Ascending","Descending"};
-    public int[][] histoTable = new int[][];
+    public int rows;
+    public int cols;
+    public int[][] histoTable = new int[rows][cols];
     
     public GraphInput(){
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -23,23 +25,24 @@ public class GraphInput extends JFrame implements ItemListener {
 	graphinput.setLayout(new FlowLayout());
 	JPanel comboBoxPane = new JPanel();
 	String[] graphs = {LINEPANEL, BARPANEL, SCATTERPANEL, PIEPANEL, HISTOPANEL};
-	JComboBox cb = new JComboBox(graphs);
-	cb.setEditable(false);
-	cb.addItemListener(this);
-	comboBoxPane.add(cb);
+	JComboBox comboBox = new JComboBox(graphs);
+	comboBox.setEditable(false);
+	comboBox.addItemListener(this);
+	comboBoxPane.add(comboBox);
 
-<<<<<<< HEAD
 	JPanel lineCard = new JPanel();
 	lineCard.setLayout(new BoxLayout(lineCard,BoxLayout.Y_AXIS));
 	lineCard.add(new JLabel("Input:"));
-	lineCard.add(new JTextField("INPUT RANGE", 5));
-	lineCard.add(new JCheckBox("Labels"));
+	JTextField tf = new JTextField("INPUT RANGE", 5);
+	lineCard.add(tf);
+	JCheckBox cb = new JCheckBox("Labels");
+	lineCard.add(cb);
+	cb.addItemListener(this);
 	JPanel lineButtons = new JPanel();
 	lineButtons.add(new JButton("Ok"));
 	lineButtons.add(new JButton("Cancel"));
 	lineCard.add(lineButtons);
-=======
-	// 
+
 	JPanel card1 = new JPanel();
 	card1.setLayout(new BoxLayout(card1,BoxLayout.Y_AXIS));
 	card1.add(new JLabel("Input:"));
@@ -49,7 +52,6 @@ public class GraphInput extends JFrame implements ItemListener {
 	c1buttons.add(new JButton("Ok"));
 	c1buttons.add(new JButton("Cancel"));
 	card1.add(c1buttons);
->>>>>>> f0402e8b0d96e39e12fa8ba6c47cbbd69a89fc88
 
 	JPanel barCard = new JPanel();
 	barCard.setLayout(new BoxLayout(barCard,BoxLayout.Y_AXIS));
@@ -127,10 +129,13 @@ public class GraphInput extends JFrame implements ItemListener {
     public void itemStateChanged(ItemEvent e){
 	CardLayout c1 = (CardLayout)(cards.getLayout());
 	c1.show(cards, (String)e.getItem());
+	if(e.getStateChange() == 1){
+	}
     }
 
     public void actionPerformed(ActionEvent e){
 	String event = e.getActionCommand();
+    }
     
     public static void main(String[]args){
 	GraphInput g = new GraphInput();
