@@ -8,17 +8,18 @@ public class GraphInput extends JFrame implements ItemListener {
     private Container pane;
     private JPanel cards;
 
-    final static String LINEPANEL = "Line Graph";
-    final static String BARPANEL = "Bar Graph";
-    final static String SCATTERPANEL = "Scatter Plot";
-    final static String PIEPANEL = "Pie Graph";
-    final static String HISTOPANEL = "Histogram";
-    final String[] sortOptions = {"No Sort","Ascending","Descending"};
+    private final static String LINEPANEL = "Line Graph";
+    private final static String BARPANEL = "Bar Graph";
+    private final static String SCATTERPANEL = "Scatter Plot";
+    private final static String PIEPANEL = "Pie Graph";
+    private final static String HISTOPANEL = "Histogram";
+    private final String[] sortOptions = {"No Sort","Ascending","Descending"};
     public int rows;
     public int cols;
     public int[][] histoTable = new int[rows][cols];
     
-    public GraphInput(){
+    public GraphInput()
+    {
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setSize(600,300);
 	this.setLocation(300,300);

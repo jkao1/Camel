@@ -343,33 +343,16 @@ public class Squirrel extends JFrame {
 	    cells.get(l + (b+1)*COLS + 4).setValue(cumPercent);
 	}
 
-	System.out.println(hi(binValues));
 	return binValues;		
     }
 
-    public String hi(int[] ary) {
-	String o = "[ ";
-	for (int i : ary) {
-	    o += i + ", ";
-	}
-	return o + "]";
-    }
-
-    public String hi(int[][] ary) {
-	String o = "[ ";
-	for (int[] a : ary) {
-	    o += hi(a);
-	}
-	return o + "]";
-    }
-    
     public static void main(String[] args)
     {
 	// just for testing
 	if (args.length > 0 && args[0].equals("cmd")) {
 	    Squirrel s = new Squirrel();
 	    s.setVisible(true);
-	    int[][] values = { {1, 1, 2, 1, 2, 1, 2,8,9,9,9,9,9},
+	    int[][] values = { {1, 9},
 			       {0, 5, 10} };
 	    s.writeHistogramTable(values,13);
 	} else {
