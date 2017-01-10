@@ -4,16 +4,15 @@ import java.awt.event.*;
 
 public class GraphInput extends JFrame implements ItemListener {
 
-    private JFrame graphinput = new JFrame("Graph Input");
+    private JFrame gi = new JFrame("Graph Input");
     private Container pane;
     private JPanel cards;
 
-    private final static String LINEPANEL = "Line Graph";
-    private final static String BARPANEL = "Bar Graph";
-    private final static String SCATTERPANEL = "Scatter Plot";
-    private final static String PIEPANEL = "Pie Graph";
-    private final static String HISTOPANEL = "Histogram";
-    private final String[] sortOptions = {"No Sort","Ascending","Descending"};
+    private JPanel lineCard;
+
+    private JPanel gcb;
+    private JComboBox<String> graphComboBox;
+    
     public int rows;
     public int cols;
     public int[][] histoTable = new int[rows][cols];
@@ -23,15 +22,17 @@ public class GraphInput extends JFrame implements ItemListener {
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setSize(600,300);
 	this.setLocation(300,300);
-	graphinput.setLayout(new FlowLayout());
-	JPanel comboBoxPane = new JPanel();
+	
+	gi.setLayout(new FlowLayout());
+	
+        gcb = new JPanel();
 	String[] graphs = {LINEPANEL, BARPANEL, SCATTERPANEL, PIEPANEL, HISTOPANEL};
-	JComboBox comboBox = new JComboBox(graphs);
-	comboBox.setEditable(false);
-	comboBox.addItemListener(this);
-	comboBoxPane.add(comboBox);
+	graphComboBox = new JComboBox<>(new String[] {"line", "bar", "scatter", "pie", "histogram"});
+	graphComboBox.setEditable(false);
+	graphComboBox.addItemListener(this);
+	gcb.add(graphComboBox);
 
-	JPanel lineCard = new JPanel();
+	lineCard = new JPanel();
 	lineCard.setLayout(new BoxLayout(lineCard,BoxLayout.Y_AXIS));
 	lineCard.add(new JLabel("Input:"));
 	JTextField tf = new JTextField("INPUT RANGE", 5);
@@ -116,14 +117,14 @@ public class GraphInput extends JFrame implements ItemListener {
 	histoCard.add(histoButtons);
 	
 	cards = new JPanel(new CardLayout());
-	cards.add(lineCard, LINEPANEL);
-	cards.add(barCard, BARPANEL);
-	cards.add(scatterCard, SCATTERPANEL);
-	cards.add(pieCard, PIEPANEL);
-	cards.add(histoCard, HISTOPANEL);
+	cards.add(lineCard, "line");
+	cards.add(barCard, "bar");
+	cards.add(scatterCard, "scatter");
+	cards.add(pieCard, "pie");
+	cards.add(histoCard, "histogram");
 	
 	pane = this.getContentPane();
-	pane.add(comboBoxPane, BorderLayout.PAGE_START);
+	pane.add(gcb, BorderLayout.PAGE_START);
 	pane.add(cards, BorderLayout.CENTER);
     }
 
