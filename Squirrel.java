@@ -54,7 +54,7 @@ public class Squirrel extends JFrame {
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
-	    BORDER_GAP = -1;
+	    BORDER_GAP = -2;
 	} else {
 	    BORDER_GAP = 0;
 	}
@@ -300,12 +300,77 @@ public class Squirrel extends JFrame {
 	sum.setText("SUM: " + s);
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
+
+    /**
+      @param vals: array of two arrays, the first being numbers, the second being bin
+    */
+    public int[] writeHistogramTable(int[][] vals, int l)
+    {
+	int[] binValues = new int[vals[1].length];
+	int n = 0;
+	int i = 0;
+
+	while (i < vals[1].length) {
+	    if (n >= vals[0].length) {
+		i++;
+	    } else if (vals[0][n] < vals[1][i]) {
+		binValues[i]++;
+	    } else {
+		i++;
+	    }
+	    n++;
+	}
+
+	cells.get(l).setValue("Bin range");
+	cells.get(l+1).setValue("Count");
+	cells.get(l+2).setValue("Cum. Count");
+	cells.get(l+3).setValue("Percent");
+	cells.get(l+4).setValue("Cum. %");
+
+	int cumCount = 0;
+	double cumPercent = 0.0;
+	int binSum = 0;
+	for (int v : binValues) binSum += v;
 	
+	for (int b = 0; b < binValues.length; b++) {
+	    cumCount += binValues[b];
+	    cumPercent += ((double) (binValues[b])) / binSum;
+	    cells.get(l + (b+1)*COLS).setValue("to " + vals[1][b]);
+	    cells.get(l + (b+1)*COLS + 1).setValue(binValues[b]);
+	    cells.get(l + (b+1)*COLS + 2).setValue(cumCount);
+	    cells.get(l + (b+1)*COLS + 3).setValue(((double) (binValues[b])) / binSum);
+	    cells.get(l + (b+1)*COLS + 4).setValue(cumPercent);
+	}
+
+	System.out.println(hi(binValues));
+	return binValues;		
+    }
+
+    public String hi(int[] ary) {
+	String o = "[ ";
+	for (int i : ary) {
+	    o += i + ", ";
+	}
+	return o + "]";
+    }
+
+    public String hi(int[][] ary) {
+	String o = "[ ";
+	for (int[] a : ary) {
+	    o += hi(a);
+	}
+	return o + "]";
+    }
+    
     public static void main(String[] args)
     {
 	// just for testing
 	if (args.length > 0 && args[0].equals("cmd")) {
-	    System.out.println(OS);
+	    Squirrel s = new Squirrel();
+	    s.setVisible(true);
+	    int[][] values = { {1, 1, 2, 1, 2, 1, 2,8,9,9,9,9,9},
+			       {0, 5, 10} };
+	    s.writeHistogramTable(values,13);
 	} else {
 	    Squirrel s = new Squirrel();
 	    s.setVisible(true);

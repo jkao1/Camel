@@ -63,6 +63,10 @@ public class Cell implements Comparable<Cell> {
 	textField.setText(String.valueOf(v));
     }
 
+    public void setValue(double v) {
+	textField.setText(String.valueOf(v));
+    }
+
     public void setValue(String v) {
 	textField.setText(v);
     }
