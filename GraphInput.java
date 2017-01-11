@@ -7,8 +7,13 @@ public class GraphInput extends JFrame implements ItemListener {
     private JFrame frame;
     private Container pane; // gi: graph input
     private JPanel graphComboBoxPanel, cards;
+    private JPanel greetCard, lineCard, barCard, scatterCard, pieCard, histogramCard;
 
-    private JPanel lineCard, barCard, scatterCard, pieCard, histogramCard;
+    private final static String LINEPANEL = "Line Graph";
+    private final static String BARPANEL = "Bar Graph"; 
+    private final static String SCATTERPANEL = "Scatter Plot";
+    private final static String PIEPANEL = "Pie Chart";
+    private final static String HISTOGRAMPANEL = "Histogram";    
 
     private JComboBox<String> graphComboBox;
 
@@ -21,35 +26,43 @@ public class GraphInput extends JFrame implements ItemListener {
 	this.setSize(400,250);
 	this.setLocation(300,300);	
 
-        graphComboBoxPanel = new JPanel();
-	graphComboBox = new JComboBox<>(new String[] {"Line Graph", "Bar Graph", "Scatter Plot", "Pie Chart", "Histogram"});
-	graphComboBox.addItemListener(this);
-	graphComboBoxPanel.add(graphComboBox);
-
 	cards = new JPanel(new CardLayout());
+
+	greetCard = new JPanel();
+	ButtonGroup group = new ButtonGroup();
+	JRadioButton lineRB = new JRadioButton(LINEPANEL);
+	group.add(lineRB);
+	JRadioButton barRB = new JRadioButton(BARPANEL);
+	group.add(barRB);
+	JRadioButton scatterRB = new JRadioButton(SCATTERPANEL);
+	group.add(scatterRB);
+	JRadioButton pieRB = new JRadioButton(PIEPANEL);
+	group.add(pieRB);
+	JRadioButton histogramRB = new JRadioButton(HISTOGRAMPANEL);
+	group.add(histogramRB);
+	cards.add(greetCard, "Greet");
 	
 	lineCard = new JPanel();
 	createAndAddDefault(lineCard, 'l');
-	cards.add(lineCard, "Line Graph");
+	cards.add(lineCard, LINEPANEL);
 	
         barCard = new JPanel();
         createAndAddDefault(barCard, 'b');
-	cards.add(barCard, "Bar Graph");
+	cards.add(barCard, BARPANEL);
 	
         scatterCard = new JPanel();
         createAndAddDefault(scatterCard, 's');
-	cards.add(scatterCard, "Scatter Plot");
+	cards.add(scatterCard, SCATTERPANEL);
 	
 	pieCard = new JPanel();
         createAndAddDefault(pieCard, 'p');
-	cards.add(pieCard, "Pie Chart");
+	cards.add(pieCard, PIEPANEL);
 	
 	histogramCard = new JPanel();
         createAndAddDefault(histogramCard, 'h');
-	cards.add(histogramCard, "Histogram");
+	cards.add(histogramCard, HISTOGRAMPANEL);
 	
 	pane = this.getContentPane();
-	pane.add(graphComboBoxPanel, BorderLayout.PAGE_START);
 	pane.add(cards, BorderLayout.CENTER);
     }
 
