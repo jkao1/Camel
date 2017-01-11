@@ -18,7 +18,6 @@ public class Squirrel extends JFrame {
 
     private JFrame frame;
     private Container ss;
-    private GridBagConstraints c_Cell, c_MathLabel, c_CellID, c_TextInput;
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
@@ -58,33 +57,6 @@ public class Squirrel extends JFrame {
 	} else {
 	    BORDER_GAP = 0;
 	}
-    } 
-
-    public void initializeConstraints()
-    {
-	c_CellID = new GridBagConstraints();
-	c_CellID.gridx = 0;
-	c_CellID.gridy = 0;
-	c_CellID.gridwidth = 1;
-	c_CellID.weightx = 1;
-	c_CellID.fill = GridBagConstraints.HORIZONTAL;
-	
-	c_TextInput = new GridBagConstraints();
-	c_TextInput.gridx = 1;
-	c_TextInput.gridy = 0;
-	c_TextInput.gridwidth = COLS - c_CellID.gridwidth;
-	c_TextInput.weightx = 1;
-	c_TextInput.fill = GridBagConstraints.HORIZONTAL;
-
-	c_Cell = new GridBagConstraints();
-	c_Cell.weightx = 1;
-	c_Cell.weighty = 1;
-	c_Cell.fill = GridBagConstraints.HORIZONTAL;
-	c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
-	
-	c_MathLabel = new GridBagConstraints();
-	c_MathLabel.gridx = 0;
-	c_MathLabel.gridy = ROWS + MATH_LABEL_START_LEVEL;
     }
     
     public void createMenuBar()
@@ -101,7 +73,7 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    GraphInput g = new GraphInput();
+		    GraphInput g = new GraphInput(highlighted);
 		    g.setVisible(true);
 		}
 	    });

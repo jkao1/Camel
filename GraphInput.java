@@ -13,18 +13,21 @@ public class GraphInput extends JFrame implements ItemListener {
     private final static String BARPANEL = "Bar Graph"; 
     private final static String SCATTERPANEL = "Scatter Plot";
     private final static String PIEPANEL = "Pie Chart";
-    private final static String HISTOGRAMPANEL = "Histogram";    
+    private final static String HISTOGRAMPANEL = "Histogram";
 
+    private ArrayList<Cell> highlighted;
     private JComboBox<String> graphComboBox;
 
-    public GraphInput()
+    public GraphInput(ArrayList<Cell> highlighted)
     {
 	frame = new JFrame("Graph Input");
 	frame.setLayout(new FlowLayout());
 	
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setSize(400,250);
-	this.setLocation(300,300);	
+	this.setLocation(300,300);
+
+	_highlighted = highlighted;
 
 	cards = new JPanel(new CardLayout());
 
@@ -40,7 +43,7 @@ public class GraphInput extends JFrame implements ItemListener {
 	group.add(pieRB);
 	JRadioButton histogramRB = new JRadioButton(HISTOGRAMPANEL);
 	group.add(histogramRB);
-	cards.add(greetCard, "Greet");
+	//cards.add(greetCard, "Greet");
 	
 	lineCard = new JPanel();
 	createAndAddDefault(lineCard, 'l');
@@ -72,12 +75,16 @@ public class GraphInput extends JFrame implements ItemListener {
 	JPanel input = new JPanel();
 	input.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
 	input.add(new JLabel("input range:"));
-	input.add(new JTextField(10));
+        JTextField inputRange = new JTextField(10);
+	if (_highlighted.size() > 0) inputRange.setText(findInputBounds());
+	input.add(inputRange);
 
 	JPanel bin = new JPanel();
 	bin.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
 	bin.add(new JLabel("bin range (optional):"));
-	bin.add(new JTextField(10));
+        JTextField binRange = new JTextField(10);
+	if (_highlighted.size() > 0) binRange.setText(findBinBounds());
+	bin.add(binRange);
 
 	JPanel output = new JPanel();
 	output.setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -109,6 +116,17 @@ public class GraphInput extends JFrame implements ItemListener {
 	case 'h': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
 	}	
 	p.add(defaultButtons);
+    }
+
+    private String findInputBounds()
+    {
+	return highlighted.get(0).toString() + ":" + highlighted.get(highlighted.size()-1).toString();
+    }
+
+    private String findBinBounds()
+    {
+	String o = "";
+	return o;
     }
 
     public void itemStateChanged(ItemEvent e){
