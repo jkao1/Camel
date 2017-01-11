@@ -4,128 +4,98 @@ import java.awt.event.*;
 
 public class GraphInput extends JFrame implements ItemListener {
 
-    private JFrame gi = new JFrame("Graph Input");
-    private Container pane;
-    private JPanel cards;
+    private JFrame frame;
+    private Container pane; // gi: graph input
+    private JPanel graphComboBoxPanel, cards;
 
-    private JPanel lineCard;
+    private JPanel lineCard, barCard, scatterCard, pieCard, histogramCard;
 
-    private JPanel gcb;
     private JComboBox<String> graphComboBox;
-    
-    public int rows;
-    public int cols;
-    public int[][] histoTable = new int[rows][cols];
     
     public GraphInput()
     {
+	frame = new JFrame("Graph Input");
+	frame.setLayout(new FlowLayout());
+	
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-	this.setSize(600,300);
-	this.setLocation(300,300);
-	
-	gi.setLayout(new FlowLayout());
-	
-        gcb = new JPanel();
-	String[] graphs = {LINEPANEL, BARPANEL, SCATTERPANEL, PIEPANEL, HISTOPANEL};
-	graphComboBox = new JComboBox<>(new String[] {"line", "bar", "scatter", "pie", "histogram"});
-	graphComboBox.setEditable(false);
+	this.setSize(400,250);
+	this.setLocation(300,300);	
+
+        graphComboBoxPanel = new JPanel();
+	graphComboBox = new JComboBox<>(new String[] {"Line Graph", "Bar Graph", "Scatter Plot", "Pie Chart", "Histogram"});
 	graphComboBox.addItemListener(this);
-	gcb.add(graphComboBox);
+	graphComboBoxPanel.add(graphComboBox);
 
-	lineCard = new JPanel();
-	lineCard.setLayout(new BoxLayout(lineCard,BoxLayout.Y_AXIS));
-	lineCard.add(new JLabel("Input:"));
-	JTextField tf = new JTextField("INPUT RANGE", 5);
-	lineCard.add(tf);
-	JCheckBox cb = new JCheckBox("Labels");
-	lineCard.add(cb);
-	cb.addItemListener(this);
-	JPanel lineButtons = new JPanel();
-	lineButtons.add(new JButton("Ok"));
-	lineButtons.add(new JButton("Cancel"));
-	lineCard.add(lineButtons);
-
-	JPanel card1 = new JPanel();
-	card1.setLayout(new BoxLayout(card1,BoxLayout.Y_AXIS));
-	card1.add(new JLabel("Input:"));
-	card1.add(new JTextField("INPUT RANGE", 5));
-	card1.add(new JCheckBox("Labels"));
-	JPanel c1buttons = new JPanel();
-	c1buttons.add(new JButton("Ok"));
-	c1buttons.add(new JButton("Cancel"));
-	card1.add(c1buttons);
-
-	JPanel barCard = new JPanel();
-	barCard.setLayout(new BoxLayout(barCard,BoxLayout.Y_AXIS));
-	barCard.add(new JLabel("Input:"));
-	barCard.add(new JTextField("INPUT RANGE", 5));
-	barCard.add(new JCheckBox("Labels"));
-	barCard.add(new JLabel("Output"));
-	JComboBox cb1 = new JComboBox(sortOptions);
-	cb1.setEditable(false);
-	cb1.addItemListener(this);
-	barCard.add(cb1);
-	JPanel barButtons = new JPanel();
-	barButtons.add(new JButton("Ok"));
-	barButtons.add(new JButton("Cancel"));
-	barCard.add(barButtons);
-	
-	JPanel scatterCard = new JPanel();
-	scatterCard.setLayout(new BoxLayout(scatterCard,BoxLayout.Y_AXIS));
-	scatterCard.add(new JLabel("Input:"));
-	scatterCard.add(new JTextField("INPUT RANGE",5));
-	scatterCard.add(new JTextField("INPUT BIN RANGE",5));
-	scatterCard.add(new JCheckBox("Labels"));
-	scatterCard.add(new JLabel("Output:"));
-	scatterCard.add(new JTextField("OUTPUT RANGE"));
-	scatterCard.add(new JCheckBox("Table"));
-	JComboBox cb2 = new JComboBox(sortOptions);
-	cb2.setEditable(false);
-	cb2.addItemListener(this);
-	scatterCard.add(cb2);
-	JPanel scatterButtons = new JPanel();
-	scatterButtons.add(new JButton("Ok"));
-	scatterButtons.add(new JButton("Cancel"));
-	scatterCard.add(scatterButtons);
-	
-	JPanel pieCard = new JPanel();
-	pieCard.setLayout(new BoxLayout(pieCard,BoxLayout.Y_AXIS));
-	pieCard.add(new JLabel("Input:"));
-	pieCard.add(new JTextField("INPUT RANGE", 5));
-	pieCard.add(new JCheckBox("Labels"));
-	JPanel pieButtons = new JPanel();
-	pieButtons.add(new JButton("Ok"));
-	pieButtons.add(new JButton("Cancel"));
-	pieCard.add(pieButtons);
-	
-	JPanel histoCard = new JPanel();
-	histoCard.setLayout(new BoxLayout(histoCard,BoxLayout.Y_AXIS));
-	histoCard.add(new JLabel("Input:"));
-	histoCard.add(new JTextField("INPUT RANGE", 5));
-	histoCard.add(new JTextField("INPUT BIN RANGE",5));
-	histoCard.add(new JCheckBox("Labels"));
-	histoCard.add(new JLabel("Output:"));
-	histoCard.add(new JTextField("OUTPUT RANGE"));
-	histoCard.add(new JCheckBox("Chart"));
-	JComboBox cb3 = new JComboBox(sortOptions);
-	cb3.setEditable(false);
-	cb3.addItemListener(this);
-	histoCard.add(cb3);		
-	JPanel histoButtons = new JPanel();
-	histoButtons.add(new JButton("Ok"));
-	histoButtons.add(new JButton("Cancel"));
-	histoCard.add(histoButtons);
-	
 	cards = new JPanel(new CardLayout());
-	cards.add(lineCard, "line");
-	cards.add(barCard, "bar");
-	cards.add(scatterCard, "scatter");
-	cards.add(pieCard, "pie");
-	cards.add(histoCard, "histogram");
+	
+	lineCard = new JPanel();
+	createAndAddDefault(lineCard, 'l');
+	cards.add(lineCard, "Line Graph");
+	
+        barCard = new JPanel();
+        createAndAddDefault(barCard, 'b');
+	cards.add(barCard, "Bar Graph");
+	
+        scatterCard = new JPanel();
+        createAndAddDefault(scatterCard, 's');
+	cards.add(scatterCard, "Scatter Plot");
+	
+	pieCard = new JPanel();
+        createAndAddDefault(pieCard, 'p');
+	cards.add(pieCard, "Pie Chart");
+	
+	histogramCard = new JPanel();
+        createAndAddDefault(histogramCard, 'h');
+	cards.add(histogramCard, "Histogram");
 	
 	pane = this.getContentPane();
-	pane.add(gcb, BorderLayout.PAGE_START);
+	pane.add(graphComboBoxPanel, BorderLayout.PAGE_START);
 	pane.add(cards, BorderLayout.CENTER);
+    }
+
+    // cannot add same component to multiple cards
+    public void createAndAddDefault(JPanel p, char c)
+    {
+	JPanel input = new JPanel();
+	input.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	input.add(new JLabel("input range:"));
+	input.add(new JTextField(10));
+
+	JPanel bin = new JPanel();
+	bin.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	bin.add(new JLabel("bin range (optional):"));
+	bin.add(new JTextField(10));
+
+	JPanel output = new JPanel();
+	output.setLayout(new FlowLayout(FlowLayout.LEADING));
+	output.add(new JLabel("output:"));
+	output.add(new JTextField(10));
+
+	JPanel sort = new JPanel();
+	sort.setLayout(new FlowLayout(FlowLayout.LEADING));
+	sort.add(new JLabel("sort by:"));
+	JComboBox<String> sortOptions = new JComboBox<>(new String[] {"none", "ascending", "descending"});
+	sortOptions.setEditable(false);
+	sortOptions.addItemListener(this);
+
+	JCheckBox chart = new JCheckBox("Chart");
+	
+	JPanel defaultButtons = new JPanel();
+	JButton ok = new JButton("Ok");
+	defaultButtons.add(ok);
+	JButton cancel = new JButton("Cancel");
+	defaultButtons.add(cancel);
+
+	p.setLayout(new GridLayout(0, 1));
+	p.add(input);
+	switch (c) {
+	case 'l': p.add(bin); break; // line
+	case 'b': p.add(sortOptions); break; // bar
+	case 's': break; // scatter
+	case 'p': p.add(sortOptions); break; // pie
+	case 'h': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+	}	
+	p.add(defaultButtons);
     }
 
     public void itemStateChanged(ItemEvent e){
