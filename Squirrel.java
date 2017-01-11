@@ -58,7 +58,7 @@ public class Squirrel extends JFrame {
 	} else {
 	    BORDER_GAP = 0;
 	}
-    }
+    } 
 
     public void initializeConstraints()
     {
