@@ -11,7 +11,7 @@ public class GraphInput extends JFrame implements ItemListener {
     private JPanel lineCard, barCard, scatterCard, pieCard, histogramCard;
 
     private JComboBox<String> graphComboBox;
-    
+
     public GraphInput()
     {
 	frame = new JFrame("Graph Input");
