@@ -18,7 +18,6 @@ public class Squirrel extends JFrame {
 
     private JFrame frame;
     private Container ss;
-    private GridBagConstraints c_Cell, c_MathLabel, c_CellID, c_TextInput;
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
@@ -42,8 +41,8 @@ public class Squirrel extends JFrame {
 
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS
-	ss.setLayout(new GridBagLayout());
-	initializeConstraints();
+	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
+	//initializeConstraints();
 
 	createMenuBar();	
 	initializeCells();
@@ -54,37 +53,10 @@ public class Squirrel extends JFrame {
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
-	    BORDER_GAP = -2;
+	    BORDER_GAP = -6;
 	} else {
 	    BORDER_GAP = 0;
 	}
-    }
-
-    public void initializeConstraints()
-    {
-	c_CellID = new GridBagConstraints();
-	c_CellID.gridx = 0;
-	c_CellID.gridy = 0;
-	c_CellID.gridwidth = 1;
-	c_CellID.weightx = 1;
-	c_CellID.fill = GridBagConstraints.HORIZONTAL;
-	
-	c_TextInput = new GridBagConstraints();
-	c_TextInput.gridx = 1;
-	c_TextInput.gridy = 0;
-	c_TextInput.gridwidth = COLS - c_CellID.gridwidth;
-	c_TextInput.weightx = 1;
-	c_TextInput.fill = GridBagConstraints.HORIZONTAL;
-
-	c_Cell = new GridBagConstraints();
-	c_Cell.weightx = 1;
-	c_Cell.weighty = 1;
-	c_Cell.fill = GridBagConstraints.HORIZONTAL;
-	c_Cell.insets = new Insets(BORDER_GAP,BORDER_GAP,BORDER_GAP,BORDER_GAP);
-	
-	c_MathLabel = new GridBagConstraints();
-	c_MathLabel.gridx = 0;
-	c_MathLabel.gridy = ROWS + MATH_LABEL_START_LEVEL;
     }
     
     public void createMenuBar()
@@ -101,7 +73,8 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    //GraphInput g = new GraphInput();
+		    GraphInput g = new GraphInput(highlighted);
+		    g.setVisible(true);
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
@@ -117,14 +90,14 @@ public class Squirrel extends JFrame {
 	highlighted = new ArrayList<Cell>();
 
 	cellID = new JTextField();
-	ss.add(cellID, c_CellID);
+	//ss.add(cellID);
 	textInput = new JTextField();
 	textInput.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    selected.setValue(textInput.getText());
 		}
 	    });
-	ss.add(textInput, c_TextInput);
+	//	ss.add(textInput);
 
 	for (int i = 0; i < ROWS*COLS; i++) {
 
@@ -185,26 +158,23 @@ public class Squirrel extends JFrame {
 		    public void keyReleased(KeyEvent e) {}
 		    public void keyTyped(KeyEvent e) {}
 		});
-
+	    /*
 	    c_Cell.gridx = i % COLS;
 	    c_Cell.gridy = i / COLS + SS_START_LEVEL;
 	    c_Cell.weightx = 1;
-	    
-	    ss.add(cell.textField, c_Cell);
+	    */
+	    ss.add(cell.textField);
 	    cells.add(cell);
 	}
 	
 	count = new JLabel("COUNT: ");
-	c_MathLabel.gridx++;
-	ss.add(count, c_MathLabel);
+	ss.add(count);
 	
 	sum = new JLabel("SUM: ");
-	c_MathLabel.gridx++;
-	ss.add(sum, c_MathLabel);
+	ss.add(sum);
 	
 	mean = new JLabel("MEAN: ");
-	c_MathLabel.gridx++;
-	ss.add(mean, c_MathLabel);	
+	ss.add(mean);	
     }
 
     public void select(Cell c) {
@@ -215,7 +185,7 @@ public class Squirrel extends JFrame {
 	if (c.isLabel && cells.get(c.cellNum+1).isLabel) { // alphabetical label
 	    selected = cells.get(c.cellNum + COLS);
 	    selected.select();
-	    highlightCells(selected.cellNum, c.cellNum+ROWS*(COLS-1)); // highlights column
+	    highlightCells(selected.cellNum, c.cellNum+(ROWS)*COLS); // highlights column
 	} else if (c.isLabel && cells.get(c.cellNum+COLS).isLabel) { // numerical label
 	    selected = cells.get(c.cellNum + 1);
 	    selected.select();
@@ -342,33 +312,16 @@ public class Squirrel extends JFrame {
 	    cells.get(l + (b+1)*COLS + 4).setValue(cumPercent);
 	}
 
-	System.out.println(hi(binValues));
 	return binValues;		
     }
 
-    public String hi(int[] ary) {
-	String o = "[ ";
-	for (int i : ary) {
-	    o += i + ", ";
-	}
-	return o + "]";
-    }
-
-    public String hi(int[][] ary) {
-	String o = "[ ";
-	for (int[] a : ary) {
-	    o += hi(a);
-	}
-	return o + "]";
-    }
-    
     public static void main(String[] args)
     {
 	// just for testing
 	if (args.length > 0 && args[0].equals("cmd")) {
 	    Squirrel s = new Squirrel();
 	    s.setVisible(true);
-	    int[][] values = { {1, 1, 2, 1, 2, 1, 2,8,9,9,9,9,9},
+	    int[][] values = { {1, 9},
 			       {0, 5, 10} };
 	    s.writeHistogramTable(values,13);
 	} else {
