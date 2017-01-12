@@ -13,7 +13,7 @@ public class LineGraph extends JPanel {
     private static final Color GRAPH_POINT_COLOR = Color.red;
     private static final Stroke GRAPH_STROKE = new BasicStroke(3f);
     private static final int GRAPH_POINT_WIDTH = 10;
-    private static final int Y_HATCH_CNT = 10;
+    private static  int Y_HATCH_CNT;
     private List<Integer> scores;
     
     public LineGraph(List<Integer> scores){
@@ -40,6 +40,7 @@ public class LineGraph extends JPanel {
 	g2.drawLine(BORDER_GAP, getHeight() - BORDER_GAP, getWidth() - BORDER_GAP, getHeight() - BORDER_GAP);
 	
 	// create hatch marks for y axis. 
+	Y_HATCH_CNT = Collections.max(scores, null);
 	for (int i = 0; i < Y_HATCH_CNT; i++) {
 	    int x0 = BORDER_GAP;
 	    int x1 = GRAPH_POINT_WIDTH + BORDER_GAP;
@@ -85,20 +86,19 @@ public class LineGraph extends JPanel {
 
     private static void createAndShowGui() {
 	List<Integer> scores = new ArrayList<Integer>();
-	Random random = new Random();
-	int maxDataPoints = 16;
-	int maxScore = 20;
-	for (int i = 0; i < maxDataPoints ; i++) {
-	    scores.add(random.nextInt(maxScore));
-	}
+	// Insert points into score here
 	LineGraph mainPanel = new LineGraph(scores);
-
-	JFrame frame = new JFrame("DrawGraph");
+	scores.add(3);
+	scores.add(5);
+	scores.add(10);
+	scores.add(15);
+	scores.add(20);
+	JFrame frame = new JFrame("Line Graph");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.getContentPane().add(mainPanel);
 	frame.pack();
 	frame.setLocationByPlatform(true);
-      frame.setVisible(true);
+	frame.setVisible(true);
     }
     
     public static void main(String[] args) {

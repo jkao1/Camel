@@ -84,12 +84,7 @@ public class ScatterGraph extends JPanel {
 
     private static void createAndShowGui() {
 	List<Integer> scores = new ArrayList<Integer>();
-	Random random = new Random();
-	int maxDataPoints = 16;
-	int maxScore = 20;
-	for (int i = 0; i < maxDataPoints ; i++) {
-	    scores.add(random.nextInt(maxScore));
-	}
+	//add points to score here
 	ScatterGraph mainPanel = new ScatterGraph(scores);
 
 	JFrame frame = new JFrame("DrawGraph");
