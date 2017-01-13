@@ -12,7 +12,6 @@ public class GraphInput extends JFrame {
     private static final String SCATTER_GRAPH = "Scatter Graph";
     private static final String PIE_GRAPH = "Pie Graph";
     private static final String HISTOGRAM = "Histogram";
-    // because raw Strings do not work
     private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, PIE_GRAPH, HISTOGRAM };
 
     private JFrame frame;

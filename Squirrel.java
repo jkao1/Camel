@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -271,9 +272,22 @@ public class Squirrel extends JFrame {
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
 
-    /**
-      @param vals: array of two arrays, the first being numbers, the second being bin
-    */
+    public int[] toLineGraph()
+    {
+
+	LineGraph l = new LineGraph(int[])
+	    }
+
+    public int[][] toScatterPlot()
+    {
+
+    }
+
+    public int[][] toHistogram() 
+    {
+
+    }
+    
 
     public static void main(String[] args)
     {
