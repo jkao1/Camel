@@ -78,7 +78,7 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) { // creates instance GraphInput g
-		    GraphInput g = new GraphInput(highlighted);
+		    GraphInput g = new GraphInput();
 		    g.setVisible(true);
 		}
 	    });
@@ -278,13 +278,11 @@ public class Squirrel extends JFrame {
         inputRange = r;
     }
 
-    private int readInput() {
+    private void readInput() {
 	int start = COLS + inputRange.substring(0,2).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(0,2).charAt(1) - '1');
 	int end = COLS + inputRange.substring(2,4).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(2,4).charAt(1) - '1');
 	highlightCells(start,end);
     }
-
-    private int storeInput() {
 
     public static void main(String[] args)
     {

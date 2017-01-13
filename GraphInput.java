@@ -6,16 +6,16 @@ import java.util.*;
 
 public class GraphInput extends JFrame {
 
+    // because raw Strings do not work    
     private static final String GREET = "Greet";
     private static final String LINE_GRAPH = "Line Graph";
     private static final String BAR_GRAPH = "Bar Graph";
     private static final String SCATTER_GRAPH = "Scatter Graph";
     private static final String PIE_GRAPH = "Pie Graph";
     private static final String HISTOGRAM = "Histogram";
-    // because raw Strings do not work
     private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, PIE_GRAPH, HISTOGRAM };
 
-    private JFrame frame;
+    private JFrame graphFrame;
     private Container pane; // gi: graph input
     private CardLayout cl;
     private JPanel cards, nextPanel, greetPanel;
@@ -28,16 +28,16 @@ public class GraphInput extends JFrame {
 
     private ArrayList<Cell> highlighted;
 
-    public GraphInput(ArrayList<Cell> highlighted)
-    {
-	frame = new JFrame("Graph Input");
-	frame.setLayout(new FlowLayout());
+    public GraphInput()
+    {	
+	graphFrame = new JFrame("Graph Input");
+	graphFrame.setLayout(new FlowLayout());
 
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setSize(400,250);
 	this.setLocation(300,300);
 
-	this.highlighted = highlighted;
+	//this.highlighted = highlighted;
 
 	cards = new JPanel(new CardLayout());
 
@@ -72,7 +72,7 @@ public class GraphInput extends JFrame {
 	// for cancel buttons
 	exitSystem = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    System.exit(0);
+		    graphFrame.dispose();
 		}
 	    };	
 	cancelButton = new JButton("Cancel");
@@ -131,8 +131,8 @@ public class GraphInput extends JFrame {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    Squirrel.feedData(inputRange.getText());
-		    frame.dispose();
+		    System.out.println(1);
+		    graphFrame.dispose();
 		}
 	    });
 	defaultButtons.add(ok);
@@ -152,10 +152,5 @@ public class GraphInput extends JFrame {
 	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
 	}
 	p.add(defaultButtons);
-    }
-
-    public static void main(String[]args){
-	GraphInput g = new GraphInput(new ArrayList<Cell>());
-	g.setVisible(true);
     }
 }
