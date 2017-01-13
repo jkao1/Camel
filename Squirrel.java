@@ -16,6 +16,9 @@ public class Squirrel extends JFrame {
     private static final int SS_START_LEVEL = 1;
     private static int BORDER_GAP;
 
+    private static String inputRange = "";
+    private static char graphType;
+
     private JFrame frame;
     private Container ss;
 
@@ -32,7 +35,7 @@ public class Squirrel extends JFrame {
 
     public Squirrel()
     {
-	frame = new JFrame("Camel");
+	frame = new JFrame("Camel");	
 
 	// a few default settings
 	this.setTitle("Spreadsheet");
@@ -271,19 +274,23 @@ public class Squirrel extends JFrame {
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
 
-    /**
-      @param vals: array of two arrays, the first being numbers, the second being bin
-    */
+    public static void feedData(String r) {
+        inputRange = r;
+    }
+
+    private int readInput() {
+	int start = COLS + inputRange.substring(0,2).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(0,2).charAt(1) - '1');
+	int end = COLS + inputRange.substring(2,4).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(2,4).charAt(1) - '1');
+	highlightCells(start,end);
+    }
+
+    private int storeInput() {
 
     public static void main(String[] args)
     {
 	// just for testing
 	if (args.length > 0 && args[0].equals("cmd")) {
-	    Squirrel s = new Squirrel();
-	    s.setVisible(true);
-	    int[][] values = { {1, 9},
-			       {0, 5, 10} };
-	    s.writeHistogramTable(values,13);
+	   
 	} else {
 	    Squirrel s = new Squirrel();
 	    s.setVisible(true);

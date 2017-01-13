@@ -23,7 +23,7 @@ public class GraphInput extends JFrame {
 
     private JRadioButton[] radioButtons;
     private ButtonGroup group;
-    private ActionListener exitSystem, get;
+    private ActionListener exitSystem;
     private JButton nextButton, cancelButton;    
 
     private ArrayList<Cell> highlighted;
@@ -68,6 +68,7 @@ public class GraphInput extends JFrame {
 		}
 	    });
 	nextPanel.add(nextButton);
+	
 	// for cancel buttons
 	exitSystem = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
@@ -124,11 +125,16 @@ public class GraphInput extends JFrame {
 
 	// chart creation check box (histogram-exclusive)
 	JCheckBox chart = new JCheckBox("Chart");
-
+		
 	// creates the default buttons "Ok" and "Cancel
 	JPanel defaultButtons = new JPanel();
 	JButton ok = new JButton("Ok");
-	ok.addActionListener(get);
+	ok.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    Squirrel.feedData(inputRange.getText());
+		    frame.dispose();
+		}
+	    });
 	defaultButtons.add(ok);
 	JButton cancel = new JButton("Cancel");
 	cancel.addActionListener(exitSystem);
