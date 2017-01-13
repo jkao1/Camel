@@ -33,16 +33,16 @@ public class Squirrel extends JFrame {
     public Squirrel()
     {
 	frame = new JFrame("Camel");
-	
+
+	// a few default settings
 	this.setTitle("Spreadsheet");
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	this.setResizable(false);
 
 	ss = this.getContentPane();
-	osDependentStyles(); // styles based on OS
+	osDependentStyles(); // styles based on OS (specifically border gap)
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
-	//initializeConstraints();
 
 	createMenuBar();	
 	initializeCells();
@@ -63,16 +63,18 @@ public class Squirrel extends JFrame {
     {
 	mb = new JMenuBar();
 
+	// creates file menu
 	fileMenu = new JMenu("File");
 	fileMenu_New = new JMenuItem("New");		
 	fileMenu.add(fileMenu_New);
 
 	mb.add(fileMenu);
 
+	// creates data analysis menu
 	dataMenu = new JMenu("Data");
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent e) { // creates instance GraphInput g
 		    GraphInput g = new GraphInput(highlighted);
 		    g.setVisible(true);
 		}
@@ -94,16 +96,17 @@ public class Squirrel extends JFrame {
 	textInput = new JTextField();
 	textInput.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    selected.setValue(textInput.getText());
+		    selected.setValue(textInput.getText()); // makes textInput's value equal to that of the selected cell
 		}
 	    });
-	//	ss.add(textInput);
+	//ss.add(textInput);
 
 	for (int i = 0; i < ROWS*COLS; i++) {
 
 	    final Cell cell = new Cell(new JTextField(5),i);
 
-	    if (i == 0) selected = cell;
+	    // sets default select to the first enabled cell
+	    if (i == COLS + 1) selected = cell;
 
 	    cell.textField.addMouseListener(new MouseListener()
 		{		    
@@ -111,7 +114,7 @@ public class Squirrel extends JFrame {
 			select(cell);
 		    }		    
 		    public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) {
+			if (e.getClickCount() == 2) { // double click will allow cell to be editable
 			    cell.textField.setEditable(true);
 			    cell.textField.getCaret().setVisible(true); // shows cursor
 			}
@@ -158,11 +161,7 @@ public class Squirrel extends JFrame {
 		    public void keyReleased(KeyEvent e) {}
 		    public void keyTyped(KeyEvent e) {}
 		});
-	    /*
-	    c_Cell.gridx = i % COLS;
-	    c_Cell.gridy = i / COLS + SS_START_LEVEL;
-	    c_Cell.weightx = 1;
-	    */
+
 	    ss.add(cell.textField);
 	    cells.add(cell);
 	}
@@ -182,25 +181,26 @@ public class Squirrel extends JFrame {
 	for (Cell h : highlighted) h.deHighlight();
 	highlighted.clear();
 
-	if (c.isLabel && cells.get(c.cellNum+1).isLabel) { // alphabetical label
+	if (c.isLabel && cells.get(c.cellNum+1).isLabel) { // if cell is alphabetical label
 	    selected = cells.get(c.cellNum + COLS);
-	    selected.select();
+	    selected.select(); // selects cell directly underneath
 	    highlightCells(selected.cellNum, c.cellNum+(ROWS)*COLS); // highlights column
-	} else if (c.isLabel && cells.get(c.cellNum+COLS).isLabel) { // numerical label
+	}
+	else if (c.isLabel && cells.get(c.cellNum+COLS).isLabel) { // if cell is numerical label
 	    selected = cells.get(c.cellNum + 1);
-	    selected.select();
+	    selected.select(); // selects cell directly to the right
 	    highlightCells(c.cellNum+1, c.cellNum+COLS-1); // highlights row
 	} else {
 	    c.select();
 	    selected = c;
 	}
-	updateTexts();
+	updateTexts(); // updates COUNT/SUM/MEAN
     }
 
     public int releasedCellNum(Point p)
     {
-	int tfWidth = (int) (cells.get(1).textField.getLocationOnScreen().getX() - cells.get(0).textField.getLocationOnScreen().getX());
-	int tfHeight = (int) (cells.get(12).textField.getLocationOnScreen().getY() - cells.get(0).textField.getLocationOnScreen().getY());
+	int tfWidth = (int) (cells.get(1).textField.getLocationOnScreen().getX() - cells.get(0).textField.getLocationOnScreen().getX()); // interval width for the while loop
+	int tfHeight = (int) (cells.get(12).textField.getLocationOnScreen().getY() - cells.get(0).textField.getLocationOnScreen().getY()); // interval height for the while loop
 
         int i = 0;
 	try {
@@ -251,7 +251,7 @@ public class Squirrel extends JFrame {
 	cellID.setText(selected.toString());
 	textInput.setText(selected.textField.getText());
 
-	// math labels sum and mean-count, respectively
+	// math labels sum and mean count, respectively
 	int s = 0; 
 	int n = 0;
 
@@ -262,7 +262,7 @@ public class Squirrel extends JFrame {
 	} else {
 	    for (Cell c : highlighted) {
 		if (c.textField.getText().equals("")) continue;
-		s += c.getIntValue();
+		s += c.getIntValue(); // this and previous line check for String or empty values and ignores them for the mean count
 		n++;
 	    }		
 	    count.setText("COUNT: " + highlighted.size());
@@ -274,46 +274,6 @@ public class Squirrel extends JFrame {
     /**
       @param vals: array of two arrays, the first being numbers, the second being bin
     */
-    public int[] writeHistogramTable(int[][] vals, int l)
-    {
-	int[] binValues = new int[vals[1].length];
-	int n = 0;
-	int i = 0;
-
-	while (i < vals[1].length) {
-	    if (n >= vals[0].length) {
-		i++;
-	    } else if (vals[0][n] < vals[1][i]) {
-		binValues[i]++;
-	    } else {
-		i++;
-	    }
-	    n++;
-	}
-
-	cells.get(l).setValue("Bin range");
-	cells.get(l+1).setValue("Count");
-	cells.get(l+2).setValue("Cum. Count");
-	cells.get(l+3).setValue("Percent");
-	cells.get(l+4).setValue("Cum. %");
-
-	int cumCount = 0;
-	double cumPercent = 0.0;
-	int binSum = 0;
-	for (int v : binValues) binSum += v;
-	
-	for (int b = 0; b < binValues.length; b++) {
-	    cumCount += binValues[b];
-	    cumPercent += ((double) (binValues[b])) / binSum;
-	    cells.get(l + (b+1)*COLS).setValue("to " + vals[1][b]);
-	    cells.get(l + (b+1)*COLS + 1).setValue(binValues[b]);
-	    cells.get(l + (b+1)*COLS + 2).setValue(cumCount);
-	    cells.get(l + (b+1)*COLS + 3).setValue(((double) (binValues[b])) / binSum);
-	    cells.get(l + (b+1)*COLS + 4).setValue(cumPercent);
-	}
-
-	return binValues;		
-    }
 
     public static void main(String[] args)
     {
