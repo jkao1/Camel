@@ -53,7 +53,7 @@ public class Squirrel extends JFrame implements List<Integer> {
     private ActionListener exitSystem;
     private JButton nextButton, cancelButton;
 
-    private List<Integer>
+    private List<Integer> data;
 
     public Squirrel()
     {
@@ -410,9 +410,9 @@ public class Squirrel extends JFrame implements List<Integer> {
 
     public List<Integer> writeToLineGraph()
     {
-	List<Integer> o = new List<Integer>();
+        data = new List<Integer>();
 	for (Cell c : highlighted) o.add(c.getIntValue());
-	LineGraph l = new LineGraph(o);
+	LineGraph l = new LineGraph(data);
     }
 
 
