@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -16,11 +17,9 @@ public class Squirrel extends JFrame {
     private static final int SS_START_LEVEL = 1;
     private static int BORDER_GAP;
 
-    private static String inputRange = "";
-    private static char graphType;
-
     private JFrame frame;
-    private Container ss;
+    private Container ss, top;
+    private GridBagConstraints topC; // for elements in the top Container
 
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
@@ -32,25 +31,45 @@ public class Squirrel extends JFrame {
 
     private ArrayList<Cell> cells;
     private ArrayList<Cell> highlighted;
+    
+    // graph input variables
+    private static final String GREET = "Greet";
+    private static final String LINE_GRAPH = "Line Graph";
+    private static final String BAR_GRAPH = "Bar Graph";
+    private static final String SCATTER_GRAPH = "Scatter Graph";
+    private static final String PIE_GRAPH = "Pie Graph";
+    private static final String HISTOGRAM = "Histogram";
+    private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, PIE_GRAPH, HISTOGRAM };    
+       
+    private JFrame graphFrame;
+    private Container pane;
+
+    private CardLayout cl;
+    private JPanel cards, nextPanel, greetPanel;
+    private JPanel[] graphPanels;
+
+    private JRadioButton[] radioButtons;
+    private ButtonGroup group;
+    private ActionListener exitSystem;
+    private JButton nextButton, cancelButton; 
 
     public Squirrel()
     {
-	frame = new JFrame("Camel");	
+	frame = new JFrame("Camel");
 
 	// a few default settings
 	this.setTitle("Spreadsheet");
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-	this.setResizable(false);
+	//this.setResizable(false);
 
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS (specifically border gap)
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
-
-	createMenuBar();	
+	createMenuBar();
 	initializeCells();
 
-	this.pack();
+        this.pack();
     }
     
     public void osDependentStyles()
@@ -77,9 +96,8 @@ public class Squirrel extends JFrame {
 	dataMenu = new JMenu("Data");
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) { // creates instance GraphInput g
-		    GraphInput g = new GraphInput();
-		    g.setVisible(true);
+		public void actionPerformed(ActionEvent e) {
+		    
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
@@ -94,32 +112,21 @@ public class Squirrel extends JFrame {
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
 
-	cellID = new JTextField();
-	//ss.add(cellID);
-	textInput = new JTextField();
-	textInput.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    selected.setValue(textInput.getText()); // makes textInput's value equal to that of the selected cell
-		}
-	    });
-	//ss.add(textInput);
-
 	for (int i = 0; i < ROWS*COLS; i++) {
 
-	    final Cell cell = new Cell(new JTextField(5),i);
+	    final Cell cell = new Cell(new JTextField(10),i);
 
 	    // sets default select to the first enabled cell
 	    if (i == COLS + 1) selected = cell;
 
-	    cell.textField.addMouseListener(new MouseListener()
+	    cell.getTextField().addMouseListener(new MouseListener()
 		{		    
 		    public void mousePressed(MouseEvent e) {
 			select(cell);
 		    }		    
 		    public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() == 2) { // double click will allow cell to be editable
-			    cell.textField.setEditable(true);
-			    cell.textField.getCaret().setVisible(true); // shows cursor
+			    cell.makeEditable();
 			}
 		    }		    
 		    public void mouseReleased(MouseEvent e) {
@@ -129,7 +136,7 @@ public class Squirrel extends JFrame {
 		    public void mouseEntered(MouseEvent e) {}
 		    public void mouseExited(MouseEvent e) {}
 		});
-	    cell.textField.addKeyListener(new KeyListener()
+	    cell.getTextField().addKeyListener(new KeyListener()
 		{
 		    public void keyPressed(KeyEvent e)
 		    {
@@ -153,19 +160,22 @@ public class Squirrel extends JFrame {
 			    select(cells.get(cell.cellNum - 1));
 			    updateTexts();
 			}
+			else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+			    selected.clear();
+			    for (Cell c : highlighted) c.clear();
+			}
 			// catch independence
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
 			// other characters: types in field
 			else {
-			    cell.textField.setEditable(true);
-			    cell.textField.getCaret().setVisible(true);
+			    cell.makeEditable();
 			}
 		    }
 		    public void keyReleased(KeyEvent e) {}
 		    public void keyTyped(KeyEvent e) {}
 		});
 
-	    ss.add(cell.textField);
+	    ss.add(cell.getTextField());
 	    cells.add(cell);
 	}
 	
@@ -202,17 +212,17 @@ public class Squirrel extends JFrame {
 
     public int releasedCellNum(Point p)
     {
-	int tfWidth = (int) (cells.get(1).textField.getLocationOnScreen().getX() - cells.get(0).textField.getLocationOnScreen().getX()); // interval width for the while loop
-	int tfHeight = (int) (cells.get(12).textField.getLocationOnScreen().getY() - cells.get(0).textField.getLocationOnScreen().getY()); // interval height for the while loop
+	int tfWidth = (int) (cells.get(1).getX() - cells.get(0).getX()); // interval width for the while loop
+	int tfHeight = (int) (cells.get(12).getY() - cells.get(0).getY()); // interval height for the while loop
 
         int i = 0;
 	try {
 	    // moves X by an interval of textfield's width until reaches Point p's X
-	    while (cells.get(i).textField.getLocationOnScreen().getX() + tfWidth <= p.getX()) {
+	    while (cells.get(i).getX() + tfWidth <= p.getX()) {
 		i++;
 	    }
 	    // moves Y by an interval of textfield's height until reaches Point p's Y
-	    while (cells.get(i).textField.getLocationOnScreen().getY() + tfHeight <= p.getY()) {
+	    while (cells.get(i).getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
 	} catch (IndexOutOfBoundsException e) {
@@ -251,8 +261,7 @@ public class Squirrel extends JFrame {
     // updates COUNT/SUM/MEAN, called in public boolean highlightCells(int x, int y)
     private void updateTexts()
     {
-	cellID.setText(selected.toString());
-	textInput.setText(selected.textField.getText());
+	cells.get(0).setValue(selected.toString() + ": " + selected.getValue());
 
 	// math labels sum and mean count, respectively
 	int s = 0; 
@@ -264,7 +273,7 @@ public class Squirrel extends JFrame {
 	    count.setText("COUNT: " + 1);
 	} else {
 	    for (Cell c : highlighted) {
-		if (c.textField.getText().equals("")) continue;
+		if (c.isEmpty()) continue;
 		s += c.getIntValue(); // this and previous line check for String or empty values and ignores them for the mean count
 		n++;
 	    }		
@@ -274,25 +283,140 @@ public class Squirrel extends JFrame {
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
 
-    public static void feedData(String r) {
-        inputRange = r;
+    public void createAndAddDefault(JPanel p, String s)
+    {
+	// creates input range
+	JPanel input = new JPanel();
+	input.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	input.add(new JLabel("input range:"));
+        JTextField inputRange = new JTextField(10);
+	input.add(inputRange);
+
+	// creates bin range
+	JPanel bin = new JPanel();
+	bin.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	bin.add(new JLabel("bin range (optional):"));
+        JTextField binRange = new JTextField(10);
+	bin.add(binRange);
+
+	// creates output range
+	JPanel output = new JPanel();
+	output.setLayout(new FlowLayout(FlowLayout.LEADING));
+	output.add(new JLabel("output:"));
+	output.add(new JTextField(10));
+
+	// creates "sort by" dropdown
+	JPanel sort = new JPanel();
+	sort.setLayout(new FlowLayout(FlowLayout.LEADING));
+	sort.add(new JLabel("sort by:")); // DOES NOT WORK
+	JComboBox<String> sortOptions = new JComboBox<>(new String[] {"none", "ascending", "descending"});
+	sortOptions.setEditable(false);
+
+	// chart creation check box (histogram-exclusive)
+	JCheckBox chart = new JCheckBox("Chart");
+
+	// creates the default buttons "Ok" and "Cancel
+	JPanel defaultButtons = new JPanel();
+	JButton ok = new JButton("Ok");
+	ok.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    feedData();
+		    graphFrame.dispose();
+		}
+	    });
+	defaultButtons.add(ok);
+	defaultButtons.add(cancelButton);
+
+	// sets default settings for JPanel p
+	p.setLayout(new GridLayout(0, 1));
+	p.add(new JLabel(s));
+	p.add(input);
+	switch (s.charAt(0)) {
+	case 'L': p.add(bin); break; // line graph
+	case 'B': p.add(sortOptions); break; // bar graph
+	case 'S': break; // scatter graph
+	case 'P': p.add(sortOptions); break; // pie graph
+	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+	}
+	p.add(defaultButtons);
     }
 
-    private void readInput() {
-	int start = COLS + inputRange.substring(0,2).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(0,2).charAt(1) - '1');
-	int end = COLS + inputRange.substring(2,4).charAt(0) - 'A' + 1 + COLS * (inputRange.substring(2,4).charAt(1) - '1');
-	highlightCells(start,end);
+    public void feedData() {}
+
+    public void makeGraphInput()
+    {
+	graphFrame = new JFrame("Graph Input");
+	graphFrame.setLayout(new FlowLayout());
+
+	graphFrame.setLocation(300,300);
+
+	cards = new JPanel(new CardLayout());
+
+	greetPanel = new JPanel(new GridLayout(0,1));
+	greetPanel.add(new JLabel("Choose a graph:"));
+	group = new ButtonGroup();
+	
+	radioButtons = new JRadioButton[graphLabels.length];
+	for (int i = 0; i < radioButtons.length; i++) {
+	    JRadioButton rb = new JRadioButton(graphLabels[i]);
+	    rb.setActionCommand(String.valueOf(i));
+	    radioButtons[i] = rb;
+	    group.add(rb);
+	    greetPanel.add(rb);
+	};
+	// moves radio button panel to panel of selected graph
+	nextPanel = new JPanel(new FlowLayout());		    
+	nextButton = new JButton("Next");
+	nextButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    cl = (CardLayout) (cards.getLayout());
+		    for (JRadioButton rb : radioButtons) {
+			if (rb.isSelected()) {			    
+			    cl.show( cards, graphLabels[Integer.parseInt(rb.getActionCommand())] );
+			}
+		    }
+		}
+	    });
+	nextPanel.add(nextButton);
+
+	// for cancel buttons
+	exitSystem = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    graphFrame.dispose();
+		}
+	    };	
+	cancelButton = new JButton("Cancel");
+	cancelButton.addActionListener(exitSystem);
+	nextPanel.add(cancelButton);
+	greetPanel.add(nextPanel);
+	cards.add(greetPanel, "Greet");
+
+	// all the panels for actual graph input
+	graphPanels = new JPanel[graphLabels.length];
+	for (int i = 0; i < graphPanels.length; i++) {
+	    JPanel p = new JPanel();	    
+	    createAndAddDefault(p, graphLabels[i]); // cannot add same component to multiple cards, so declares new components for each panel
+	    cards.add(p, graphLabels[i]);
+	}
+	
+	pane = graphFrame.getContentPane();
+	pane.add(cards, BorderLayout.CENTER);
+	graphFrame.pack();
+	graphFrame.setVisible(true);
+
     }
+
+    public void writeToLineGraph()
+    {
+	for 
+
+
+    
 
     public static void main(String[] args)
     {
-	// just for testing
-	if (args.length > 0 && args[0].equals("cmd")) {
-	   
-	} else {
-	    Squirrel s = new Squirrel();
-	    s.setVisible(true);
-	}
+	Squirrel s = new Squirrel();
+	s.setVisible(true);	
     }
     
 }
