@@ -1,12 +1,13 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Squirrel extends JFrame implements List<Integer> {
+public class Squirrel extends JFrame {
 
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
@@ -408,15 +409,12 @@ public class Squirrel extends JFrame implements List<Integer> {
 
     }
 
-    public List<Integer> writeToLineGraph()
+    public void writeToLineGraph()
     {
-        data = new List<Integer>();
-	for (Cell c : highlighted) o.add(c.getIntValue());
+        data = new ArrayList<Integer>();
+	for (Cell c : highlighted) data.add(c.getIntValue());
 	LineGraph l = new LineGraph(data);
     }
-
-
-    
 
     public static void main(String[] args)
     {
