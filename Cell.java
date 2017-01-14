@@ -73,6 +73,10 @@ public class Cell implements Comparable<Cell> {
     
     public int getIntValue() {
 	try {
+	    String s = textField.getText();
+	    if (s.indexOf(".") > 0) {
+		s = s.substring( 0, s.indexOf("."));
+	    }
 	    return Integer.parseInt(textField.getText());
 	} catch (NumberFormatException e) { return 0; }
     }

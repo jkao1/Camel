@@ -406,8 +406,11 @@ public class Squirrel extends JFrame {
 
     }
 
-    public void writeToLineGraph()
+    public List<Integer> writeToLineGraph()
     {
+	List<Integer> o = new List<Integer>();
+	for (Cell c : highlighted) o.add(c.getIntValue());
+	LineGraph l = new LineGraph(o);
     }
 
 
