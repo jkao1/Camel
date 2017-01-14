@@ -6,7 +6,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Squirrel extends JFrame {
+public class Squirrel extends JFrame implements List<Integer> {
 
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
@@ -51,7 +51,9 @@ public class Squirrel extends JFrame {
     private JRadioButton[] radioButtons;
     private ButtonGroup group;
     private ActionListener exitSystem;
-    private JButton nextButton, cancelButton; 
+    private JButton nextButton, cancelButton;
+
+    private List<Integer>
 
     public Squirrel()
     {
