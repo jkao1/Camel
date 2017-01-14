@@ -1,9 +1,12 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 
+import javax.swing.*;
+
+import java.awt.*;
+import java.awt.event.*;
+
 public class BarGraph extends JPanel{
+    
     private static final int MAX_SCORE = 20;
     private static final int PREF_W = 800;
     private static final int PREF_H = 650;
@@ -12,11 +15,12 @@ public class BarGraph extends JPanel{
     private static final int Y_HATCH_CNT = 10;
     private List<Integer> scores;
     	     
-    public BarGraph(List<Integer> scores){
+    public BarGraph(List<Integer> scores) {
 	this.scores = scores;
     }
 
-    protected void paintComponent(Graphics g){
+    protected void paintComponent(Graphics g)
+    {
 	super.paintComponent(g);
 	Graphics2D g2D = (Graphics2D)g;
 	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -26,12 +30,11 @@ public class BarGraph extends JPanel{
 	List<Point> graphPoints = new ArrayList<Point>();
 	for(int i = 0; i < scores.size(); i++){
 	    int x1 = (int) (i * xScale + BORDER_GAP);
-	    int y1 = (int) ((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP):
-			    
-			 
+	    int y1 = (int) ((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP);
+	}			 
     }
 
-    public Dimension getPreferredSize(){
+    public Dimension getPreferredSize() {
 	return new Dimension(PREF_W, PREF_H);
     }
 

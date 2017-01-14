@@ -1,11 +1,14 @@
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
+
 import javax.swing.*;
 
+import java.awt.*;
+
 public class LineGraph extends JPanel {
+    
     private static final int MAX_SCORE = 20;
     private static final int PREF_W = 800;
     private static final int PREF_H = 650;
@@ -18,12 +21,13 @@ public class LineGraph extends JPanel {
     private List<Integer> scores;
 
     //initializes LineGraph with the set of points
-    public LineGraph(List<Integer> scores){
+    public LineGraph(List<Integer> scores) {
 	this.scores = scores;
     }
 
     //paints the axes and points on the graphics object
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g)
+    {
 	super.paintComponent(g);
 	Graphics2D g2 = (Graphics2D)g;
 	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
