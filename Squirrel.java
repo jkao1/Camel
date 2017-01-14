@@ -6,33 +6,29 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * TODO: topPanel
+ */
 public class Squirrel extends JFrame {
 
+	// Constants used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
-
-    private static final int WINDOW_WIDTH = 960;
-    private static final int WINDOW_HEIGHT = 720;
-    private static final int MATH_LABEL_START_LEVEL = 3;
-    private static final int SS_START_LEVEL = 1;
     private static int BORDER_GAP;
 
-    private JFrame frame;
-    private Container ss, top;
-    private GridBagConstraints topC; // for elements in the top Container
-
+    private JFrame frame; // spreadsheet frame
+    private Container ss; // spreadsheet container
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
     private JMenuItem fileMenu_New, dataMenu_Graph;
-    private JLabel count, sum, mean;
-    private JTextField cellID, textInput;
-	
-    private Cell selected;
-
-    private ArrayList<Cell> cells;
-    private ArrayList<Cell> highlighted;
     
-    // graph input variables
+    private JLabel count, sum, mean; // for selected areas	
+    private Cell selected; // selected cell
+    
+    private ArrayList<Cell> cells; // stores all cells
+    private ArrayList<Cell> highlighted; // stores highlighted cells
+    
+    // Constants used for graph input body
     private static final String GREET = "Greet";
     private static final String LINE_GRAPH = "Line Graph";
     private static final String BAR_GRAPH = "Bar Graph";
@@ -41,39 +37,41 @@ public class Squirrel extends JFrame {
     private static final String HISTOGRAM = "Histogram";
     private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, PIE_GRAPH, HISTOGRAM };    
        
-    private JFrame graphFrame;
-    private Container pane;
+    private JFrame graphFrame; // graph input frame
+    private Container pane; // graph input container
 
     private CardLayout cl;
-    private JPanel cards, nextPanel, greetPanel;
-    private JPanel[] graphPanels;
+    private JPanel cards, greetPanel; // unique panels
+    private JPanel nextPanel; // shared panels
+    private JPanel[] graphPanels; // graph panels
 
-    private JRadioButton[] radioButtons;
-    private ButtonGroup group;
-    private ActionListener exitSystem;
-    private JButton nextButton, cancelButton;
+    private JRadioButton[] radioButtons; // stores radio buttons
+    private ButtonGroup group; // contains radio buttons
+    private ActionListener exitSystem; // shared ActionListeners
+    private JButton nextButton, cancelButton; // shared buttons
 
-    private List<Integer> data;
+    private List<Integer> data; // stores graph data
 
     public Squirrel()
     {
 	frame = new JFrame("Camel");
 
-	// a few default settings
 	this.setTitle("Spreadsheet");
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-	//this.setResizable(false);
 
 	ss = this.getContentPane();
-	osDependentStyles(); // styles based on OS (specifically border gap)
+	osDependentStyles();
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
 	createMenuBar();
-	initializeCells();
+	drawCells();
 
         this.pack();
     }
     
+    /**
+     * Customizes spreadsheet face based on user OS.
+     */
     public void osDependentStyles()
     {
 	if (OS.indexOf("mac") >= 0) {
@@ -82,7 +80,7 @@ public class Squirrel extends JFrame {
 	    BORDER_GAP = 0;
 	}
     }
-    
+
     public void createMenuBar()
     {
 	mb = new JMenuBar();
@@ -99,7 +97,7 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    makeGraphInput();
+		    openGraphInput(); 
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
@@ -108,8 +106,10 @@ public class Squirrel extends JFrame {
 	this.setJMenuBar(mb);
     }
 
-    // draws cells
-    public  void initializeCells()
+    /**
+     * Draws ROWS*COLS cells (including alphanumeric labels).
+     */
+    public  void drawCells()
     {	
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
@@ -192,31 +192,48 @@ public class Squirrel extends JFrame {
 	ss.add(mean);	
     }
 
+    /**
+     * TODO Column label highlighting
+     * 
+     * Selects a cell and clears all other selections.
+     * If Cell c is a row label, the cell directly to the right will be selected and the row will be highlighted.
+     * If Cell c is a column label, the cell directly underneath will be selected and the column will be highlighted.
+     * 
+     * @param c Cell to be selected
+     * @
+     */
     public void select(Cell c) {
 	selected.unSelect();
 	for (Cell h : highlighted) h.deHighlight();
 	highlighted.clear();
 
-	if (c.isLabel && cells.get(c.cellNum+1).isLabel) { // if cell is alphabetical label
+	if (c.isLabel && !cells.get(c.cellNum+COLS).isLabel) { // column label
 	    selected = cells.get(c.cellNum + COLS);
-	    selected.select(); // selects cell directly underneath
-	    highlightCells(selected.cellNum, c.cellNum+(ROWS)*COLS); // highlights column
+	    selected.select();
+	    highlightCells(selected.cellNum, c.cellNum+(ROWS)*COLS);
 	}
-	else if (c.isLabel && cells.get(c.cellNum+COLS).isLabel) { // if cell is numerical label
+	else if (c.isLabel && !cells.get(c.cellNum+1).isLabel) { // row label
 	    selected = cells.get(c.cellNum + 1);
-	    selected.select(); // selects cell directly to the right
-	    highlightCells(c.cellNum+1, c.cellNum+COLS-1); // highlights row
+	    selected.select();
+	    highlightCells(c.cellNum+1, c.cellNum+COLS-1);
 	} else {
-	    c.select();
 	    selected = c;
+	    selected.select();
 	}
 	updateTexts(); // updates COUNT/SUM/MEAN
     }
 
+    /**
+     * Returns index of cell the pointer was released on.
+     * This index is then used in public boolean highlightCells(int x, int y).
+     * 
+     * @param p location of pointer on screen
+     * @return index of cell from mouseReleased
+     */
     public int releasedCellNum(Point p)
     {
-	int tfWidth = (int) (cells.get(1).getX() - cells.get(0).getX()); // interval width for the while loop
-	int tfHeight = (int) (cells.get(12).getY() - cells.get(0).getY()); // interval height for the while loop
+	int tfWidth = (int) (cells.get(1).getX() - cells.get(0).getX());
+	int tfHeight = (int) (cells.get(12).getY() - cells.get(0).getY());
 
         int i = 0;
 	try {
@@ -228,14 +245,15 @@ public class Squirrel extends JFrame {
 	    while (cells.get(i).getY() + tfHeight <= p.getY()) {
 		i += COLS;
 	    }
-	} catch (IndexOutOfBoundsException e) {
-	    // pointer went out of window
-	}
-
+	} catch (IndexOutOfBoundsException e) {} // pointer went out of window
+	
 	return i;
     }
 
-    public boolean highlightCells(int x, int y) // to do: highlight labels
+    /**
+     * Selects all cells within a specified range of cell indexes.
+     */
+    public boolean highlightCells(int x, int y)
     {
 	if (x == y) return true;
 	
@@ -261,7 +279,10 @@ public class Squirrel extends JFrame {
 	return true;
     }
 
-    // updates COUNT/SUM/MEAN, called in public boolean highlightCells(int x, int y)
+    /**
+     * After each selection: updates count/sum/mean labels and ID label (located in the top-left of the spreadsheet).
+     * Called in public boolean highlightCells(int x, int y).
+     */
     private void updateTexts()
     {
 	cells.get(0).setValue(selected.toString() + ": " + selected.getValue());
@@ -286,6 +307,12 @@ public class Squirrel extends JFrame {
 	mean.setText("MEAN: " + ((double) (s) / n));
     }
 
+    /**
+     * Creates new instances of GraphInput features and adds them to a JPanel.
+     * 
+     * @param p JPanel the components are added to.
+     * @param s identifies graph type, as different GraphInputs have different components.
+     */
     public void createAndAddDefault(JPanel p, String s)
     {
 	// creates input range
@@ -353,17 +380,23 @@ public class Squirrel extends JFrame {
 	p.add(defaultButtons);
     }
 
-    private void highlightInputRange(String inputRange)
+    /**
+     * Highlights the input range from GraphInput.
+     * The selection is used in reading data for making graphs.
+     */
+    private void highlightInputRange( String inputRange )
     {	
 	String[] bounds = inputRange.split(":");
-	String b1 = bounds[0];
-	String b2 = bounds[1];
+	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
+	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
 
-	select( cells.get(Integer.parseInt(b1.substring(1,b1.length())) * COLS + b1.charAt(0) - 'A' + 1) );
-	highlightCells( Integer.parseInt(b1.substring(1,b1.length())) * COLS + b1.charAt(0) - 'A' + 1, Integer.parseInt(b2.substring(1,b2.length())) * COLS + b2.charAt(0) - 'A' + 1 );
+	highlightInputRange( a,b );
     }
 
-    public void makeGraphInput()
+    /**
+     * Opens a new window for inputting Graph data.
+     */
+    public void openGraphInput()
     {
 	graphFrame = new JFrame("Graph Input");
 	graphFrame.setLayout(new FlowLayout());
@@ -426,6 +459,18 @@ public class Squirrel extends JFrame {
 
     }
 
+    /**
+     * Returns String inputRange to be put as default in GraphInput.
+     */
+    private String toInputRange()
+    {
+	if ( highlighted.size() == 0 ) return "";
+
+	return highlighted.get(0).toString + ":" + highlighted.get( highlighted.size()-1 ).toString();
+
+    /**
+     * Makes a line graph with a 1-column input.
+     */
     public void makeLineGraph()
     {
         data = new ArrayList<Integer>();
