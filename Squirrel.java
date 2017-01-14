@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -100,7 +99,7 @@ public class Squirrel extends JFrame {
 	dataMenu_Graph = new JMenuItem("Graph");
 	dataMenu_Graph.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    
+		    makeGraphInput();
 		}
 	    });
 	dataMenu.add(dataMenu_Graph);
@@ -171,6 +170,7 @@ public class Squirrel extends JFrame {
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
 			// other characters: types in field
 			else {
+			    cell.clear();
 			    cell.makeEditable();
 			}
 		    }
@@ -323,7 +323,16 @@ public class Squirrel extends JFrame {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    feedData();
+		    if (false){// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
+			throw new IllegalArgumentException("error: input must be of the form Letter_Int_Letter_Int. graph creation unsucessful.");
+		    } else {
+			highlightInputRange(inputRange.getText());
+			switch (s.charAt(0)) {
+			case 'L':
+			    if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
+			    else System.out.println("error: line graphs can only take one column of data.");
+			}
+		    }
 		    graphFrame.dispose();
 		}
 	    });
@@ -344,7 +353,15 @@ public class Squirrel extends JFrame {
 	p.add(defaultButtons);
     }
 
-    public void feedData() {}
+    private void highlightInputRange(String inputRange)
+    {	
+	String[] bounds = inputRange.split(":");
+	String b1 = bounds[0];
+	String b2 = bounds[1];
+
+	select( cells.get(Integer.parseInt(b1.substring(1,b1.length())) * COLS + b1.charAt(0) - 'A' + 1) );
+	highlightCells( Integer.parseInt(b1.substring(1,b1.length())) * COLS + b1.charAt(0) - 'A' + 1, Integer.parseInt(b2.substring(1,b2.length())) * COLS + b2.charAt(0) - 'A' + 1 );
+    }
 
     public void makeGraphInput()
     {
@@ -409,17 +426,24 @@ public class Squirrel extends JFrame {
 
     }
 
-    public void writeToLineGraph()
+    public void makeLineGraph()
     {
         data = new ArrayList<Integer>();
 	for (Cell c : highlighted) data.add(c.getIntValue());
+
 	LineGraph l = new LineGraph(data);
+	JFrame lineGraph = new JFrame(LINE_GRAPH);
+
+	lineGraph.getContentPane().add(l);
+	lineGraph.pack();
+	lineGraph.setVisible(true);
     }
 
     public static void main(String[] args)
     {
 	Squirrel s = new Squirrel();
-	s.setVisible(true);	
+	s.setVisible(true);
+	LineGraph l = new LineGraph(new ArrayList<Integer>());
     }
     
 }
