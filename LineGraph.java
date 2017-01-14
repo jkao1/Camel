@@ -86,24 +86,5 @@ public class LineGraph extends JPanel {
     public Dimension getPreferredSize() {
 	return new Dimension(PREF_W, PREF_H);
     }
-
-    private static void createAndShowGui() {
-	List<Integer> scores = new ArrayList<Integer>();
-	// Insert points into score here
-	LineGraph mainPanel = new LineGraph(scores);
-	JFrame frame = new JFrame("Line Graph");
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	frame.getContentPane().add(mainPanel);
-	frame.pack();
-	frame.setLocationByPlatform(true);
-	frame.setVisible(true);
-    }
     
-    public static void main(String[] args) {
-	SwingUtilities.invokeLater(new Runnable() {
-		public void run() {
-		    createAndShowGui();
-		}
-	    });
-    }
 }

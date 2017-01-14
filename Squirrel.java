@@ -116,7 +116,7 @@ public class Squirrel extends JFrame {
 
 	for (int i = 0; i < ROWS*COLS; i++) {
 
-	    final Cell cell = new Cell(new JTextField(10),i);
+	    final Cell cell = new Cell(new JTextField(6),i);
 
 	    // sets default select to the first enabled cell
 	    if (i == COLS + 1) selected = cell;
