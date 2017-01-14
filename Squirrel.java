@@ -18,8 +18,9 @@ public class Squirrel extends JFrame {
     private static int BORDER_GAP;
 
     private JFrame frame;
-    private Container ss;
-    
+    private Container ss, top;
+    private GridBagConstraints topC; // for elements in the top Container
+
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
     private JMenuItem fileMenu_New, dataMenu_Graph;
@@ -60,16 +61,15 @@ public class Squirrel extends JFrame {
 	this.setTitle("Spreadsheet");
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-	this.setResizable(false);
+	//this.setResizable(false);
 
 	ss = this.getContentPane();
 	osDependentStyles(); // styles based on OS (specifically border gap)
 	ss.setLayout(new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
-
-	createMenuBar();	
+	createMenuBar();
 	initializeCells();
 
-	this.pack();
+        this.pack();
     }
     
     public void osDependentStyles()
@@ -100,7 +100,6 @@ public class Squirrel extends JFrame {
 		    graphFrame = new JFrame("Graph Input");
 		    graphFrame.setLayout(new FlowLayout());
 
-		    graphFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		    graphFrame.setLocation(300,300);
 
 		    cards = new JPanel(new CardLayout());
@@ -134,7 +133,7 @@ public class Squirrel extends JFrame {
 		    // for cancel buttons
 		    exitSystem = new ActionListener() {
 			    public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				graphFrame.dispose();
 			    }
 			};	
 		    cancelButton = new JButton("Cancel");
@@ -169,19 +168,9 @@ public class Squirrel extends JFrame {
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
 
-	cellID = new JTextField();
-	//ss.add(cellID);
-	textInput = new JTextField();
-	textInput.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    selected.setValue(textInput.getText()); // makes textInput's value equal to that of the selected cell
-		}
-	    });
-	//ss.add(textInput);
-
 	for (int i = 0; i < ROWS*COLS; i++) {
 
-	    final Cell cell = new Cell(new JTextField(5),i);
+	    final Cell cell = new Cell(new JTextField(10),i);
 
 	    // sets default select to the first enabled cell
 	    if (i == COLS + 1) selected = cell;
@@ -228,6 +217,7 @@ public class Squirrel extends JFrame {
 			    select(cells.get(cell.cellNum - 1));
 			    updateTexts();
 			}
+			
 			// catch independence
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
 			// other characters: types in field
@@ -326,8 +316,7 @@ public class Squirrel extends JFrame {
     // updates COUNT/SUM/MEAN, called in public boolean highlightCells(int x, int y)
     private void updateTexts()
     {
-	cellID.setText(selected.toString());
-	textInput.setText(selected.textField.getText());
+	cells.get(0).setValue(selected.toString() + ": " + selected.textField.getText());
 
 	// math labels sum and mean count, respectively
 	int s = 0; 
@@ -386,6 +375,8 @@ public class Squirrel extends JFrame {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
+		    feedData();
+		    graphFrame.dispose();
 		}
 	    });
 	defaultButtons.add(ok);
@@ -404,6 +395,8 @@ public class Squirrel extends JFrame {
 	}
 	p.add(defaultButtons);
     }
+
+    public void feedData() {}
 
     public static void main(String[] args)
     {
