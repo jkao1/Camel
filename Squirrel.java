@@ -408,10 +408,7 @@ public class Squirrel extends JFrame {
 
     public void writeToLineGraph()
     {
-	for 
-
-
-
+    }
 
 
     
