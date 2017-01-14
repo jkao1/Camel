@@ -2,6 +2,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 import javax.swing.*;
 
 public class LineGraph extends JPanel {
@@ -15,11 +16,13 @@ public class LineGraph extends JPanel {
     private static final int GRAPH_POINT_WIDTH = 10;
     private static  int Y_HATCH_CNT;
     private List<Integer> scores;
-    
+
+    //initializes LineGraph with the set of points
     public LineGraph(List<Integer> scores){
 	this.scores = scores;
     }
 
+    //paints the axes and points on the graphics object
     protected void paintComponent(Graphics g) {
 	super.paintComponent(g);
 	Graphics2D g2 = (Graphics2D)g;
@@ -88,11 +91,6 @@ public class LineGraph extends JPanel {
 	List<Integer> scores = new ArrayList<Integer>();
 	// Insert points into score here
 	LineGraph mainPanel = new LineGraph(scores);
-	scores.add(3);
-	scores.add(5);
-	scores.add(10);
-	scores.add(15);
-	scores.add(20);
 	JFrame frame = new JFrame("Line Graph");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.getContentPane().add(mainPanel);
