@@ -8,6 +8,7 @@ import java.awt.event.*;
 
 /**
  * TODO: topPanel
+ * TODO: realtime input range highlighting?
  */
 public class Squirrel extends JFrame {
 
@@ -317,29 +318,30 @@ public class Squirrel extends JFrame {
     {
 	// creates input range
 	JPanel input = new JPanel();
-	input.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	input.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
 	input.add(new JLabel("input range:"));
         JTextField inputRange = new JTextField(10);
+	inputRange.setText( toInputRange() );
 	input.add(inputRange);
 
 	// creates bin range
 	JPanel bin = new JPanel();
-	bin.setLayout(new FlowLayout(FlowLayout.LEADING)); // left-aligned
+	bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
 	bin.add(new JLabel("bin range (optional):"));
         JTextField binRange = new JTextField(10);
 	bin.add(binRange);
 
 	// creates output range
 	JPanel output = new JPanel();
-	output.setLayout(new FlowLayout(FlowLayout.LEADING));
+	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
 	output.add(new JLabel("output:"));
 	output.add(new JTextField(10));
 
 	// creates "sort by" dropdown
 	JPanel sort = new JPanel();
-	sort.setLayout(new FlowLayout(FlowLayout.LEADING));
+	sort.setLayout(new FlowLayout( FlowLayout.LEADING ));
 	sort.add(new JLabel("sort by:")); // DOES NOT WORK
-	JComboBox<String> sortOptions = new JComboBox<>(new String[] {"none", "ascending", "descending"});
+	JComboBox<String> sortOptions = new JComboBox<>(new String[] { "none", "ascending", "descending" });
 	sortOptions.setEditable(false);
 
 	// chart creation check box (histogram-exclusive)
@@ -348,13 +350,13 @@ public class Squirrel extends JFrame {
 	// creates the default buttons "Ok" and "Cancel
 	JPanel defaultButtons = new JPanel();
 	JButton ok = new JButton("Ok");
-	ok.addActionListener(new ActionListener() {
+	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    if (false){// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
+		    if (false) {// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
 			throw new IllegalArgumentException("error: input must be of the form Letter_Int_Letter_Int. graph creation unsucessful.");
 		    } else {
-			highlightInputRange(inputRange.getText());
-			switch (s.charAt(0)) {
+			highlightInputRange( inputRange.getText() );
+			switch ( s.charAt(0) ) {
 			case 'L':
 			    if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
 			    else System.out.println("error: line graphs can only take one column of data.");
@@ -367,10 +369,10 @@ public class Squirrel extends JFrame {
 	defaultButtons.add(cancelButton);
 
 	// sets default settings for JPanel p
-	p.setLayout(new GridLayout(0, 1));
-	p.add(new JLabel(s));
+	p.setLayout( new GridLayout(0,1) );
+	p.add( new JLabel(s) );
 	p.add(input);
-	switch (s.charAt(0)) {
+	switch ( s.charAt(0) ) {
 	case 'L': p.add(bin); break; // line graph
 	case 'B': p.add(sortOptions); break; // bar graph
 	case 'S': break; // scatter graph
@@ -390,7 +392,7 @@ public class Squirrel extends JFrame {
 	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
 	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
 
-	highlightInputRange( a,b );
+	highlightCells( a,b );
     }
 
     /**
@@ -399,20 +401,20 @@ public class Squirrel extends JFrame {
     public void openGraphInput()
     {
 	graphFrame = new JFrame("Graph Input");
-	graphFrame.setLayout(new FlowLayout());
+	graphFrame.setLayout( new FlowLayout() );
 
 	graphFrame.setLocation(300,300);
 
-	cards = new JPanel(new CardLayout());
+	cards = new JPanel( new CardLayout() );
 
-	greetPanel = new JPanel(new GridLayout(0,1));
-	greetPanel.add(new JLabel("Choose a graph:"));
+	greetPanel = new JPanel( new GridLayout(0,1) );
+	greetPanel.add( new JLabel("Choose a graph:") );
 	group = new ButtonGroup();
 	
-	radioButtons = new JRadioButton[graphLabels.length];
+	radioButtons = new JRadioButton[ graphLabels.length ];
 	for (int i = 0; i < radioButtons.length; i++) {
-	    JRadioButton rb = new JRadioButton(graphLabels[i]);
-	    rb.setActionCommand(String.valueOf(i));
+	    JRadioButton rb = new JRadioButton( graphLabels[i] );
+	    rb.setActionCommand( String.valueOf(i) ); // for chosen graph identification
 	    radioButtons[i] = rb;
 	    group.add(rb);
 	    greetPanel.add(rb);
@@ -425,7 +427,7 @@ public class Squirrel extends JFrame {
 		    cl = (CardLayout) (cards.getLayout());
 		    for (JRadioButton rb : radioButtons) {
 			if (rb.isSelected()) {			    
-			    cl.show( cards, graphLabels[Integer.parseInt(rb.getActionCommand())] );
+			    cl.show( cards, graphLabels[ Integer.parseInt(rb.getActionCommand()) ] );
 			}
 		    }
 		}
@@ -466,7 +468,8 @@ public class Squirrel extends JFrame {
     {
 	if ( highlighted.size() == 0 ) return "";
 
-	return highlighted.get(0).toString + ":" + highlighted.get( highlighted.size()-1 ).toString();
+	return highlighted.get(0).toString() + ":" + highlighted.get( highlighted.size()-1 ).toString();
+    }
 
     /**
      * Makes a line graph with a 1-column input.
