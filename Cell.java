@@ -5,9 +5,10 @@ public class Cell implements Comparable<Cell> {
 
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
 
-    public JTextField textField; 
+    private JTextField textField;
+ 
     public int cellNum;
-    public boolean isLabel;
+    public boolean isLabel; 
     
     public Cell(JTextField t, int i) { 
 	textField = t;
@@ -52,11 +53,32 @@ public class Cell implements Comparable<Cell> {
 	    textField.setBackground(Color.WHITE);
 	}
     }
+
+    public void makeEditable() {
+	textField.setEditable(true);
+	textField.getCaret().setVisible(true);
+    }
+
+    public void clear() {
+	textField.setText("");
+    }
+
+    public boolean isEmpty() {
+	return textField.getText().equals("");
+    }
+
+    public JTextField getTextField() {
+	return textField;
+    }
     
     public int getIntValue() {
 	try {
 	    return Integer.parseInt(textField.getText());
 	} catch (NumberFormatException e) { return 0; }
+    }
+
+    public String getValue() {
+	return textField.getText();
     }
     
     public void setValue(int v) {
@@ -69,6 +91,14 @@ public class Cell implements Comparable<Cell> {
 
     public void setValue(String v) {
 	textField.setText(v);
+    }
+
+    public double getX() {
+	return textField.getLocationOnScreen().getX();
+    }
+
+    public double getY() {
+	return textField.getLocationOnScreen().getY();
     }
 
     public String toString() {
