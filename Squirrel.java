@@ -16,15 +16,16 @@ public class Squirrel extends JFrame {
     // Constants used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
+    
     private static int BORDER_GAP;
+    private static String currentFileName;
 
     private JFrame frame; // spreadsheet frame
     private Container ss; // spreadsheet container
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
-    private JMenuItem fileMenu_Save, fileMenu_Open;
+    private JMenuItem fileMenu_Open, fileMenu_Save;
     private JMenuItem dataMenu_Graph;
-    private JFileChooser fc;
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
     
