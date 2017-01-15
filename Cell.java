@@ -92,6 +92,13 @@ public class Cell implements Comparable<Cell> {
 	} catch (NumberFormatException e) { return 0; }
     }
 
+    public double getDoubleValue() {
+	try {
+	    String s = textField.getText();
+	    return Double.parseDouble(textField.getText());
+	} catch (NumberFormatException e) { return 0; }
+    }
+
     public String getValue() {
 	return textField.getText();
     }

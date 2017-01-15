@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.io.*;
 
 import java.awt.*;
@@ -53,8 +54,6 @@ public class Squirrel extends JFrame {
     private ButtonGroup group; // contains radio buttons
     private ActionListener exitSystem; // shared ActionListeners
     private JButton nextButton, cancelButton; // shared buttons
-
-    private List<Integer> data; // stores graph data
 
     public Squirrel()
     {
@@ -438,95 +437,153 @@ public class Squirrel extends JFrame {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    if (false) {// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
-			throw new IllegalArgumentException("error: input must be of the form Letter_Int_Letter_Int. graph creation unsucessful.");
-		    } else {
-			highlightInputRange( inputRange.getText() );
-			switch ( s.charAt(0) ) {
-			case 'L':
-			    if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
-			    else System.out.println("error: line graphs can only take one column of data.");
-			}
-		    }
-		    graphFrame.dispose();
-		}
+		    highlightInputRange( inputRange.getText() );
+		    switch ( s.charAt(0) ) {
+		    case 'L':
+			if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
+			else System.out.println("error: line graphs can only take one column of data.");
+			break;
+		    case 'H':
+			if ( inputRange.getText().charAt(0) + 1 == (int) ( inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 )) ) makeHistogram();
+			break;
+		    }		    
+		
+		graphFrame.dispose();
+	    }
 	    });
-	defaultButtons.add(ok);
-	defaultButtons.add(cancelButton);
+    defaultButtons.add(ok);
+    defaultButtons.add(cancelButton);
 
-	// sets default settings for JPanel p
-	p.setLayout( new GridLayout(0,1) );
-	p.add( new JLabel(s) );
-	p.add(input);
-	switch ( s.charAt(0) ) {
-	case 'L': p.add(bin); break; // line graph
-	case 'B': p.add(sortOptions); break; // bar graph
-	case 'S': break; // scatter graph
-	case 'P': p.add(sortOptions); break; // pie graph
-	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+    // sets default settings for JPanel p
+    p.setLayout( new GridLayout(0,1) );
+    p.add( new JLabel(s) );
+    p.add(input);
+    switch ( s.charAt(0) ) {
+    case 'L': p.add(bin); break; // line graph
+    case 'B': p.add(sortOptions); break; // bar graph
+    case 'S': break; // scatter graph
+    case 'P': p.add(sortOptions); break; // pie graph
+    case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+    }
+    p.add(defaultButtons);
+}
+
+/**
+ * Clears spreadsheet and writes data.
+ * Data gathered from (FileManager fm).openFile().
+ * 
+ * @param v ArrayList which contains information in the form cellIndex:cellValue.
+ */
+private void openFileWithData( ArrayList<String> v )
+{
+    for ( Cell c : cells) c.clear();
+    for ( String s : v ) {
+	String[] info = s.split( ":" );
+	cells.get( Integer.parseInt( info[0] )).setValue( info[1] );
+    }
+}
+
+/**
+ * Highlights the input range from GraphInput.
+ * The selection is used in reading data for making graphs.
+ */
+private void highlightInputRange( String inputRange )
+{	
+    String[] bounds = inputRange.split( ":" );
+    int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
+    int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
+
+    highlightCells( a,b );
+}
+
+/**
+ * Returns String inputRange to be put as default in GraphInput.
+ */
+private String toInputRange()
+{
+    if ( highlighted.size() == 0 ) return "";
+
+    return highlighted.get(0).toString() + ":" + highlighted.get( highlighted.size()-1 ).toString();
+}
+
+/**
+ * Makes a line graph with a 1-column input.
+ */
+public void makeLineGraph()
+{
+    List<Integer> data = new ArrayList<Integer>();
+    for (Cell c : highlighted) data.add(c.getIntValue());
+
+    LineGraph l = new LineGraph(data);
+    JFrame lineGraph = new JFrame(LINE_GRAPH);
+
+    lineGraph.getContentPane().add(l);
+    lineGraph.pack();
+    lineGraph.setVisible(true);
+}
+
+/**
+ * Makes a histogram with a 2-colum input.
+ * Written to a cell area are: bin range, count, cum. count, percent, and cum. percent.
+ */
+public void makeHistogram()
+{
+    List<Double> data = new ArrayList<Double>();
+    List<Double> binRange = new ArrayList<Double>();
+    List<Integer> bin = new ArrayList<Integer>();
+    for (int i = 0; i < highlighted.size(); i++) {
+	if ( i % 2 == 0 ) {
+	    data.add( highlighted.get(i).getDoubleValue() );
+	} else {
+	    binRange.add( highlighted.get(i).getDoubleValue() );
 	}
-	p.add(defaultButtons);
     }
 
-    /**
-     * Clears spreadsheet and writes data.
-     * Data gathered from (FileManager fm).openFile().
-     * 
-     * @param v ArrayList which contains information in the form cellIndex:cellValue.
-     */
-    private void openFileWithData( ArrayList<String> v )
-    {
-	for ( Cell c : cells) c.clear();
-	for ( String s : v ) {
-	    String[] info = s.split( ":" );
-	    cells.get( Integer.parseInt( info[0] )).setValue( info[1] );
+    Collections.sort(data);
+    Collections.sort(binRange);
+
+    int b = 0; // index to loop through bin
+    int c = 0; // stores count for each bin range
+    for (int d = 0; d < data.size(); d++) {
+	if ( data.get(d) <= bin.get(b) ) {
+	    c++;
+	} else {
+	    bin.add(c);
+	    c = 0;
+	    b++;
 	}
     }
 
-    /**
-     * Highlights the input range from GraphInput.
-     * The selection is used in reading data for making graphs.
-     */
-    private void highlightInputRange( String inputRange )
-    {	
-	String[] bounds = inputRange.split( ":" );
-	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
-	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
-
-	highlightCells( a,b );
+    int sum = 0;
+    for (int n : bin) sum += b;
+	
+    b = 0;
+    double cumCount = 0.0;
+    for (int i = COLS + 1; i < bin.size() * (COLS + 1) + 1; i++) {
+	switch ( i % COLS ) {
+	case 1: // bin range
+	    cells.get(i).setValue( "to " + binRange.get(b) );
+	    break;
+	case 2: // count
+	    cells.get(i).setValue( bin.get(b) );
+	    cumCount += bin.get(b);
+	    break;
+	case 3: // cum. count
+	    cells.get(i).setValue( cumCount );
+	    break;
+	case 4: // percent
+	    cells.get(i).setValue( (double) (bin.get(b)) / sum );
+	case 5: // cum. percent
+	    cells.get(i).setValue( cumCount / sum );
+	}
     }
-
-    /**
-     * Returns String inputRange to be put as default in GraphInput.
-     */
-    private String toInputRange()
-    {
-	if ( highlighted.size() == 0 ) return "";
-
-	return highlighted.get(0).toString() + ":" + highlighted.get( highlighted.size()-1 ).toString();
-    }
-
-    /**
-     * Makes a line graph with a 1-column input.
-     */
-    public void makeLineGraph()
-    {
-	data = new ArrayList<Integer>();
-	for (Cell c : highlighted) data.add(c.getIntValue());
-
-	LineGraph l = new LineGraph(data);
-	JFrame lineGraph = new JFrame(LINE_GRAPH);
-
-	lineGraph.getContentPane().add(l);
-	lineGraph.pack();
-	lineGraph.setVisible(true);
-    }
-    
-    public static void main(String[] args)
-    {
-	Squirrel s = new Squirrel();
-	s.setVisible(true);
-	LineGraph l = new LineGraph(new ArrayList<Integer>());
-    }
+}
+	
+public static void main(String[] args)
+{
+    Squirrel s = new Squirrel();
+    s.setVisible(true);
+    LineGraph l = new LineGraph(new ArrayList<Integer>());
+}
     
 }
