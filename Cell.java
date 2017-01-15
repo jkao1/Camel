@@ -7,8 +7,8 @@ public class Cell implements Comparable<Cell> {
 
     private JTextField textField;
  
-    public int cellNum;
-    public boolean isLabel; 
+    private int cellNum;
+    private boolean isLabel; 
     
     public Cell(JTextField t, int i) { 
 	textField = t;
@@ -60,12 +60,22 @@ public class Cell implements Comparable<Cell> {
     }
 
     public void clear() {
-	textField.setText("");
-	deHighlight();
+	if (!isLabel()) {
+	    textField.setText("");
+	    deHighlight();
+	}
     }
 
     public boolean isEmpty() {
 	return textField.getText().equals("");
+    }
+
+    public boolean isLabel() {
+	return isLabel;
+    }
+
+    public int getCellNum() {
+	return cellNum;
     }
 
     public JTextField getTextField() {

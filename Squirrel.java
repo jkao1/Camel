@@ -84,6 +84,9 @@ public class Squirrel extends JFrame {
 	}
     }
 
+    /**
+     * Creates the menu bar.
+     */
     public void createMenuBar()
     {
 	mb = new JMenuBar();
@@ -96,7 +99,8 @@ public class Squirrel extends JFrame {
 		    FileManager fm = new FileManager();
 		    openFileWithData( fm.openFile() );
 		}
-	    });			
+	    });
+	fileMenu.add( fileMenu_Open );
 	fileMenu_Save = new JMenuItem("Save");
 	fileMenu_Save.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
@@ -148,7 +152,7 @@ public class Squirrel extends JFrame {
 		    }		    
 		    public void mouseReleased(MouseEvent e) {
 			Point p = e.getLocationOnScreen();
-			highlightCells(cell.cellNum, releasedCellNum(p));
+			highlightCells(cell.getCellNum(), releasedCellNum(p));
 		    }		    
 		    public void mouseEntered(MouseEvent e) {}
 		    public void mouseExited(MouseEvent e) {}
@@ -159,22 +163,22 @@ public class Squirrel extends JFrame {
 		    {
 			// up: arrow key up and shift-enter
 			if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
-			    select(cells.get(cell.cellNum - COLS));
+			    select(cells.get(cell.getCellNum() - COLS));
 			    updateTexts();
 			}
 			// right: arrow key right and tab
 			else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
-			    select(cells.get(cell.cellNum + 1));
+			    select(cells.get(cell.getCellNum() + 1));
 			    updateTexts();
 			}
 			// down: arrow key down and enter
 			else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
-			    select(cells.get(cell.cellNum + COLS));
+			    select(cells.get(cell.getCellNum() + COLS));
 			    updateTexts();
 			}
 			// left: arrow key left and shift-tab
 			else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
-			    select(cells.get(cell.cellNum - 1));
+			    select(cells.get(cell.getCellNum() - 1));
 			    updateTexts();
 			}
 			else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
@@ -222,15 +226,15 @@ public class Squirrel extends JFrame {
 	for (Cell h : highlighted) h.deHighlight();
 	highlighted.clear();
 
-	if (c.isLabel && !cells.get(c.cellNum+COLS).isLabel) { // column label
-	    selected = cells.get(c.cellNum + COLS);
+	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
+	    selected = cells.get(c.getCellNum() + COLS);
 	    selected.select();
-	    highlightCells(selected.cellNum, c.cellNum+(ROWS)*COLS);
+	    highlightCells(selected.getCellNum(), c.getCellNum()+(ROWS)*COLS);
 	}
-	else if (c.isLabel && !cells.get(c.cellNum+1).isLabel) { // row label
-	    selected = cells.get(c.cellNum + 1);
+	else if (c.isLabel() && !cells.get(c.getCellNum()+1).isLabel()) { // row label
+	    selected = cells.get(c.getCellNum() + 1);
 	    selected.select();
-	    highlightCells(c.cellNum+1, c.cellNum+COLS-1);
+	    highlightCells(c.getCellNum()+1, c.getCellNum()+COLS-1);
 	} else {
 	    selected = c;
 	    selected.select();
@@ -463,7 +467,20 @@ public class Squirrel extends JFrame {
 	p.add(defaultButtons);
     }
 
-    private void openFileWithData( ArrayList<St
+    /**
+     * Clears spreadsheet and writes data.
+     * Data gathered from (FileManager fm).openFile().
+     * 
+     * @param v ArrayList which contains information in the form cellIndex:cellValue.
+     */
+    private void openFileWithData( ArrayList<String> v )
+    {
+	for ( Cell c : cells) c.clear();
+	for ( String s : v ) {
+	    String[] info = s.split( ":" );
+	    cells.get( Integer.parseInt( info[0] )).setValue( info[1] );
+	}
+    }
 
     /**
      * Highlights the input range from GraphInput.
@@ -471,7 +488,7 @@ public class Squirrel extends JFrame {
      */
     private void highlightInputRange( String inputRange )
     {	
-	String[] bounds = inputRange.split(":");
+	String[] bounds = inputRange.split( ":" );
 	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
 	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
 
