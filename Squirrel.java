@@ -52,9 +52,8 @@ public class Squirrel extends JFrame implements ActionListener {
 
     public Squirrel()
     {
-	frame = new JFrame("Camel");
+	frame = new JFrame("Squirrel");
 
-	this.setTitle("Spreadsheet");
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -516,7 +515,9 @@ public class Squirrel extends JFrame implements ActionListener {
 	List<Double> binRange = new ArrayList<Double>();
 	List<Integer> bin = new ArrayList<Integer>();
 	for (int i = 0; i < highlighted.size(); i++) {
-	    if ( i % 2 == 0 ) {
+	    if ( highlighted.get(i).isEmpty() ) {
+		
+	    } else if ( i % 2 == 0 ) {
 		data.add( highlighted.get(i).getDoubleValue() );
 	    } else {
 		binRange.add( highlighted.get(i).getDoubleValue() );
@@ -581,7 +582,6 @@ public class Squirrel extends JFrame implements ActionListener {
     {
 	Squirrel s = new Squirrel();
 	s.setVisible(true);
-	LineGraph l = new LineGraph(new ArrayList<Integer>());
     }
     
 }
