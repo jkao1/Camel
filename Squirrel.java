@@ -1,18 +1,19 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.*;
+import javax.swing.border.*;
+
 /**
  * TODO: topPanel
- * TODO: realtime input range highlighting?
  */
 public class Squirrel extends JFrame {
 
-	// Constants used for spreadsheet body
+    // Constants used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static final int ROWS = 30, COLS = 12;
     private static int BORDER_GAP;
@@ -21,8 +22,9 @@ public class Squirrel extends JFrame {
     private Container ss; // spreadsheet container
     private JMenuBar mb;
     private JMenu fileMenu, dataMenu;
-    private JMenuItem fileMenu_New, dataMenu_Graph;
-    
+    private JMenuItem fileMenu_Save, fileMenu_Open;
+    private JMenuItem dataMenu_Graph;
+    private JFileChooser fc;
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
     
@@ -88,29 +90,41 @@ public class Squirrel extends JFrame {
 
 	// creates file menu
 	fileMenu = new JMenu("File");
-	fileMenu_New = new JMenuItem("New");		
-	fileMenu.add(fileMenu_New);
-
+	fileMenu_Open = new JMenuItem("Open");
+	fileMenu_Open.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    FileManager fm = new FileManager();
+		    openFileWithData( fm.openFile() );
+		}
+	    });			
+	fileMenu_Save = new JMenuItem("Save");
+	fileMenu_Save.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    FileManager fm = new FileManager();
+		    fm.saveFile(cells);
+		}
+	    });
+	fileMenu.add( fileMenu_Save );
 	mb.add(fileMenu);
 
 	// creates data analysis menu
 	dataMenu = new JMenu("Data");
 	dataMenu_Graph = new JMenuItem("Graph");
-	dataMenu_Graph.addActionListener(new ActionListener() {
+	dataMenu_Graph.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 		    openGraphInput(); 
 		}
 	    });
-	dataMenu.add(dataMenu_Graph);
-
+	dataMenu.add( dataMenu_Graph );
 	mb.add(dataMenu);
+
 	this.setJMenuBar(mb);
     }
 
     /**
      * Draws ROWS*COLS cells (including alphanumeric labels).
      */
-    public  void drawCells()
+    public void drawCells()
     {	
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
@@ -225,33 +239,6 @@ public class Squirrel extends JFrame {
     }
 
     /**
-     * Returns index of cell the pointer was released on.
-     * This index is then used in public boolean highlightCells(int x, int y).
-     * 
-     * @param p location of pointer on screen
-     * @return index of cell from mouseReleased
-     */
-    public int releasedCellNum(Point p)
-    {
-	int tfWidth = (int) (cells.get(1).getX() - cells.get(0).getX());
-	int tfHeight = (int) (cells.get(12).getY() - cells.get(0).getY());
-
-        int i = 0;
-	try {
-	    // moves X by an interval of textfield's width until reaches Point p's X
-	    while (cells.get(i).getX() + tfWidth <= p.getX()) {
-		i++;
-	    }
-	    // moves Y by an interval of textfield's height until reaches Point p's Y
-	    while (cells.get(i).getY() + tfHeight <= p.getY()) {
-		i += COLS;
-	    }
-	} catch (IndexOutOfBoundsException e) {} // pointer went out of window
-	
-	return i;
-    }
-
-    /**
      * Selects all cells within a specified range of cell indexes.
      */
     public boolean highlightCells(int x, int y)
@@ -278,6 +265,33 @@ public class Squirrel extends JFrame {
 
 	updateTexts();
 	return true;
+    }
+    
+    /**
+     * Returns index of cell the pointer was released on.
+     * This index is then used in public boolean highlightCells(int x, int y).
+     * 
+     * @param p location of pointer on screen
+     * @return index of cell from mouseReleased
+     */
+    private int releasedCellNum(Point p)
+    {
+	int tfWidth = (int) (cells.get(1).getX() - cells.get(0).getX());
+	int tfHeight = (int) (cells.get(12).getY() - cells.get(0).getY());
+
+	int i = 0;
+	try {
+	    // moves X by an interval of textfield's width until reaches Point p's X
+	    while (cells.get(i).getX() + tfWidth <= p.getX()) {
+		i++;
+	    }
+	    // moves Y by an interval of textfield's height until reaches Point p's Y
+	    while (cells.get(i).getY() + tfHeight <= p.getY()) {
+		i += COLS;
+	    }
+	} catch (IndexOutOfBoundsException e) {} // pointer went out of window
+	
+	return i;
     }
 
     /**
@@ -306,93 +320,6 @@ public class Squirrel extends JFrame {
 	}
 	sum.setText("SUM: " + s);
 	mean.setText("MEAN: " + ((double) (s) / n));
-    }
-
-    /**
-     * Creates new instances of GraphInput features and adds them to a JPanel.
-     * 
-     * @param p JPanel the components are added to.
-     * @param s identifies graph type, as different GraphInputs have different components.
-     */
-    public void createAndAddDefault(JPanel p, String s)
-    {
-	// creates input range
-	JPanel input = new JPanel();
-	input.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
-	input.add(new JLabel("input range:"));
-        JTextField inputRange = new JTextField(10);
-	inputRange.setText( toInputRange() );
-	input.add(inputRange);
-
-	// creates bin range
-	JPanel bin = new JPanel();
-	bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
-	bin.add(new JLabel("bin range (optional):"));
-        JTextField binRange = new JTextField(10);
-	bin.add(binRange);
-
-	// creates output range
-	JPanel output = new JPanel();
-	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
-	output.add(new JLabel("output:"));
-	output.add(new JTextField(10));
-
-	// creates "sort by" dropdown
-	JPanel sort = new JPanel();
-	sort.setLayout(new FlowLayout( FlowLayout.LEADING ));
-	sort.add(new JLabel("sort by:")); // DOES NOT WORK
-	JComboBox<String> sortOptions = new JComboBox<>(new String[] { "none", "ascending", "descending" });
-	sortOptions.setEditable(false);
-
-	// chart creation check box (histogram-exclusive)
-	JCheckBox chart = new JCheckBox("Chart");
-
-	// creates the default buttons "Ok" and "Cancel
-	JPanel defaultButtons = new JPanel();
-	JButton ok = new JButton("Ok");
-	ok.addActionListener( new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    if (false) {// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
-			throw new IllegalArgumentException("error: input must be of the form Letter_Int_Letter_Int. graph creation unsucessful.");
-		    } else {
-			highlightInputRange( inputRange.getText() );
-			switch ( s.charAt(0) ) {
-			case 'L':
-			    if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
-			    else System.out.println("error: line graphs can only take one column of data.");
-			}
-		    }
-		    graphFrame.dispose();
-		}
-	    });
-	defaultButtons.add(ok);
-	defaultButtons.add(cancelButton);
-
-	// sets default settings for JPanel p
-	p.setLayout( new GridLayout(0,1) );
-	p.add( new JLabel(s) );
-	p.add(input);
-	switch ( s.charAt(0) ) {
-	case 'L': p.add(bin); break; // line graph
-	case 'B': p.add(sortOptions); break; // bar graph
-	case 'S': break; // scatter graph
-	case 'P': p.add(sortOptions); break; // pie graph
-	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
-	}
-	p.add(defaultButtons);
-    }
-
-    /**
-     * Highlights the input range from GraphInput.
-     * The selection is used in reading data for making graphs.
-     */
-    private void highlightInputRange( String inputRange )
-    {	
-	String[] bounds = inputRange.split(":");
-	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
-	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
-
-	highlightCells( a,b );
     }
 
     /**
@@ -462,6 +389,96 @@ public class Squirrel extends JFrame {
     }
 
     /**
+     * Creates new instances of GraphInput features and adds them to a JPanel.
+     * Note: components can only be added to the same cards.
+     * 
+     * @param p JPanel the components are added to.
+     * @param s identifies graph type, as different GraphInputs have different components.
+     */
+    public void createAndAddDefault(JPanel p, String s)
+    {
+	// creates input range
+	JPanel input = new JPanel();
+	input.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
+	input.add(new JLabel("input range:"));
+	JTextField inputRange = new JTextField(10);
+	inputRange.setText( toInputRange() );
+	input.add(inputRange);
+
+	// creates bin range
+	JPanel bin = new JPanel();
+	bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
+	bin.add(new JLabel("bin range (optional):"));
+	JTextField binRange = new JTextField(10);
+	bin.add(binRange);
+
+	// creates output range
+	JPanel output = new JPanel();
+	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
+	output.add(new JLabel("output:"));
+	output.add(new JTextField(10));
+
+	// creates "sort by" dropdown
+	JPanel sort = new JPanel();
+	sort.setLayout(new FlowLayout( FlowLayout.LEADING ));
+	sort.add(new JLabel("sort by:")); // DOES NOT WORK
+	JComboBox<String> sortOptions = new JComboBox<>(new String[] { "none", "ascending", "descending" });
+	sortOptions.setEditable(false);
+
+	// chart creation check box (histogram-exclusive)
+	JCheckBox chart = new JCheckBox("Chart");
+
+	// creates the default buttons "Ok" and "Cancel
+	JPanel defaultButtons = new JPanel();
+	JButton ok = new JButton("Ok");
+	ok.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    if (false) {// !( inputRange.getText().matches("\w\d\:\w\d") ) || inputRange.getText().length() != 5 ) { // matches Letter_Int_Letter_Int
+			throw new IllegalArgumentException("error: input must be of the form Letter_Int_Letter_Int. graph creation unsucessful.");
+		    } else {
+			highlightInputRange( inputRange.getText() );
+			switch ( s.charAt(0) ) {
+			case 'L':
+			    if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
+			    else System.out.println("error: line graphs can only take one column of data.");
+			}
+		    }
+		    graphFrame.dispose();
+		}
+	    });
+	defaultButtons.add(ok);
+	defaultButtons.add(cancelButton);
+
+	// sets default settings for JPanel p
+	p.setLayout( new GridLayout(0,1) );
+	p.add( new JLabel(s) );
+	p.add(input);
+	switch ( s.charAt(0) ) {
+	case 'L': p.add(bin); break; // line graph
+	case 'B': p.add(sortOptions); break; // bar graph
+	case 'S': break; // scatter graph
+	case 'P': p.add(sortOptions); break; // pie graph
+	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+	}
+	p.add(defaultButtons);
+    }
+
+    private void openFileWithData( ArrayList<St
+
+    /**
+     * Highlights the input range from GraphInput.
+     * The selection is used in reading data for making graphs.
+     */
+    private void highlightInputRange( String inputRange )
+    {	
+	String[] bounds = inputRange.split(":");
+	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
+	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
+
+	highlightCells( a,b );
+    }
+
+    /**
      * Returns String inputRange to be put as default in GraphInput.
      */
     private String toInputRange()
@@ -476,7 +493,7 @@ public class Squirrel extends JFrame {
      */
     public void makeLineGraph()
     {
-        data = new ArrayList<Integer>();
+	data = new ArrayList<Integer>();
 	for (Cell c : highlighted) data.add(c.getIntValue());
 
 	LineGraph l = new LineGraph(data);
@@ -486,7 +503,7 @@ public class Squirrel extends JFrame {
 	lineGraph.pack();
 	lineGraph.setVisible(true);
     }
-
+    
     public static void main(String[] args)
     {
 	Squirrel s = new Squirrel();

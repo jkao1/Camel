@@ -61,6 +61,7 @@ public class Cell implements Comparable<Cell> {
 
     public void clear() {
 	textField.setText("");
+	deHighlight();
     }
 
     public boolean isEmpty() {
