@@ -26,10 +26,13 @@ public class Squirrel extends JFrame implements ActionListener {
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
     private JTextField currentCellID, currentCellText;
+
+    private ImageIcon cowFace = new ImageIcon("images/cowFace.gif", "cow");
     
     private ArrayList<Cell> cells; // stores all cells
     private ArrayList<Cell> highlighted; // stores highlighted cells
     private ArrayList<String> functions; // stores available math functions
+    private ArrayList<String> labels; // stores histogram labels for graph
     
     // Constants used for graph input body
     private static final String GREET = "Greet";
@@ -61,6 +64,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 	pane = this.getContentPane();
+	labels = new ArrayList<String>();
 
 	osDependentStyles();	
 	createMenuBar();
@@ -203,40 +207,44 @@ public class Squirrel extends JFrame implements ActionListener {
 		{
 		    public void keyPressed(KeyEvent e)
 		    {
-			// up: arrow key up and shift-enter
-			if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
-			    select(cells.get(cell.getCellNum() - COLS));
-			    updateTexts();
-			}
-			// right: arrow key right and tab
-			else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
-			    select(cells.get(cell.getCellNum() + 1));
-			    updateTexts();
-			}
-			// down: arrow key down and enter
-			else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
-			    select(cells.get(cell.getCellNum() + COLS));
-			    updateTexts();
-			}
-			// left: arrow key left and shift-tab
-			else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
-			    select(cells.get(cell.getCellNum() - 1));
-			    updateTexts();
-			}
-			else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-			    if ( !cell.isEditable() ) {
-				selected.clear();
-				for (Cell c : highlighted) c.clear();
+			try {
+			    // up: arrow key up and shift-enter
+			    if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
+				select(cells.get(cell.getCellNum() - COLS));
+				updateTexts();
 			    }
-			}
-			// catch independence
-			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
-			// other characters: types in field
-			else {
-			    if ( !cell.isEditable() ) {
-				cell.clear();
-				cell.makeEditable();
+			    // right: arrow key right and tab
+			    else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
+				select(cells.get(cell.getCellNum() + 1));
+				updateTexts();
 			    }
+			    // down: arrow key down and enter
+			    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
+				select(cells.get(cell.getCellNum() + COLS));
+				updateTexts();
+			    }
+			    // left: arrow key left and shift-tab
+			    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
+				select(cells.get(cell.getCellNum() - 1));
+				updateTexts();
+			    }
+			    else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+				if ( !cell.isEditable() ) {
+				    selected.clear();
+				    for (Cell c : highlighted) c.clear();
+				}
+			    }
+			    // catch independence
+			    else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
+			    // other characters: types in field
+			    else {
+				if ( !cell.isEditable() ) {
+				    cell.clear();
+				    cell.makeEditable();
+				}
+			    }
+			} catch (IndexOutOfBoundsException x) {
+			    JOptionPane.showMessageDialog( null, "Don't run away! Statistics is fun.", "StudentEscapeError", JOptionPane.INFORMATION_MESSAGE, cowFace );
 			}
 		    }
 		    public void keyReleased(KeyEvent e) {}
@@ -642,8 +650,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	b = 0;
 	int cumCount = 0;
 	double sum = 0.0;
-	for (int n : bin) sum += (double) n;
-	
+	for (int n : bin) sum += (double) n;	
 
 	decorateTable(start);
 
@@ -651,8 +658,15 @@ public class Squirrel extends JFrame implements ActionListener {
 	for (int i = start + COLS; i < end; i++) {
 	    switch ( i % COLS ) {
 	    case 1: // bin range
-		if ( b == 0 ) cells.get(i).setValue( "up to " + binRange.get(b) );
-		else cells.get(i).setValue( binRange.get(b-1) + " to " + binRange.get(b) );
+		if ( b == 0 ) {
+		    String l = "up to " + binRange.get(b);
+		    labels.add(l);
+		    cells.get(i).setValue( l );
+		} else {
+		    String l = binRange.get(b-1) + " to " + binRange.get(b);
+		    labels.add(l);
+		    cells.get(i).setValue( l );
+		}
 		break;
 	    case 2: // count
 		cells.get(i).setValue( bin.get(b) );
@@ -678,6 +692,12 @@ public class Squirrel extends JFrame implements ActionListener {
 		break;
 	    }	    
 	}
+
+	Histogram h = new Histogram( bin, labels, "Histogram");
+	JFrame histogram = new JFrame(HISTOGRAM);
+	histogram.getContentPane().add(h);
+	histogram.setSize( 400,400 );
+	histogram.setVisible(true);
     }
 
     /**

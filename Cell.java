@@ -5,6 +5,7 @@ public class Cell implements Comparable<Cell> {
 
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
     private final Font bold;
+    private final Font reg;
 
     private JTextField textField;
  
@@ -19,7 +20,8 @@ public class Cell implements Comparable<Cell> {
 	isLabel = true;
 	isEditable = false;
 	bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
-
+	reg = new Font(textField.getFont().getName(), Font.PLAIN, textField.getFont().getSize());
+	
 	textField.setEditable(false);
 	
 	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
@@ -60,7 +62,6 @@ public class Cell implements Comparable<Cell> {
 
     public void decorate(String s) {
 	if ( s.equals("tableHead")) {
-
 	    textField.setFont( bold );
 	}
     }
@@ -74,6 +75,7 @@ public class Cell implements Comparable<Cell> {
     public void clear() {
 	if (!isLabel()) {
 	    textField.setText("");
+	    textField.setFont(reg);
 	    dehighlight();
 	    clearError();
 	}
