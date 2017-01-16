@@ -28,6 +28,7 @@ public class Squirrel extends JFrame implements ActionListener {
     
     private ArrayList<Cell> cells; // stores all cells
     private ArrayList<Cell> highlighted; // stores highlighted cells
+    private ArrayList<String> functions; // stores available math functions
     
     // Constants used for graph input body
     private static final String GREET = "Greet";
@@ -63,6 +64,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	osDependentStyles();	
 	createMenuBar();
 	initializeSpreadsheet();
+	initializeFunctions();
 
         this.pack();
     }
@@ -212,6 +214,14 @@ public class Squirrel extends JFrame implements ActionListener {
     }
 
     /**
+     * Initializes functions ArrayList, adds suggestion boxes to each textfield.
+     */
+    public void initializeFunctions()
+    {
+
+    }
+
+    /**
      * TODO Column label highlighting
      * 
      * Selects a cell and clears all other selections.
@@ -247,7 +257,7 @@ public class Squirrel extends JFrame implements ActionListener {
      */
     public boolean highlightCells(int x, int y)
     {
-	if (x == y) return true;
+	if (x == y) return true;	
 
 	for ( Cell h : highlighted ) h.dehighlight();
 	highlighted.clear();
@@ -398,13 +408,14 @@ public class Squirrel extends JFrame implements ActionListener {
 	inputRange.setText( toInputRange() );
 	input.add(inputRange);
 
-	// creates bin range
+	/* creates bin range
 	JPanel bin = new JPanel();
 	bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
 	bin.add(new JLabel("bin range (optional):"));
 	JTextField binRange = new JTextField(10);
 	bin.add(binRange);
-
+	*/
+	
 	// creates output range
 	JPanel output = new JPanel();
 	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
@@ -427,15 +438,37 @@ public class Squirrel extends JFrame implements ActionListener {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
+		    if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
+			JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+			return;
+		    }
+			
 		    highlightInputRange( inputRange.getText() );
+		    int inSeparator = inputRange.getText().indexOf(":");
+		    int outSeparator = inputRange.getText().indexOf(":");
 		    switch ( s.charAt(0) ) {
 		    case 'L':
-			if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 ) ) makeLineGraph();
-			else System.out.println("error: line graphs can only take one column of data.");
+			// checks if the input is one column or one row
+			if ( inputRange.getText().charAt(0) == inputRange.getText().charAt( inSeparator+1 ) || inputRange.getText().charAt(1) == inputRange.getText().charAt( inSeparator+2 )) {
+			    makeLineGraph();
+			} else {
+			    // ERROR: line graph input
+			    JOptionPane.showMessageDialog( null, "Line graphs only take one column or one row of inputs.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
+			}
 			break;
 		    case 'H':
-			makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":"))));
-			//	if ( inputRange.getText().charAt(0) + 1 == (int) ( inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 )) ) makeHistogram();
+			// checks if the input is two columns
+			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
+			{
+			    if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
+				JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
+			    } else {
+				makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
+			    }
+			} else {
+			    // ERROR: histogramInput
+			    JOptionPane.showMessageDialog( null, "Histograms take two columns of input; the first is the data; the second is the bin.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
+			}
 			break;
 		    }		    
 		
@@ -450,11 +483,11 @@ public class Squirrel extends JFrame implements ActionListener {
 	p.add( new JLabel(s) );
 	p.add(input);
 	switch ( s.charAt(0) ) {
-	case 'L': p.add(bin); break; // line graph
+	case 'L': break; // line graph
 	case 'B': p.add(sortOptions); break; // bar graph
 	case 'S': break; // scatter graph
 	case 'P': p.add(sortOptions); break; // pie graph
-	case 'H': p.add(bin); p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
+	case 'H': p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
 	}
 	p.add(defaultButtons);
     }
