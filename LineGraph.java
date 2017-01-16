@@ -17,7 +17,7 @@ public class LineGraph extends JPanel {
     private static final Color GRAPH_POINT_COLOR = Color.red;
     private static final Stroke GRAPH_STROKE = new BasicStroke(3f);
     private static final int GRAPH_POINT_WIDTH = 10;
-    private static  int Y_HATCH_CNT;
+    private static int Y_HATCH_CNT;
     private List<Integer> scores;
 
     //initializes LineGraph with the set of points
@@ -90,5 +90,26 @@ public class LineGraph extends JPanel {
     public Dimension getPreferredSize() {
 	return new Dimension(PREF_W, PREF_H);
     }
+
+     private static void createAndShowGui(){
+	List<Integer> scores = new ArrayList<Integer>();
+	//insert points into score here
+	LineGraph mainPanel = new LineGraph(scores);
+
+	JFrame frame = new JFrame("Line Graph");
+	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	frame.getContentPane().add(mainPanel);
+	frame.pack();
+	frame.setLocationByPlatform(true);
+	frame.setVisible(true);
+    }
     
+    public static void main(String[]args){
+	SwingUtilities.invokeLater(new Runnable() {
+		public void run(){
+		    createAndShowGui();
+		}
+	    });
+	
+    }
 }
