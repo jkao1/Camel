@@ -16,6 +16,7 @@ public class Squirrel extends JFrame implements ActionListener {
     public static final int ROWS = 30, COLS = 12;
     
     private static int BORDER_GAP;
+    private static int HISTOGRAM_TABLE_WIDTH = 5;
     private static String currentFileName;
 
     private JFrame frame; // Squirrel frame
@@ -153,6 +154,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		    public void mouseEntered(MouseEvent e) {}
 		    public void mouseExited(MouseEvent e) {}
 		});
+	    // TODO: remove tab original function
 	    cell.getTextField().addKeyListener(new KeyListener()
 		{
 		    public void keyPressed(KeyEvent e)
@@ -185,8 +187,10 @@ public class Squirrel extends JFrame implements ActionListener {
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
 			// other characters: types in field
 			else {
-			    cell.clear();
-			    cell.makeEditable();
+			    if ( !cell.isEditable() ) {
+				cell.clear();
+				cell.makeEditable();
+			    }
 			}
 		    }
 		    public void keyReleased(KeyEvent e) {}
@@ -218,8 +222,8 @@ public class Squirrel extends JFrame implements ActionListener {
      * @
      */
     public void select(Cell c) {
-	selected.unSelect();
-	for (Cell h : highlighted) h.deHighlight();
+	selected.unselect();
+	for (Cell h : highlighted) h.dehighlight();
 	highlighted.clear();
 
 	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
@@ -244,7 +248,9 @@ public class Squirrel extends JFrame implements ActionListener {
     public boolean highlightCells(int x, int y)
     {
 	if (x == y) return true;
-	
+
+	for ( Cell h : highlighted ) h.dehighlight();
+	highlighted.clear();
 	// switches a % COLS and b % COLS to maintain top-left/bottom-right endpoints
 	int a = Math.min(x,y);
 	int b = Math.max(x,y);
@@ -403,7 +409,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	JPanel output = new JPanel();
 	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
 	output.add(new JLabel("output:"));
-	output.add(new JTextField(10));
+	JTextField outputRange = new JTextField(10);
+	output.add(outputRange);
 
 	// creates "sort by" dropdown
 	JPanel sort = new JPanel();
@@ -427,7 +434,8 @@ public class Squirrel extends JFrame implements ActionListener {
 			else System.out.println("error: line graphs can only take one column of data.");
 			break;
 		    case 'H':
-			if ( inputRange.getText().charAt(0) + 1 == (int) ( inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 )) ) makeHistogram();
+			makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":"))));
+			//	if ( inputRange.getText().charAt(0) + 1 == (int) ( inputRange.getText().charAt( inputRange.getText().indexOf(":")+1 )) ) makeHistogram();
 			break;
 		    }		    
 		
@@ -473,10 +481,7 @@ public class Squirrel extends JFrame implements ActionListener {
     private void highlightInputRange( String inputRange )
     {	
 	String[] bounds = inputRange.split( ":" );
-	int a = Integer.parseInt( bounds[0].substring( 1,bounds[0].length() )) * COLS + bounds[0].charAt(0) - 'A' + 1;
-	int b = Integer.parseInt( bounds[1].substring( 1,bounds[1].length() )) * COLS + bounds[1].charAt(0) - 'A' + 1;
-
-	highlightCells( a,b );
+	highlightCells( toCellNum( bounds[0]),toCellNum( bounds[1]));
     }
 
     /**
@@ -509,10 +514,10 @@ public class Squirrel extends JFrame implements ActionListener {
      * Makes a histogram with a 2-colum input.
      * Written to a cell area are: bin range, count, cum. count, percent, and cum. percent.
      */
-    public void makeHistogram()
+    public void makeHistogram(int start)
     {
-	List<Double> data = new ArrayList<Double>();
-	List<Double> binRange = new ArrayList<Double>();
+	List<Double> data = new ArrayList<Double>(); // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+	List<Double> binRange = new ArrayList<Double>(); // 2, 5, 8, 10
 	List<Integer> bin = new ArrayList<Integer>();
 	for (int i = 0; i < highlighted.size(); i++) {
 	    if ( highlighted.get(i).isEmpty() ) {
@@ -529,25 +534,41 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	int b = 0; // index to loop through bin
 	int c = 0; // stores count for each bin range
-	for (int d = 0; d < data.size(); d++) {
-	    if ( data.get(d) <= bin.get(b) ) {
+	for (int d = 0; d < data.size(); d++)
+	{
+	    if ( b >= binRange.size() ) {
+		bin.add( data.size() - d + 1 ); // adds the count of remaining data values
+		break;
+	    }
+	    
+	    if ( data.get(d) <= binRange.get(b) ) {
 		c++;
 	    } else {
+		b++; // move on to next bin		
 		bin.add(c);
-		c = 0;
-		b++;
+		c = 0; // reset count for next bin
+		d--; // value data.get(d) stays the same for next loop
 	    }
-	}
 
-	int sum = 0;
-	for (int n : bin) sum += b;
-	
+	    if ( d == data.size()-1 ) {
+		bin.add(c);
+	    }	    
+	}
+       	
 	b = 0;
-	double cumCount = 0.0;
-	for (int i = COLS + 1; i < bin.size() * (COLS + 1) + 1; i++) {
+	int cumCount = 0;
+	double sum = 0.0;
+	for (int n : bin) sum += (double) n;
+	
+
+	decorateTable(start);
+
+	int end = start + bin.size() * COLS + HISTOGRAM_TABLE_WIDTH + 1;
+	for (int i = start + COLS; i < end; i++) {
 	    switch ( i % COLS ) {
 	    case 1: // bin range
-		cells.get(i).setValue( "to " + binRange.get(b) );
+		if ( b == 0 ) cells.get(i).setValue( "up to " + binRange.get(b) );
+		else cells.get(i).setValue( binRange.get(b-1) + " to " + binRange.get(b) );
 		break;
 	    case 2: // count
 		cells.get(i).setValue( bin.get(b) );
@@ -557,10 +578,50 @@ public class Squirrel extends JFrame implements ActionListener {
 		cells.get(i).setValue( cumCount );
 		break;
 	    case 4: // percent
-		cells.get(i).setValue( (double) (bin.get(b)) / sum );
+		double percent = bin.get(b) / sum;
+		cells.get(i).setValue( String.format( "%.5g%n",percent )); // rounds to 5 decimal places
+		break;
 	    case 5: // cum. percent
-		cells.get(i).setValue( cumCount / sum );
+		double cumPercent = cumCount / sum;
+		cells.get(i).setValue( String.format( "%.5g%n",cumPercent ));
+		break;
+	    case 6: // next line
+		i += COLS - 6;
+		b++;
+		break;
+	    default:
+		System.out.println("line 571");
+		break;
+	    }	    
+	}
+    }
+
+    /**
+     * Returns cell index.
+     *
+     * @param s cell location in the form \\w\\d.
+     */
+    private int toCellNum(String s) {
+	try {
+	    return Integer.parseInt( s.substring( 1,s.length() )) * COLS + s.charAt(0) - 'A' + 1;
+	} catch (NumberFormatException e) {
+	    return -1;
+	}
+    }
+    
+    /**
+     * Adds borders and histogram table headings.
+     */
+    private void decorateTable(int start) {
+	for (int i = start; i < start + HISTOGRAM_TABLE_WIDTH; i++) {
+	    switch ( i % COLS ) {
+	    case 1: cells.get(i).setValue("range"); break;
+	    case 2: cells.get(i).setValue("count"); break;
+	    case 3: cells.get(i).setValue("cum. count"); break;
+	    case 4: cells.get(i).setValue("percent"); break;
+	    case 5: cells.get(i).setValue("cum. percent"); break;
 	    }
+	    cells.get(i).decorate("tableHead");
 	}
     }
 

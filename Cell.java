@@ -8,15 +8,16 @@ public class Cell implements Comparable<Cell> {
     private JTextField textField;
  
     private int cellNum;
-    private boolean isLabel; 
+    private boolean isLabel;
+    private boolean isEditable;
     
     public Cell(JTextField t, int i) { 
 	textField = t;
 	cellNum = i;
 	isLabel = true;
+	isEditable = false;
 
 	textField.setEditable(false);
-	//deHighlight(); // uniform coloration
 	
 	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
 	else if (i / Squirrel.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
@@ -28,7 +29,7 @@ public class Cell implements Comparable<Cell> {
 	    textField.setFont(bold);
 	    textField.setBackground(LABEL_COLOR);
 	}
-	deHighlight();
+	dehighlight(); // uniform coloration across OS's
     }
 
     public void select() {
@@ -36,17 +37,18 @@ public class Cell implements Comparable<Cell> {
 	textField.requestFocus();
     }
 
-    public void unSelect() {        
+    public void unselect() {        
 	textField.setBorder(UIManager.getBorder("TextField.border"));
 	textField.setEditable(false);
 	textField.getCaret().setVisible(false);
+	isEditable = false;
     }
 
     public void highlight() {
         textField.setBackground(new Color(178,215,254));
     }
 
-    public void deHighlight() {
+    public void dehighlight() {
 	if (isLabel) {
 	    textField.setBackground(LABEL_COLOR);
 	} else {
@@ -54,7 +56,15 @@ public class Cell implements Comparable<Cell> {
 	}
     }
 
+    public void decorate(String s) {
+	if ( s.equals("tableHead")) {
+	    Font bold = new Font( textField.getFont().getName(),Font.BOLD,textField.getFont().getSize() );
+	    textField.setFont( bold );
+	}
+    }
+
     public void makeEditable() {
+	isEditable = true;
 	textField.setEditable(true);
 	textField.getCaret().setVisible(true);
     }
@@ -62,7 +72,7 @@ public class Cell implements Comparable<Cell> {
     public void clear() {
 	if (!isLabel()) {
 	    textField.setText("");
-	    deHighlight();
+	    dehighlight();
 	}
     }
 
@@ -72,6 +82,10 @@ public class Cell implements Comparable<Cell> {
 
     public boolean isLabel() {
 	return isLabel;
+    }
+
+    public boolean isEditable() {
+	return isEditable;
     }
 
     public int getCellNum() {
