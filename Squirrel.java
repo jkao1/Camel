@@ -123,6 +123,16 @@ public class Squirrel extends JFrame implements ActionListener {
     }
 
     /**
+     * Adds all functions to an ArrayList.
+     */
+    public void initializeFunctions()
+    {
+	functions = new ArrayList<String>();
+	functions.add("=SUM(");
+	functions.add("=MEAN(");
+    }
+
+    /**
      * Draws ROWS*COLS cells (including alphanumeric labels).
      */
     public void initializeSpreadsheet()
@@ -139,7 +149,25 @@ public class Squirrel extends JFrame implements ActionListener {
 	    // sets default select to the first enabled cell
 	    if (i == COLS + 1) selected = cell;
 
-	    cell.getTextField().addMouseListener(new MouseListener()
+	    cell.getTextField().addActionListener( new ActionListener()
+		{
+		    public void actionPerformed(ActionEvent e) {
+			String s = cell.getValue();
+			if ( cell.isEmpty() ) return;
+		        if ( s.charAt(0) == '=') {
+			    try {
+				String f = s.substring( 1,s.indexOf("(") );
+				String in = s.substring( s.indexOf("(")+1,s.indexOf(")" ));
+
+				if (f.equals("SUM")) cell.setValue( sum(in) );
+				if (f.equals("MEAN")) cell.setValue( mean(in) );
+			    } catch (Exception x) {
+			        cell.setValue("!ERROR");
+			    }
+			}
+		    }
+		});				
+	    cell.getTextField().addMouseListener( new MouseListener()
 		{		    
 		    public void mousePressed(MouseEvent e) {
 			select(cell);
@@ -199,6 +227,13 @@ public class Squirrel extends JFrame implements ActionListener {
 		    public void keyTyped(KeyEvent e) {}
 		});
 
+	    AutoSuggestor as = new AutoSuggestor( cell.getTextField(), frame, null, Color.WHITE.brighter(), Color.BLUE, Color.RED, 0.75f ) {
+		    @Override
+		    public boolean wordTyped(String typedWord) {
+			setDictionary(functions);
+			return super.wordTyped(typedWord);
+		    }
+		};
 	    ss.add(cell.getTextField());
 	    cells.add(cell);
 	}
@@ -212,15 +247,7 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	pane.add(ss);
     }
-
-    /**
-     * Initializes functions ArrayList, adds suggestion boxes to each textfield.
-     */
-    public void initializeFunctions()
-    {
-
-    }
-
+    
     /**
      * TODO Column label highlighting
      * 
@@ -656,6 +683,29 @@ public class Squirrel extends JFrame implements ActionListener {
 	    }
 	    cells.get(i).decorate("tableHead");
 	}
+    }
+
+    private double sum(String in) {
+	highlightInputRange(in);
+	double s = 0.0;
+	for ( Cell h : highlighted ) s += h.getDoubleValue();
+	return s;
+    }
+
+    private double mean(String in) {
+	highlightInputRange(in);
+	double s = 0.0;
+	int count = 0;
+	for ( Cell h : highlighted ) {
+	    try {
+		String v = h.getValue();
+		s += Double.parseDouble( v );
+		count++;
+	    } catch (NumberFormatException e) {
+		// cell empty or contained String
+	    }
+	}
+	return s / count;
     }
 
     public void actionPerformed(ActionEvent e) {

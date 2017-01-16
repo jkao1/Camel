@@ -92,7 +92,7 @@ public class Cell implements Comparable<Cell> {
 	return cellNum;
     }
 
-    public JTextField getTextField() {
+    public JTextField getTextField() { // why -JK
 	return textField;
     }
     
@@ -110,7 +110,7 @@ public class Cell implements Comparable<Cell> {
 	try {
 	    String s = textField.getText();
 	    return Double.parseDouble(textField.getText());
-	} catch (NumberFormatException e) { return 0; }
+	} catch (NumberFormatException e) { return 0.0; }
     }
 
     public String getValue() {
