@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.regex.*;
 import java.io.*;
 
 import java.awt.*;
@@ -153,20 +154,33 @@ public class Squirrel extends JFrame implements ActionListener {
 		{
 		    public void actionPerformed(ActionEvent e) {
 			String s = cell.getValue();
-			if ( cell.isEmpty() ) return;
-		        if ( s.charAt(0) == '=') {
-			    try {
-				String f = s.substring( 1,s.indexOf("(") );
-				String in = s.substring( s.indexOf("(")+1,s.indexOf(")" ));
-
-				if (f.equals("SUM")) cell.setValue( sum(in) );
-				if (f.equals("MEAN")) cell.setValue( mean(in) );
-			    } catch (Exception x) {
-			        cell.setValue("!ERROR");
+			if ( cell.isEmpty() ) {
+			    return;
+			} else if ( s.charAt(0) == '=') {
+			    if ( s.indexOf("SUM(") == 1 ) {
+				String in = s.substring( s.indexOf("("),s.length());
+				Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+				Matcher cellInputMatch = cellInputRe.matcher( in );
+				if ( cellInputMatch.matches() ) {
+				    cell.setValue(sum( cellInputMatch.group(1) ));
+				} else {
+				    cell.setError(1);
+				}
+			    } else if ( s.indexOf("MEAN(") == 1 ) {
+				String in = s.substring( s.indexOf("("),s.length() );
+				Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+				Matcher cellInputMatch = cellInputRe.matcher( in );
+				if ( cellInputMatch.matches() ) {
+				    cell.setValue(mean( cellInputMatch.group(1) ));
+				} else {
+				    cell.setError(1);;
+				}
+			    } else {
+				cell.setError( 0 ); // 0: function not found
 			    }
 			}
 		    }
-		});				
+		});			
 	    cell.getTextField().addMouseListener( new MouseListener()
 		{		    
 		    public void mousePressed(MouseEvent e) {
@@ -210,8 +224,10 @@ public class Squirrel extends JFrame implements ActionListener {
 			    updateTexts();
 			}
 			else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-			    selected.clear();
-			    for (Cell c : highlighted) c.clear();
+			    if ( !cell.isEditable() ) {
+				selected.clear();
+				for (Cell c : highlighted) c.clear();
+			    }
 			}
 			// catch independence
 			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
@@ -263,12 +279,14 @@ public class Squirrel extends JFrame implements ActionListener {
 	for (Cell h : highlighted) h.dehighlight();
 	highlighted.clear();
 
-	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
+	if (c.getCellNum() == 0) {
+	    selected = cells.get(c.getCellNum() + COLS + 1);
+	    selected.select();
+	} else	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
 	    selected = cells.get(c.getCellNum() + COLS);
 	    selected.select();
-	    highlightCells(selected.getCellNum(), c.getCellNum()+(ROWS)*COLS);
-	}
-	else if (c.isLabel() && !cells.get(c.getCellNum()+1).isLabel()) { // row label
+	    highlightCells(selected.getCellNum(), c.getCellNum()+(ROWS-1)*COLS);
+	} else if (c.isLabel() && !cells.get(c.getCellNum()+1).isLabel()) { // row label
 	    selected = cells.get(c.getCellNum() + 1);
 	    selected.select();
 	    highlightCells(c.getCellNum()+1, c.getCellNum()+COLS-1);
@@ -539,13 +557,19 @@ public class Squirrel extends JFrame implements ActionListener {
      * The selection is used in reading data for making graphs.
      */
     private void highlightInputRange( String inputRange )
-    {	
+    {
+	if ( !inputRange.matches( "\\w\\d{0,2}:\\w\\d{0,2}" )) { // space in front of regex because that's how AutoSuggestor class functions
+	    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+	    return;
+	}
 	String[] bounds = inputRange.split( ":" );
-	highlightCells( toCellNum( bounds[0]),toCellNum( bounds[1]));
+	highlightCells( toCellNum( bounds[0] ), toCellNum( bounds[1] ));
     }
 
     /**
-     * Returns String inputRange to be put as default in GraphInput.
+     * Used in GraphInput to display highlighted cells as the default input range.
+     *
+     * @return String highlighted cells as an input range.
      */
     private String toInputRange()
     {
@@ -650,7 +674,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		b++;
 		break;
 	    default:
-		System.out.println("line 571");
+		System.out.println("bad stuff in histogramtable");
 		break;
 	    }	    
 	}
@@ -705,7 +729,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		// cell empty or contained String
 	    }
 	}
-	return s / count;
+	return Double.parseDouble( String.format( "%.5g%n",s / count));
     }
 
     public void actionPerformed(ActionEvent e) {

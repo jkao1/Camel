@@ -4,19 +4,21 @@ import java.awt.*;
 public class Cell implements Comparable<Cell> {
 
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
+    private final Font bold;
 
     private JTextField textField;
  
     private int cellNum;
     private boolean isLabel;
     private boolean isEditable;
-    public Font bold;
+    private boolean hasError;
     
     public Cell(JTextField t, int i) { 
 	textField = t;
 	cellNum = i;
 	isLabel = true;
 	isEditable = false;
+	bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 
 	textField.setEditable(false);
 	
@@ -25,7 +27,6 @@ public class Cell implements Comparable<Cell> {
 	else if (i % Squirrel.COLS == 0) setValue(i / Squirrel.COLS);
         else isLabel = false;
 	
-	Font bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	if (isLabel) {
 	    textField.setFont(bold);
 	    textField.setBackground(LABEL_COLOR);
@@ -59,6 +60,7 @@ public class Cell implements Comparable<Cell> {
 
     public void decorate(String s) {
 	if ( s.equals("tableHead")) {
+
 	    textField.setFont( bold );
 	}
     }
@@ -73,6 +75,7 @@ public class Cell implements Comparable<Cell> {
 	if (!isLabel()) {
 	    textField.setText("");
 	    dehighlight();
+	    clearError();
 	}
     }
 
@@ -127,6 +130,21 @@ public class Cell implements Comparable<Cell> {
 
     public void setValue(String v) {
 	textField.setText(v);
+    }
+
+    public void setError(int i) {
+	hasError = true;
+        textField.setText("!#ERROR");
+	switch (i) {
+	case 0: textField.setToolTipText("available functions: SUM, MEAN"); break;
+	case 1: textField.setToolTipText("input must match \"[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*\"."); break;
+	default: System.out.println("uncaught error in Cell.setError"); break;
+	}
+    }
+
+    public void clearError() {
+	hasError = false;
+	textField.setToolTipText(null);
     }
 
     public double getX() {
