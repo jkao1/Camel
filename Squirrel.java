@@ -14,7 +14,7 @@ public class Squirrel extends JFrame implements ActionListener {
 
     // Constants used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
-    public static final int ROWS = 30, COLS = 12;
+    public static int ROWS = 30, COLS = 12;
     
     private static int BORDER_GAP;
     private static int HISTOGRAM_TABLE_WIDTH = 5;
@@ -147,127 +147,14 @@ public class Squirrel extends JFrame implements ActionListener {
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
 
-	for (int i = 0; i < ROWS*COLS; i++) {
-
-	    final Cell cell = new Cell(new JTextField(6),i);
-
-	    // sets default select to the first enabled cell
-	    if (i == COLS + 1) selected = cell;
-
-	    cell.getTextField().addActionListener( new ActionListener()
-		{
-		    public void actionPerformed(ActionEvent e) {
-			String s = cell.getValue();
-			if ( cell.isEmpty() ) {
-			    return;
-			} else if ( s.charAt(0) == '=') {
-			    if ( s.indexOf("SUM(") == 1 ) {
-				String in = s.substring( s.indexOf("("),s.length());
-				Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
-				Matcher cellInputMatch = cellInputRe.matcher( in );
-				if ( cellInputMatch.matches() ) {
-				    cell.setValue(sum( cellInputMatch.group(1) ));
-				} else {
-				    cell.setError(1);
-				}
-			    } else if ( s.indexOf("MEAN(") == 1 ) {
-				String in = s.substring( s.indexOf("("),s.length() );
-				Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
-				Matcher cellInputMatch = cellInputRe.matcher( in );
-				if ( cellInputMatch.matches() ) {
-				    cell.setValue(mean( cellInputMatch.group(1) ));
-				} else {
-				    cell.setError(1);;
-				}
-			    } else {
-				cell.setError( 0 ); // 0: function not found
-			    }
-			}
-		    }
-		});			
-	    cell.getTextField().addMouseListener( new MouseListener()
-		{		    
-		    public void mousePressed(MouseEvent e) {
-			select(cell);
-		    }		    
-		    public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) { // double click will allow cell to be editable
-			    cell.makeEditable();
-			}
-		    }		    
-		    public void mouseReleased(MouseEvent e) {
-			Point p = e.getLocationOnScreen();
-			highlightCells(cell.getCellNum(), releasedCellNum(p));
-		    }		    
-		    public void mouseEntered(MouseEvent e) {}
-		    public void mouseExited(MouseEvent e) {}
-		});
-	    // TODO: remove tab original function
-	    cell.getTextField().addKeyListener(new KeyListener()
-		{
-		    public void keyPressed(KeyEvent e)
-		    {
-			try {
-			    // up: arrow key up and shift-enter
-			    if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
-				select(cells.get(cell.getCellNum() - COLS));
-				updateTexts();
-			    }
-			    // right: arrow key right and tab
-			    else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
-				select(cells.get(cell.getCellNum() + 1));
-				updateTexts();
-			    }
-			    // down: arrow key down and enter
-			    else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
-				select(cells.get(cell.getCellNum() + COLS));
-				updateTexts();
-			    }
-			    // left: arrow key left and shift-tab
-			    else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
-				select(cells.get(cell.getCellNum() - 1));
-				updateTexts();
-			    }
-			    else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-				if ( !cell.isEditable() ) {
-				    selected.clear();
-				    for (Cell c : highlighted) c.clear();
-				}
-			    }
-			    // catch independence
-			    else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
-			    // other characters: types in field
-			    else {
-				if ( !cell.isEditable() ) {
-				    cell.clear();
-				    cell.makeEditable();
-				}
-			    }
-			} catch (IndexOutOfBoundsException x) {
-			    JOptionPane.showMessageDialog( null, "Don't run away! Statistics is fun.", "StudentEscapeError", JOptionPane.INFORMATION_MESSAGE, cowFace );
-			}
-		    }
-		    public void keyReleased(KeyEvent e) {}
-		    public void keyTyped(KeyEvent e) {}
-		});
-
-	    AutoSuggestor as = new AutoSuggestor( cell.getTextField(), frame, null, Color.WHITE.brighter(), Color.BLUE, Color.RED, 0.75f ) {
-		    @Override
-		    public boolean wordTyped(String typedWord) {
-			setDictionary(functions);
-			return super.wordTyped(typedWord);
-		    }
-		};
-	    ss.add(cell.getTextField());
-	    cells.add(cell);
-	}
+	for (int i = 0; i < ROWS*COLS; i++) initializeCell(i);
 	
 	count = new JLabel("COUNT: ");
-	ss.add(count);	
+	//ss.add(count);	
 	sum = new JLabel("SUM: ");
-	ss.add(sum);	
+	//ss.add(sum);	
 	mean = new JLabel("MEAN: ");
-	ss.add(mean);
+	//ss.add(mean);
 
 	pane.add(ss);
     }
@@ -363,6 +250,134 @@ public class Squirrel extends JFrame implements ActionListener {
 	return i;
     }
 
+    /**
+     * Initializes cell.
+     *
+     * @param i spreadsheet index of cell
+     */
+    private void initializeCell(int i)
+    {
+	final Cell cell = new Cell(new JTextField(6),i);
+
+	// sets default select to the first enabled cell
+	if (i == COLS + 1) selected = cell;
+
+	cell.getTextField().addActionListener( new ActionListener()
+	    {
+		public void actionPerformed(ActionEvent e) {
+		    String s = cell.getValue();
+		    if ( cell.isEmpty() ) {
+			return;
+		    } else if ( s.charAt(0) == '=') {
+			if ( s.indexOf("SUM(") == 1 ) {
+			    String in = s.substring( s.indexOf("("),s.length());
+			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+			    Matcher cellInputMatch = cellInputRe.matcher( in );
+			    if ( cellInputMatch.matches() ) {
+				cell.setValue(sum( cellInputMatch.group(1) ));
+			    } else {
+				cell.setError(1);
+			    }
+			} else if ( s.indexOf("MEAN(") == 1 ) {
+			    String in = s.substring( s.indexOf("("),s.length() );
+			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+			    Matcher cellInputMatch = cellInputRe.matcher( in );
+			    if ( cellInputMatch.matches() ) {
+				cell.setValue(mean( cellInputMatch.group(1) ));
+			    } else {
+				cell.setError(1);;
+			    }
+			} else {
+			    cell.setError( 0 ); // 0: function not found
+			}
+		    }
+		}
+	    });
+	cell.getTextField().addMouseListener( new MouseListener()
+	    {		    
+		public void mousePressed(MouseEvent e) {
+		    select(cell);
+		}		    
+		public void mouseClicked(MouseEvent e) {
+		    if (e.getClickCount() == 2) { // double click will allow cell to be editable
+			cell.makeEditable();
+		    }
+		}		    
+		public void mouseReleased(MouseEvent e) {
+		    Point p = e.getLocationOnScreen();
+		    highlightCells(cell.getCellNum(), releasedCellNum(p));
+		}		    
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+	    });
+	// TODO: remove tab original function
+	cell.getTextField().addKeyListener(new KeyListener()
+	    {
+		public void keyPressed(KeyEvent e)
+		{
+		    try {
+			// up: arrow key up and shift-enter
+			if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
+			    select(cells.get(cell.getCellNum() - COLS));
+			    updateTexts();
+			}
+			// right: arrow key right and tab
+			else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_TAB) {
+			    select(cells.get(cell.getCellNum() + 1));
+			    updateTexts();
+			}
+			// down: arrow key down and enter
+			else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_ENTER) {
+			    select(cells.get(cell.getCellNum() + COLS));
+			    updateTexts();
+			}
+			// left: arrow key left and shift-tab
+			else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_TAB) {
+			    select(cells.get(cell.getCellNum() - 1));
+			    updateTexts();
+			}
+			else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+			    if ( !cell.isEditable() ) {
+				selected.clear();
+				for (Cell c : highlighted) c.clear();
+			    }
+			}
+			// catch independence
+			else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {}
+			// other characters: types in field
+			else {
+			    if ( !cell.isEditable() ) {
+				cell.clear();
+				cell.makeEditable();
+			    }
+			}
+		    } catch (IndexOutOfBoundsException x) {
+			addRow();
+		    }
+		}
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+	    });
+	AutoSuggestor as = new AutoSuggestor( cell.getTextField(), frame, null, Color.WHITE.brighter(), Color.BLUE, Color.RED, 0.75f ) {
+		@Override
+		public boolean wordTyped(String typedWord) {
+		    setDictionary(functions);
+		    return super.wordTyped(typedWord);
+		}
+	    };
+	ss.add(cell.getTextField());
+	cells.add(cell);
+    }
+
+    /**
+     * Adds a row to the end of spreadsheet.
+     */
+    private void addRow()
+    {
+	for (int i = ROWS * COLS; i < (ROWS + 1) * COLS; i++) initializeCell(i);
+	ROWS += 1;
+	this.pack();
+    }
     /**
      * After each selection: updates count/sum/mean labels and ID label (located in the top-left of the spreadsheet).
      * Called in public boolean highlightCells(int x, int y).
@@ -462,11 +477,11 @@ public class Squirrel extends JFrame implements ActionListener {
 	input.add(inputRange);
 
 	/* creates bin range
-	JPanel bin = new JPanel();
-	bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
-	bin.add(new JLabel("bin range (optional):"));
-	JTextField binRange = new JTextField(10);
-	bin.add(binRange);
+	   JPanel bin = new JPanel();
+	   bin.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
+	   bin.add(new JLabel("bin range (optional):"));
+	   JTextField binRange = new JTextField(10);
+	   bin.add(binRange);
 	*/
 	
 	// creates output range
@@ -512,13 +527,13 @@ public class Squirrel extends JFrame implements ActionListener {
 		    case 'H':
 			// checks if the input is two columns
 			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
-			{
-			    if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
-				JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
+			    {
+				if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
+				    JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
+				} else {
+				    makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
+				}
 			    } else {
-				makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
-			    }
-			} else {
 			    // ERROR: histogramInput
 			    JOptionPane.showMessageDialog( null, "Histograms take two columns of input; the first is the data; the second is the bin.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
 			}
@@ -627,25 +642,25 @@ public class Squirrel extends JFrame implements ActionListener {
 	int b = 0; // index to loop through bin
 	int c = 0; // stores count for each bin range
 	for (int d = 0; d < data.size(); d++)
-	{
-	    if ( b >= binRange.size() ) {
-		bin.add( data.size() - d + 1 ); // adds the count of remaining data values
-		break;
-	    }
+	    {
+		if ( b >= binRange.size() ) {
+		    bin.add( data.size() - d + 1 ); // adds the count of remaining data values
+		    break;
+		}
 	    
-	    if ( data.get(d) <= binRange.get(b) ) {
-		c++;
-	    } else {
-		b++; // move on to next bin		
-		bin.add(c);
-		c = 0; // reset count for next bin
-		d--; // value data.get(d) stays the same for next loop
-	    }
+		if ( data.get(d) <= binRange.get(b) ) {
+		    c++;
+		} else {
+		    b++; // move on to next bin		
+		    bin.add(c);
+		    c = 0; // reset count for next bin
+		    d--; // value data.get(d) stays the same for next loop
+		}
 
-	    if ( d == data.size()-1 ) {
-		bin.add(c);
-	    }	    
-	}
+		if ( d == data.size()-1 ) {
+		    bin.add(c);
+		}	    
+	    }
        	
 	b = 0;
 	int cumCount = 0;
