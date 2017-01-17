@@ -865,12 +865,11 @@ public class Squirrel extends JFrame implements ActionListener {
 	JButton ok = new JButton("OK");
 	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    runRandomNumbers( Integer.parseInt( newVariables.getText() ),
-				      Integer.parseInt( randomNumbers.getText() ),
-				      Double.parseDouble( lowerBound.getText() ),
-				      Double.parseDouble( upperBound.getText() ),
-				      3 );
-				      //Integer.parseInt( toCellNum( output.getText())) );
+		    runUniformDistribution( Integer.parseInt( newVariables.getText() ),
+					     Integer.parseInt( randomNumbers.getText() ),
+					     Double.parseDouble( lowerBound.getText() ),
+					     Double.parseDouble( upperBound.getText() ),
+					     toCellNum( output.getText() ) - COLS - 1 );
 		}
 	    });
 	rng.add(ok);
@@ -888,7 +887,7 @@ public class Squirrel extends JFrame implements ActionListener {
     }
 
     /**
-     * Writes random numbers onto the spreadsheet.
+     * Writes uniform distribution of random numbers onto the spreadsheet.
      *
      * @param nv number of new variables (columns)
      * @param rn number of random numbers (rows)
@@ -896,7 +895,7 @@ public class Squirrel extends JFrame implements ActionListener {
      * @param ub upper bound of numbers
      * @param op output starting point
      */
-    public void runRandomNumbers(int nv, int rn, double lb, double ub, int op)
+    public void runUniformDistribution(int nv, int rn, double lb, double ub, int op)
     {
 	int start = COLS + 1 + op;
 	for (int r = 0; r < nv; r++) {
