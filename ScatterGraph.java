@@ -61,18 +61,7 @@ public class ScatterGraph extends JPanel {
 	    int y1 = y0 - GRAPH_POINT_WIDTH;
 	    g2.drawLine(x0, y0, x1, y1);
 	}
-
-	Stroke oldStroke = g2.getStroke();
-	g2.setColor(GRAPH_COLOR);
-	g2.setStroke(GRAPH_STROKE);
-	for (int i = 0; i < graphPoints.size() - 1; i++) {
-	    int x1 = graphPoints.get(i).x;
-	    int y1 = graphPoints.get(i).y;
-	    int x2 = graphPoints.get(i + 1).x;
-	    int y2 = graphPoints.get(i + 1).y;       
-	}
-	
-	g2.setStroke(oldStroke);      
+      
 	g2.setColor(GRAPH_POINT_COLOR);
 	for (int i = 0; i < graphPoints.size(); i++) {
 	    int x = graphPoints.get(i).x - GRAPH_POINT_WIDTH / 2;
