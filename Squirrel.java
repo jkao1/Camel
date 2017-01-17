@@ -334,13 +334,11 @@ public class Squirrel extends JFrame implements ActionListener {
 	else bold.setSelected(false);
 	if (c.currentStyle == Font.ITALIC) italic.setSelected(true);
 	else italic.setSelected(false);
-	
-	f.setSelectedItem(c.fontName);
+	f.setSelectedItem(c.fontName.replaceAll("\\s+",""));
 	s.setSelectedItem(String.valueOf(c.fontSize));	
         
-
 	if (c.getCellNum() == 0) {
-	    selectegd = cells.get(c.getCellNum() + COLS + 1);
+	    selected = cells.get(c.getCellNum() + COLS + 1);
 	    selected.select();
 	} else	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
 	    selected = cells.get(c.getCellNum() + COLS);

@@ -24,7 +24,11 @@ public class Cell implements Comparable<Cell> {
 	cellNum = i;
 	isLabel = true;
 	isEditable = false;
+	
+	fontName = textField.getFont().getName();
+	fontSize = textField.getFont().getSize();
 	currentStyle = Font.PLAIN;
+	
 	bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	reg = new Font(textField.getFont().getName(), Font.PLAIN, textField.getFont().getSize());
 	
@@ -60,7 +64,7 @@ public class Cell implements Comparable<Cell> {
     public Cell highlight() {
 	if (isLabel()) {
 	    textField.setBackground(Color.GRAY);
-	} else {
+	} else if (textField.getBackground().equals(Color.WHITE)) {
 	    textField.setBackground(new Color(178,215,254));
 	}
 	return this;
@@ -70,7 +74,9 @@ public class Cell implements Comparable<Cell> {
 	if (isLabel) {
 	    textField.setBackground(LABEL_COLOR);
 	} else {
-	    textField.setBackground(Color.WHITE);
+	    if (textField.getBackground().equals(new Color(178,215,254))) {
+		textField.setBackground(Color.WHITE);
+	    }		
 	}
     }
 
