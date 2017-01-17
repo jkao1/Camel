@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class Cell implements Comparable<Cell> {
+public class Cell implements Comparable<Cell> { 
 
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
     private final Font bold;
@@ -48,8 +48,13 @@ public class Cell implements Comparable<Cell> {
 	isEditable = false;
     }
 
-    public void highlight() {
-        textField.setBackground(new Color(178,215,254));
+    public Cell highlight() {
+	if (isLabel()) {
+	    textField.setBackground(Color.GRAY);
+	} else {
+	    textField.setBackground(new Color(178,215,254));
+	}
+	return this;
     }
 
     public void dehighlight() {
@@ -120,6 +125,18 @@ public class Cell implements Comparable<Cell> {
 
     public String getValue() {
 	return textField.getText();
+    }
+
+    public void setDefault() {
+	if (getCellNum() / Squirrel.COLS == 0 && getCellNum() % Squirrel.COLS == 0) {
+	    
+	} else if (getCellNum() / Squirrel.COLS == 0) {
+	    setValue(String.valueOf((char) ('A'+getCellNum()-1)));
+	} else if (getCellNum() % Squirrel.COLS == 0) {
+	    setValue(getCellNum() / Squirrel.COLS);
+	} else {
+	    setValue("");
+	}
     }
     
     public void setValue(int v) {

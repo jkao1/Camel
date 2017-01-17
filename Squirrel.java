@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.util.regex.*;
+import java.util.Random;
 import java.io.*;
 
 import java.awt.*;
@@ -12,7 +13,7 @@ import javax.swing.border.*;
 
 public class Squirrel extends JFrame implements ActionListener {
 
-    // Constants used for spreadsheet body
+    // used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static int ROWS = 30, COLS = 12;
     
@@ -34,7 +35,7 @@ public class Squirrel extends JFrame implements ActionListener {
     private ArrayList<String> functions; // stores available math functions
     private ArrayList<String> labels; // stores histogram labels for graph
     
-    // Constants used for graph input body
+    // used for graph input body
     private static final String GREET = "Greet";
     private static final String LINE_GRAPH = "Line Graph";
     private static final String BAR_GRAPH = "Bar Graph";
@@ -56,11 +57,17 @@ public class Squirrel extends JFrame implements ActionListener {
     private ActionListener exitSystem; // shared ActionListeners
     private JButton nextButton, cancelButton; // shared buttons
 
+    // used for random number generation
+    private JFrame rngFrame;
+    private Container rngContainer;
+    private JPanel rng;
+
     public Squirrel()
     {
 	frame = new JFrame("Squirrel");
 
 	this.setLocation(100,100);
+	this.setSize(1000,800);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 	pane = this.getContentPane();
@@ -95,6 +102,15 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	// creates file menu
 	JMenu fileMenu = new JMenu("File");
+	JMenuItem fileMenu_New = new JMenuItem("New");
+	fileMenu_New.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    for ( Cell c : cells ) {
+			c.setDefault();
+		    }
+		}
+	    });
+	fileMenu.add( fileMenu_New );
 	JMenuItem fileMenu_Open = new JMenuItem("Open");
 	fileMenu_Open.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
@@ -122,6 +138,13 @@ public class Squirrel extends JFrame implements ActionListener {
 		}
 	    });
 	dataMenu.add( dataMenu_Graph );
+	JMenuItem dataMenu_RNG = new JMenuItem("Random Number Generation");
+	dataMenu_RNG.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    openRNG();
+		}
+	    });
+	dataMenu.add( dataMenu_RNG);
 	mb.add(dataMenu);
 
 	this.setJMenuBar(mb);
@@ -143,6 +166,7 @@ public class Squirrel extends JFrame implements ActionListener {
     public void initializeSpreadsheet()
     {
 	ss = new JPanel( new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
+	JScrollPane scroll = new JScrollPane( ss );
 
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
@@ -157,6 +181,24 @@ public class Squirrel extends JFrame implements ActionListener {
 	//ss.add(mean);
 
 	pane.add(ss);
+    }
+
+    
+    /**
+     * Adds a row to the end of spreadsheet.
+     */
+    private void addRow()
+    {
+	for (int i = ROWS * COLS; i < (ROWS + 1) * COLS; i++) initializeCell(i);
+	ROWS += 1;
+	this.pack();
+    }
+
+    /**
+     * Adds a column to the right of the spreadsheet;
+     */
+    private void addColumn()
+    {
     }
     
     /**
@@ -190,6 +232,12 @@ public class Squirrel extends JFrame implements ActionListener {
 	    selected.select();
 	}
 	updateTexts(); // updates COUNT/SUM/MEAN
+
+	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
+	Cell colLabel = cells.get( selected.getCellNum() % COLS );
+
+	highlighted.add( rowLabel.highlight() );
+	highlighted.add( colLabel.highlight() );
     }
 
     /**
@@ -218,6 +266,11 @@ public class Squirrel extends JFrame implements ActionListener {
 		highlighted.add(cells.get(i));
 	    }
 	}
+	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
+	Cell colLabel = cells.get( selected.getCellNum() % COLS );
+
+	highlighted.add( rowLabel.highlight() );
+	highlighted.add( colLabel.highlight() );
 
 	updateTexts();
 	return true;
@@ -316,6 +369,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		public void keyPressed(KeyEvent e)
 		{
 		    try {
+			
 			// up: arrow key up and shift-enter
 			if (e.getKeyCode() == KeyEvent.VK_UP || e.getModifiers() == InputEvent.SHIFT_MASK && e.getKeyCode() == KeyEvent.VK_ENTER) {
 			    select(cells.get(cell.getCellNum() - COLS));
@@ -369,15 +423,6 @@ public class Squirrel extends JFrame implements ActionListener {
 	cells.add(cell);
     }
 
-    /**
-     * Adds a row to the end of spreadsheet.
-     */
-    private void addRow()
-    {
-	for (int i = ROWS * COLS; i < (ROWS + 1) * COLS; i++) initializeCell(i);
-	ROWS += 1;
-	this.pack();
-    }
     /**
      * After each selection: updates count/sum/mean labels and ID label (located in the top-left of the spreadsheet).
      * Called in public boolean highlightCells(int x, int y).
@@ -571,7 +616,10 @@ public class Squirrel extends JFrame implements ActionListener {
 	for ( Cell c : cells) c.clear();
 	for ( String s : v ) {
 	    String[] info = s.split( ":" );
-	    cells.get( Integer.parseInt( info[0] )).setValue( info[1] );
+	    while ( Integer.parseInt( info[0] ) >= ROWS * COLS ) {
+		addRow();
+	    }
+	    cells.get( Integer.parseInt( info[0] )).setValue( info[1] );		
 	}
     }
 
@@ -767,6 +815,100 @@ public class Squirrel extends JFrame implements ActionListener {
 	return Double.parseDouble( String.format( "%.5g%n",s / count));
     }
 
+    /**
+     * Opens a new window for Random Number Generation
+     */
+    public void openRNG()
+    {
+	rngFrame = new JFrame("Random Number Generation");
+	rngFrame.setLocation( 200,200 );
+	rngContainer = rngFrame.getContentPane();
+
+	rng = new JPanel( new GridLayout(0,1) );
+
+	JLabel nv = new JLabel( "Number of new variables:*" );
+	JTextField newVariables = new JTextField(20);
+	rng.add(nv);
+	rng.add(newVariables);
+	JLabel rn = new JLabel( "Random numbers count:*" );
+	JTextField randomNumbers = new JTextField(20);
+	rng.add(rn);
+	rng.add(randomNumbers);
+	JLabel lb = new JLabel( "Lower bound:*" );
+	JTextField lowerBound = new JTextField(20);
+	rng.add(lb);
+	rng.add(lowerBound);
+	JLabel ub = new JLabel( "Upper bound:*" );
+	JTextField upperBound = new JTextField(20);
+	rng.add(ub);
+	rng.add(upperBound);
+	JLabel sd = new JLabel( "Seed:" );
+	JTextField seed = new JTextField(20);
+	rng.add(sd);
+	rng.add(seed);
+
+	JButton ok = new JButton("OK");
+	ok.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    runRandomNumbers( Integer.parseInt( newVariables.getText() ),
+				      Integer.parseInt( randomNumbers.getText() ),
+				      Double.parseDouble( lowerBound.getText() ),
+				      Double.parseDouble( upperBound.getText() ) );
+		}
+	    });
+	rng.add(ok);
+	JButton cancel = new JButton("Cancel");
+	cancel.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    rngFrame.dispose();
+		}
+	    });
+	rng.add(cancel);
+
+	rngContainer.add( rng );
+	rngFrame.pack();
+	rngFrame.setVisible(true);
+    }
+
+    /**
+     * Writes random numbers onto the spreadsheet.
+     *
+     * @param nv number of new variables (columns)
+     * @param rn number of random numbers (rows)
+     * @param lb lower bound of numbers
+     * @param ub upper bound of numbers
+     */
+    public void runRandomNumbers(int nv, int rn, double lb, double ub)
+    {
+	int start = COLS + 1;
+	for (int r = 0; r < nv; r++) {
+	    for (int c = 0; c < rn; c++) {
+		try {
+		    cells.get( r*COLS + start + c ).setValue( randomRange( lb,ub ));
+		} catch (IndexOutOfBoundsException e) {
+		    addRow();
+		}
+	    }
+	}
+    }
+
+    /**
+     * Returns random double within specified range.
+     *
+     * @param min lower bound
+     * @param max upper bound
+     */
+    private double randomRange(double min, double max)
+    {
+	if ( min > max ) {
+	    double temp = min;
+	    min = max;
+	    max = temp;
+	}
+	double range = (max - min) + 1;     
+	return Double.parseDouble( String.format( "%.5g%n", (Math.random() * range) + min));
+    }
+    
     public void actionPerformed(ActionEvent e) {
 	String s = e.getActionCommand();
 	if ( s.equals("closeGraphFrame") ) {
