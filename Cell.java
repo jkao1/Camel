@@ -105,7 +105,7 @@ public class Cell implements Comparable<Cell> {
     public JTextField getTextField() { // why -JK
 	return textField;
     }
-    
+    g
     public int getIntValue() {
 	try {
 	    String s = textField.getText();
