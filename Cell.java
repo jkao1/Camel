@@ -15,12 +15,16 @@ public class Cell implements Comparable<Cell> {
     private boolean isLabel;
     private boolean isEditable;
     private boolean hasError;
+    public int fontSize;
+    public String fontName;
+    public int currentStyle;
     
     public Cell(JTextField t, int i) { 
 	textField = t;
 	cellNum = i;
 	isLabel = true;
 	isEditable = false;
+	currentStyle = Font.PLAIN;
 	bold = new Font(textField.getFont().getName(), Font.BOLD, textField.getFont().getSize());
 	reg = new Font(textField.getFont().getName(), Font.PLAIN, textField.getFont().getSize());
 	
@@ -152,8 +156,27 @@ public class Cell implements Comparable<Cell> {
 	}
     }
 
+    public void setBackground(Color c) {
+	textField.setBackground(c);
+    }
+
+    public void setForeground(Color c) {
+	textField.setForeground(c);
+    }
+
     public void setFontName(String s) {
-	textField.setFont( new Font(s, Font.PLAIN, textField.getFont().getSize()));
+	fontName = s;
+	textField.setFont( new Font(s, currentStyle, textField.getFont().getSize()));
+    }
+
+    public void setFontSize(int s) {
+	fontSize = s;
+	textField.setFont( new Font(textField.getFont().getName(), currentStyle, s));
+    }
+
+    public void setFontStyle(int s) {
+	currentStyle = s;
+	textField.setFont( new Font(textField.getFont().getName(), s, textField.getFont().getSize()));
     }
     
     public void setValue(int v) {

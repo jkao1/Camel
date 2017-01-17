@@ -33,6 +33,8 @@ public class Squirrel extends JFrame implements ActionListener {
     private JPanel style;
     private JPanel currentCellInfo;
     private JTextField currentCellID, currentCellText;
+    private JCheckBox bold, italic;
+    private JComboBox<String> f, s;
 
     private ImageIcon cowFace = new ImageIcon("images/cowFace.gif", "cow");
     
@@ -52,7 +54,7 @@ public class Squirrel extends JFrame implements ActionListener {
     private static final String BAR_GRAPH = "Bar Graph";
     private static final String SCATTER_GRAPH = "Scatter Graph";
     private static final String HISTOGRAM = "Histogram";
-    private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, HISTOGRAM };    
+    private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, HISTOGRAM };    
        
     private JFrame graphFrame; // graph input frame
     private Container graphPane; // graph input container
@@ -208,21 +210,34 @@ public class Squirrel extends JFrame implements ActionListener {
 	for (int i = 0; i < fonts.length; i++) { // stores fonts
 	    allFonts[i] = fonts[i].getFontName();
 	}
-	JComboBox f = new JComboBox(allFonts);
+	f = new JComboBox<String>(allFonts);
 	f.setMaximumRowCount(10); // for scroll pane (max count is now 10)
 	f.setActionCommand("fontName");
-	f.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    String font = (String) (f.getSelectedItem());
-		    selected.setFontName(font);
-		}
-	    });
+	f.addActionListener(this);
 	style.add(f);
 	String[] fontSizes = { "6", "7", "8", "9", "10", "11", "12", "14", "18", "24", "36" };
-	JComboBox s = new JComboBox(fontSizes);
+	s = new JComboBox<String>(fontSizes);
+	s.setActionCommand("fontSize");
+	s.addActionListener(this);
+	style.add(s);
+	bold = new JCheckBox("bold");
+	bold.setActionCommand("fontBold");
+	bold.addActionListener(this);
+	style.add(bold);
+	italic = new JCheckBox("italic");
+	bold.setActionCommand("fontItalic");
+	bold.addActionListener(this);
+	style.add(italic);
+
+	JButton chooseBg = new JButton("choose bg-color:");
+	chooseBg.setActionCommand("bg-color");
+	chooseBg.addActionListener(this);
+	style.add(chooseBg);
+	JButton chooseTxt = new JButton("choose text-color:");
+	chooseTxt.setActionCommand("txt-color");
+	chooseTxt.addActionListener(this);
+	style.add(chooseTxt);
 	
-
-
 	top.add(style, BorderLayout.PAGE_START);
 
 
@@ -315,8 +330,17 @@ public class Squirrel extends JFrame implements ActionListener {
 	for ( Cell l : lightLabels ) l.dehighlight();
 	lightLabels.clear();
 
+	if (c.currentStyle == Font.BOLD) bold.setSelected(true);
+	else bold.setSelected(false);
+	if (c.currentStyle == Font.ITALIC) italic.setSelected(true);
+	else italic.setSelected(false);
+	
+	f.setSelectedItem(c.fontName);
+	s.setSelectedItem(String.valueOf(c.fontSize));	
+        
+
 	if (c.getCellNum() == 0) {
-	    selected = cells.get(c.getCellNum() + COLS + 1);
+	    selectegd = cells.get(c.getCellNum() + COLS + 1);
 	    selected.select();
 	} else	if (c.isLabel() && !cells.get(c.getCellNum()+COLS).isLabel()) { // column label
 	    selected = cells.get(c.getCellNum() + COLS);
@@ -679,20 +703,6 @@ public class Squirrel extends JFrame implements ActionListener {
 				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
 				} else {
 				    makeBarGraph();
-				}
-			    } else {
-			    // ERROR: input
-			    JOptionPane.showMessageDialog( null, "Bar graphs take two columns of input; the first is the data; the second is the labels.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
-			}
-			break;
-		    case 'S':
-			// checks if the input is two columns
-			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
-			    {
-				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
-				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
-				} else {
-				    makeScatterGraph();
 				}
 			    } else {
 			    // ERROR: input
@@ -1191,7 +1201,39 @@ public class Squirrel extends JFrame implements ActionListener {
 		JComboBox fonts = (JComboBox) e.getSource();
 		String font = (String) fonts.getSelectedItem();
 		selected.setFontName(font);
+		for (Cell h : highlighted) h.setFontName(font);
+	    } else if (s.equals("fontSize")) {
+		JComboBox sizes = (JComboBox) e.getSource();
+		int size = Integer.parseInt((String) (sizes.getSelectedItem()));
+		selected.setFontSize(size);
+		for (Cell h : highlighted) h.setFontSize(size);
+	    } else if (s.equals("fontBold")) {
+		JCheckBox cb = (JCheckBox) e.getSource();
+		if (cb.isSelected()) {
+		    selected.setFontStyle(Font.BOLD);
+		    for (Cell h : highlighted) h.setFontStyle(Font.BOLD);
+		} else {
+		    selected.setFontStyle(Font.PLAIN);
+		    for (Cell h : highlighted) h.setFontStyle(Font.PLAIN);
+		}
+	    } else if (s.equals("fontItalic")) {
+		JCheckBox cb = (JCheckBox) e.getSource();
+		if (cb.isSelected()) {
+		    selected.setFontStyle(Font.ITALIC);
+		    for (Cell h : highlighted) h.setFontStyle(Font.ITALIC);
+		} else {
+		    selected.setFontStyle(Font.PLAIN);
+		    for (Cell h : highlighted) h.setFontStyle(Font.PLAIN);
+		}
 	    }
+	} else if ( s.equals("bg-color")) {
+	    Color newColor = JColorChooser.showDialog(null, "Choose a background color", Color.RED);
+	    selected.setBackground(newColor);
+	    for (Cell h : highlighted) h.setBackground(newColor);
+	} else if ( s.equals("txt-color")) {
+	    Color newColor = JColorChooser.showDialog(null, "Choose a text color", Color.RED);
+	    selected.setForeground(newColor);
+	    for (Cell h : highlighted) h.setForeground(newColor);
 	}
 	    
     }
