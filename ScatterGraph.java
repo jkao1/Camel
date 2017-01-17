@@ -14,10 +14,11 @@ public class ScatterGraph extends JPanel {
     private static final Stroke GRAPH_STROKE = new BasicStroke(3f);
     private static final int GRAPH_POINT_WIDTH = 10;
     private static final int Y_HATCH_CNT = 10;
-    private List<Integer> scores;
+    private List<Integer> xvalues, yvalues;
     
-    public ScatterGraph(List<Integer> scores){
-	this.scores = scores;
+    public ScatterGraph(List<Integer> xvalues, List<Integer> yvalues){
+	this.xvalues = xvalues;
+	this.yvalues = yvalues;
     }
 
     protected void paintComponent(Graphics g) {
