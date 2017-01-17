@@ -91,4 +91,19 @@ public class Histogram extends JPanel {
 	}
     }
 
+    
+     private static void createAndShowGui(){
+	List<Integer> scores = new ArrayList<Integer>();
+	List<String> labels = new ArrayList<String>();
+	String graph = "Graph";
+	//insert points into score here
+	Histogram mainPanel = new Histogram(scores, labels, graph);
+
+	JFrame frame = new JFrame("Line Graph");
+	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	frame.getContentPane().add(mainPanel);
+	frame.pack();
+	frame.setLocationByPlatform(true);
+	frame.setVisible(true);
+    }
 }
