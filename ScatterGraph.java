@@ -54,8 +54,9 @@ public class ScatterGraph extends JPanel {
 	}
 	
 	// and for x axis
-	for (int i = 0; i < xvalues.size() - 1; i++) {
-	    int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (xvalues.size() - 1) + BORDER_GAP;
+	xMax = Collections.max(xvalues,null);
+	for (int i = 0; i < xMax; i++) {
+	    int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (xMax - 1) + BORDER_GAP;
 	    int x1 = x0;
 	    int y0 = getHeight() - BORDER_GAP;
 	    int y1 = y0 - GRAPH_POINT_WIDTH;
