@@ -46,9 +46,8 @@ public class Squirrel extends JFrame implements ActionListener {
     private static final String LINE_GRAPH = "Line Graph";
     private static final String BAR_GRAPH = "Bar Graph";
     private static final String SCATTER_GRAPH = "Scatter Graph";
-    private static final String PIE_GRAPH = "Pie Graph";
     private static final String HISTOGRAM = "Histogram";
-    private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, PIE_GRAPH, HISTOGRAM };    
+    private static final String[] graphLabels = { LINE_GRAPH, BAR_GRAPH, SCATTER_GRAPH, HISTOGRAM };    
        
     private JFrame graphFrame; // graph input frame
     private Container graphPane; // graph input container
@@ -652,10 +651,24 @@ public class Squirrel extends JFrame implements ActionListener {
 				    makeBarGraph();
 				}
 			    } else {
-			    // ERROR: histogramInput
+			    // ERROR: input
 			    JOptionPane.showMessageDialog( null, "Bar graphs take two columns of input; the first is the data; the second is the labels.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
 			}
-			break;	
+			break;
+		    case 'S':
+			// checks if the input is two columns
+			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
+			    {
+				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
+				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+				} else {
+				    makeScatterGraph();
+				}
+			    } else {
+			    // ERROR: input
+			    JOptionPane.showMessageDialog( null, "Bar graphs take two columns of input; the first is the data; the second is the labels.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
+			}
+			break;
 		    case 'H':
 			// checks if the input is two columns
 			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
@@ -777,7 +790,11 @@ public class Squirrel extends JFrame implements ActionListener {
 	barGraph.setLocation(150,150);
 	barGraph.pack();
 	barGraph.setVisible(true);
-    }	
+    }
+
+    public void makeScatterGraph()
+    {
+	List<I
 
     /**
      * Makes a histogram with a 2-colum input.
