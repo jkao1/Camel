@@ -649,7 +649,7 @@ public class Squirrel extends JFrame implements ActionListener {
 				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
 				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
 				} else {
-				    makeBarGraph( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
+				    makeBarGraph();
 				}
 			    } else {
 			    // ERROR: histogramInput
@@ -759,7 +759,25 @@ public class Squirrel extends JFrame implements ActionListener {
      */
     public void makeBarGraph()
     {
+	List<String> labels = new ArrayList<String>();
+	List<Integer> data = new ArrayList<Integer>();
+	for (int i = 0; i < highlighted.size(); i++) {
+	    if (i % 2 == 0) {
+		labels.add( highlighted.get(i).getValue());
+	    } else {
+		data.add( highlighted.get(i).getIntValue());
+	    }
+	}
 	
+	BarGraph b = new BarGraph( data, labels, "Bar Graph");
+	JFrame barGraph = new JFrame(BAR_GRAPH);
+		
+	barGraph.getContentPane().add(b);
+	barGraph.setSize( 400, 400);
+	barGraph.setLocation(150,150);
+	barGraph.pack();
+	barGraph.setVisible(true);
+    }	
 
     /**
      * Makes a histogram with a 2-colum input.

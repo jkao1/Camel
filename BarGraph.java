@@ -97,7 +97,7 @@ public class BarGraph extends JPanel {
 	List<String> labels = new ArrayList<String>();
 	String graph = "Graph";
 	//insert points into score here
-	Histogram mainPanel = new BarGraph(scores, labels, graph);
+	BarGraph mainPanel = new BarGraph(scores, labels, graph);
 
 	JFrame frame = new JFrame("Line Graph");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
