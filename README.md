@@ -16,6 +16,7 @@ Squirrel is a software program designed by Jason Kao and William Soe. It is capa
 - histogram table output range can only take an output range which starts in the 'A' column
 - spreadsheet cannot addCol()
 - the first time in checking the checkbox "bold", it italicizes the text instead.
+- font sizes aren't remembered in each cell
 
 ##How to Run
 ```
