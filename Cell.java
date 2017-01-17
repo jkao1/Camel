@@ -3,6 +3,8 @@ import java.awt.*;
 
 public class Cell implements Comparable<Cell> { 
 
+    public static final int PREFERRED_HEIGHT = 26;
+    public static final int PREFERRED_WIDTH = 70;
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
     private final Font bold;
     private final Font reg;
@@ -23,6 +25,9 @@ public class Cell implements Comparable<Cell> {
 	reg = new Font(textField.getFont().getName(), Font.PLAIN, textField.getFont().getSize());
 	
 	textField.setEditable(false);
+	textField.setMinimumSize(new Dimension( PREFERRED_WIDTH, PREFERRED_HEIGHT ));
+	textField.setPreferredSize(new Dimension( PREFERRED_WIDTH, PREFERRED_HEIGHT ));
+	textField.setMaximumSize(new Dimension( PREFERRED_WIDTH, PREFERRED_HEIGHT ));
 	
 	if (i / Squirrel.COLS == 0 && i % Squirrel.COLS == 0) {}
 	else if (i / Squirrel.COLS == 0) setValue(String.valueOf((char) ('A'+i-1)));
@@ -105,7 +110,7 @@ public class Cell implements Comparable<Cell> {
     public JTextField getTextField() { // why -JK
 	return textField;
     }
-    g
+    
     public int getIntValue() {
 	try {
 	    String s = textField.getText();
@@ -125,6 +130,14 @@ public class Cell implements Comparable<Cell> {
 
     public String getValue() {
 	return textField.getText();
+    }
+
+    public double getPreferredHeight() {
+	return textField.getPreferredSize().getHeight();
+    }
+
+    public double getPreferredWidth() {
+	return textField.getPreferredSize().getWidth();
     }
 
     public void setDefault() {

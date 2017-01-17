@@ -22,7 +22,7 @@ public class Squirrel extends JFrame implements ActionListener {
     private static String currentFileName;
 
     private JFrame frame; // Squirrel frame
-    private Container pane; // Squirrel container
+    private JPanel pane; // Squirrel container
     private JPanel ss; // spreadsheet panel
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
@@ -67,10 +67,9 @@ public class Squirrel extends JFrame implements ActionListener {
 	frame = new JFrame("Squirrel");
 
 	this.setLocation(100,100);
-	this.setSize(1000,800);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-	pane = this.getContentPane();
+	pane = new JPanel();
 	labels = new ArrayList<String>();
 
 	osDependentStyles();	
@@ -78,7 +77,10 @@ public class Squirrel extends JFrame implements ActionListener {
 	initializeSpreadsheet();
 	initializeFunctions();
 
-        this.pack();
+	add(pane);
+	this.pack();
+	
+
     }
     
     /**
@@ -166,7 +168,6 @@ public class Squirrel extends JFrame implements ActionListener {
     public void initializeSpreadsheet()
     {
 	ss = new JPanel( new GridLayout(0,COLS,BORDER_GAP,BORDER_GAP));
-	JScrollPane scroll = new JScrollPane( ss );
 
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
@@ -180,7 +181,14 @@ public class Squirrel extends JFrame implements ActionListener {
 	mean = new JLabel("MEAN: ");
 	//ss.add(mean);
 
-	pane.add(ss);
+
+	JScrollPane scr = new JScrollPane( ss, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+	scr.setPreferredSize(new Dimension( Cell.PREFERRED_WIDTH * COLS + 200, Cell.PREFERRED_HEIGHT * COLS * 2 ));
+
+	JScrollBar vertical = scr.getVerticalScrollBar();
+	vertical.setValue( vertical.getMaximum() );
+			     
+	pane.add(scr);
     }
 
     
@@ -324,7 +332,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		    } else if ( s.charAt(0) == '=') {
 			if ( s.indexOf("SUM(") == 1 ) {
 			    String in = s.substring( s.indexOf("("),s.length());
-			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d+).*" );
 			    Matcher cellInputMatch = cellInputRe.matcher( in );
 			    if ( cellInputMatch.matches() ) {
 				cell.setValue(sum( cellInputMatch.group(1) ));
@@ -333,7 +341,7 @@ public class Squirrel extends JFrame implements ActionListener {
 			    }
 			} else if ( s.indexOf("MEAN(") == 1 ) {
 			    String in = s.substring( s.indexOf("("),s.length() );
-			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d{0,2}:\\w\\d{0,2}).*" );
+			    Pattern cellInputRe = Pattern.compile( "[\\(\\s]*(\\w\\d+:\\w\\d+).*" );
 			    Matcher cellInputMatch = cellInputRe.matcher( in );
 			    if ( cellInputMatch.matches() ) {
 				cell.setValue(mean( cellInputMatch.group(1) ));
@@ -551,8 +559,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	JButton ok = new JButton("Ok");
 	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
-			JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+		    if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
+			JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
 			return;
 		    }
 			
@@ -573,8 +581,8 @@ public class Squirrel extends JFrame implements ActionListener {
 			// checks if the input is two columns
 			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
 			    {
-				if ( !inputRange.getText().matches("\\w\\d{0,2}:\\w\\d{0,2}") ) {
-				    JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
+				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
+				    JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d+:\\w\\d+.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
 				} else {
 				    makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
 				}
@@ -629,8 +637,8 @@ public class Squirrel extends JFrame implements ActionListener {
      */
     private void highlightInputRange( String inputRange )
     {
-	if ( !inputRange.matches( "\\w\\d{0,2}:\\w\\d{0,2}" )) { // space in front of regex because that's how AutoSuggestor class functions
-	    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d{0,2}:\\w\\d{0,2}.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+	if ( !inputRange.matches( "\\w\\d+:\\w\\d+" )) { // space in front of regex because that's how AutoSuggestor class functions
+	    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
 	    return;
 	}
 	String[] bounds = inputRange.split( ":" );
@@ -707,6 +715,9 @@ public class Squirrel extends JFrame implements ActionListener {
 
 		if ( d == data.size()-1 ) {
 		    bin.add(c);
+		    for (int l = 0; l < binRange.size() - bin.size() + 1; l++) {
+			bin.add( 0 );
+		    }
 		}	    
 	    }
        	
@@ -887,6 +898,7 @@ public class Squirrel extends JFrame implements ActionListener {
 		    cells.get( r*COLS + start + c ).setValue( randomRange( lb,ub ));
 		} catch (IndexOutOfBoundsException e) {
 		    addRow();
+		    cells.get( r*COLS + start + c ).setValue( randomRange( lb,ub ));
 		}
 	    }
 	}
