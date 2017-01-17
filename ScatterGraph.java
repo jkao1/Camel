@@ -25,14 +25,18 @@ public class ScatterGraph extends JPanel {
 	super.paintComponent(g);
 	Graphics2D g2 = (Graphics2D)g;
 	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	if(xvalues.size() != yvalues.size()){
+	    return;
+	}
 	
-	double xScale = ((double) getWidth() - 2 * BORDER_GAP) / (scores.size() - 1);
+	double xScale = ((double) getWidth() - 2 * BORDER_GAP) / (xvalues.size() - 1);
 	double yScale = ((double) getHeight() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
 	
 	List<Point> graphPoints = new ArrayList<Point>();
-	for (int i = 0; i < scores.size(); i++) {
-	    int x1 = (int) (i * xScale + BORDER_GAP);
-	    int y1 = (int) ((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP);
+	for (int i = 0; i < xvalues.size(); i++) {
+	    int x1 = (int) ((MAX_SCORE - xvalues.get(i)) * xScale + BORDER_GAP);
+	    int y1 = (int) ((MAX_SCORE - yvalues.get(i)) * yScale + BORDER_GAP);
 	    graphPoints.add(new Point(x1, y1));
 	}
 	
@@ -50,8 +54,8 @@ public class ScatterGraph extends JPanel {
 	}
 	
 	// and for x axis
-	for (int i = 0; i < scores.size() - 1; i++) {
-	    int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (scores.size() - 1) + BORDER_GAP;
+	for (int i = 0; i < xvalues.size() - 1; i++) {
+	    int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (xvalues.size() - 1) + BORDER_GAP;
 	    int x1 = x0;
 	    int y0 = getHeight() - BORDER_GAP;
 	    int y1 = y0 - GRAPH_POINT_WIDTH;
@@ -84,16 +88,16 @@ public class ScatterGraph extends JPanel {
     }
 
     private static void createAndShowGui() {
-	List<Integer> scores = new ArrayList<Integer>();
-	//add points to score here
-	ScatterGraph mainPanel = new ScatterGraph(scores);
+	List<Integer> xvalues = new ArrayList<Integer>();
+	List<Integer> yvalues = new ArrayList<Integer>();
+	ScatterGraph mainPanel = new ScatterGraph(xvalues,yvalues);
 
 	JFrame frame = new JFrame("DrawGraph");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.getContentPane().add(mainPanel);
 	frame.pack();
 	frame.setLocationByPlatform(true);
-      frame.setVisible(true);
+	frame.setVisible(true);
     }
     
     public static void main(String[] args) {
