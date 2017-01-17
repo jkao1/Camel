@@ -141,14 +141,18 @@ public class Squirrel extends JFrame implements ActionListener {
 		}
 	    });
 	dataMenu.add( dataMenu_Graph );
-	JMenuItem dataMenu_RNG = new JMenuItem("Random Number Generation");
-	dataMenu_RNG.addActionListener( new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    openRNG();
-		}
-	    });
-	dataMenu.add( dataMenu_RNG);
 	mb.add(dataMenu);
+
+	JMenu rngMenu = new JMenu("Random Number Generation");
+	JMenuItem rngMenu_uniform = new JMenuItem("Uniform Distribution");
+	rngMenu_uniform.setActionCommand("rngUniform");
+	rngMenu_uniform.addActionListener(this);
+	rngMenu.add( rngMenu_uniform );
+	JMenuItem rngMenu_normal = new JMenuItem("Normal Distribution");
+	rngMenu_uniform.setActionCommand("rngNormal");
+	rngMenu_uniform.addActionListener(this);
+	rngMenu.add( rngMenu_normal );
+	mb.add(rngMenu);		
 
 	this.setJMenuBar(mb);
     }
@@ -186,9 +190,6 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	JScrollPane scr = new JScrollPane( ss, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 	scr.setPreferredSize(new Dimension( Cell.PREFERRED_WIDTH * COLS + 200, Cell.PREFERRED_HEIGHT * COLS * 2 ));
-
-	JScrollBar vertical = scr.getVerticalScrollBar();
-	vertical.setValue( vertical.getMaximum() );
 			     
 	pane.add(scr);
     }
@@ -831,16 +832,16 @@ public class Squirrel extends JFrame implements ActionListener {
     }
 
     /**
-     * Opens a new window for Random Number Generation
+     * Writes uniform distribution of random numbers onto the spreadsheet.
+     *
+     * @param nv number of new variables (columns)
+     * @param rn number of random numbers (rows)
+     * @param lb lower bound of numbers
+     * @param ub upper bound of numbers
+     * @param op output starting point
      */
-    public void openRNG()
+    public void runUniformDistribution()
     {
-	rngFrame = new JFrame("Random Number Generation");
-	rngFrame.setLocation( 200,200 );
-	rngContainer = rngFrame.getContentPane();
-
-	rng = new JPanel( new GridLayout(0,1) );
-
 	JLabel nv = new JLabel( "Number of new variables:*" );
 	JTextField newVariables = new JTextField(20);
 	rng.add(nv);
@@ -857,7 +858,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	JTextField upperBound = new JTextField(20);
 	rng.add(ub);
 	rng.add(upperBound);
-	JLabel op = new JLabel( "Output cell:" );
+	JLabel op = new JLabel( "Output cell*:" );
 	JTextField output = new JTextField(20);
 	rng.add(op);
 	rng.add(output);
@@ -865,49 +866,20 @@ public class Squirrel extends JFrame implements ActionListener {
 	JButton ok = new JButton("OK");
 	ok.addActionListener( new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    runUniformDistribution( Integer.parseInt( newVariables.getText() ),
-					     Integer.parseInt( randomNumbers.getText() ),
-					     Double.parseDouble( lowerBound.getText() ),
-					     Double.parseDouble( upperBound.getText() ),
-					     toCellNum( output.getText() ) - COLS - 1 );
+		    int start = toCellNum( output.getText() );
+		    for (int r = 0; r < Integer.parseInt( newVariables.getText()) ; r++) { // each var
+			for (int c = 0; c < Integer.parseInt( randomNumbers.getText()); c++) { // each #
+			    try {
+				cells.get( r*COLS + start + c ).setValue( randomRange( Double.parseDouble( lowerBound.getText()),Double.parseDouble( upperBound.getText())));
+			    } catch (IndexOutOfBoundsException x) {
+				addRow();
+				cells.get( r*COLS + start + c ).setValue( randomRange( Double.parseDouble( lowerBound.getText()),Double.parseDouble( upperBound.getText())));
+			    }
+			}
+		    }
 		}
 	    });
 	rng.add(ok);
-	JButton cancel = new JButton("Cancel");
-	cancel.addActionListener( new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    rngFrame.dispose();
-		}
-	    });
-	rng.add(cancel);
-
-	rngContainer.add( rng );
-	rngFrame.pack();
-	rngFrame.setVisible(true);
-    }
-
-    /**
-     * Writes uniform distribution of random numbers onto the spreadsheet.
-     *
-     * @param nv number of new variables (columns)
-     * @param rn number of random numbers (rows)
-     * @param lb lower bound of numbers
-     * @param ub upper bound of numbers
-     * @param op output starting point
-     */
-    public void runUniformDistribution(int nv, int rn, double lb, double ub, int op)
-    {
-	int start = COLS + 1 + op;
-	for (int r = 0; r < nv; r++) {
-	    for (int c = 0; c < rn; c++) {
-		try {
-		    cells.get( r*COLS + start + c ).setValue( randomRange( lb,ub ));
-		} catch (IndexOutOfBoundsException e) {
-		    addRow();
-		    cells.get( r*COLS + start + c ).setValue( randomRange( lb,ub ));
-		}
-	    }
-	}
     }
 
     /**
@@ -926,6 +898,61 @@ public class Squirrel extends JFrame implements ActionListener {
 	double range = (max - min) + 1;     
 	return Double.parseDouble( String.format( "%.5g%n", (Math.random() * range) + min));
     }
+
+    public void runNormalDistribution()
+    {
+	JLabel nv = new JLabel( "Number of new variables:*" );
+	JTextField newVariables = new JTextField(20);
+	rng.add(nv);
+	rng.add(newVariables);
+	JLabel rn = new JLabel( "Random numbers count:*" );
+	JTextField randomNumbers = new JTextField(20);
+	rng.add(rn);
+	rng.add(randomNumbers);
+	JLabel mn = new JLabel( "Mean (must be double):*" );
+	JTextField mean = new JTextField(20);
+	rng.add(mn);
+	rng.add(mean);
+	JLabel st = new JLabel( "Standard deviation (must be double):*" );
+	JTextField std = new JTextField(20);
+	rng.add(st);
+	rng.add(std);
+	JLabel op = new JLabel( "Output cell*:" );
+	JTextField output = new JTextField(20);
+	rng.add(op);
+	rng.add(output);
+
+	JButton ok = new JButton("OK");
+	ok.addActionListener( new ActionListener() {
+		public void actionPerformed(ActionEvent e)
+		{
+		    try {
+			int start = toCellNum( output.getText() );
+			for (int r = 0; r < Integer.parseInt( newVariables.getText()) ; r++) {
+			    for (int c = 0; c < Integer.parseInt( randomNumbers.getText()); c++) {
+				double men = Double.parseDouble( mean.getText() );
+				double stdev = Double.parseDouble( std.getText() );
+
+				Random rd = new Random();
+				double zScore = rd.nextGaussian();
+				double x = Double.parseDouble( String.format( "%.5g%n", zScore * stdev + men));
+				
+				try {
+				    cells.get( r*COLS + start + c ).setValue( x );
+				} catch (IndexOutOfBoundsException b) {
+				    addRow();
+				    cells.get( r*COLS + start + c ).setValue( x );
+				}
+			    }
+			}
+		    } catch (NumberFormatException x) {
+			JOptionPane.showMessageDialog( null, "Read input instructions carefully.", "Number Format Exception", JOptionPane.ERROR_MESSAGE );
+			rngFrame.dispose();
+		    }
+		}
+	    });
+	rng.add(ok);
+    }
     
     public void actionPerformed(ActionEvent e) {
 	String s = e.getActionCommand();
@@ -938,6 +965,21 @@ public class Squirrel extends JFrame implements ActionListener {
 		    cl.show( cards,graphLabels[ Integer.parseInt( rb.getActionCommand() )]);
 		}
 	    }
+	} else if ( s.indexOf("rng") >= 0 ) {
+	    rngFrame = new JFrame( s );
+	    rngFrame.setLocation( 200, 200 );
+	    rngContainer = rngFrame.getContentPane();
+	    rng = new JPanel( new GridLayout( 0, 1 ));
+	    
+	    if (s.equals( "rngUniform" )) {
+		runUniformDistribution();
+	    } else if (s.equals( "rngNormal" )) {
+		runNormalDistribution();
+	    }
+
+	    rngContainer.add( rng );
+	    rngFrame.pack();
+	    rngFrame.setVisible(true);
 	}
     }
 	
