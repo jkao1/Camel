@@ -14,7 +14,7 @@ public class LineGraph extends JPanel {
     
     private static final int MAX_SCORE = 20;
     private static final int GRAPH_W = 800;
-    private static final int GRAPH__H = 650;
+    private static final int GRAPH_H = 650;
     private static final int BORDER_GAP = 30;
     private static final Color GRAPH_COLOR = Color.black;
     private static final Color GRAPH_POINT_COLOR = Color.red;

@@ -16,16 +16,21 @@ public class Squirrel extends JFrame implements ActionListener {
     // used for spreadsheet body
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static int ROWS = 30, COLS = 12;
-    
+
+    private static int SS_WIDTH;
+    private static int SS_HEIGHT;
     private static int BORDER_GAP;
     private static int HISTOGRAM_TABLE_WIDTH = 5;
     private static String currentFileName;
 
     private JFrame frame; // Squirrel frame
-    private JPanel pane; // Squirrel container
+    private JPanel top; // top pane
+    private JPanel pane; // Squirrel container/pane
     private JPanel ss; // spreadsheet panel
+    private GridBagConstraints c;
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
+    private JPanel currentCellInfo;
     private JTextField currentCellID, currentCellText;
 
     private ImageIcon cowFace = new ImageIcon("images/cowFace.gif", "cow");
@@ -63,25 +68,31 @@ public class Squirrel extends JFrame implements ActionListener {
     private Container rngContainer;
     private JPanel rng;
 
+    // used for sorting
+    private JFrame sortFrame;
+    private Container sortPane;
+    private JPanel sort;
+
     public Squirrel()
     {
 	frame = new JFrame("Squirrel");
 
 	this.setLocation(100,100);
 	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-	pane = new JPanel();
+	this.setResizable(false);
+	
+	pane = new JPanel(new GridBagLayout());
+	c = new GridBagConstraints();
 	labels = new ArrayList<String>();
 
 	osDependentStyles();	
 	createMenuBar();
+	initializeTop();
 	initializeSpreadsheet();
 	initializeFunctions();
 
-	add(pane);
+	this.add(pane);
 	this.pack();
-	
-
     }
     
     /**
@@ -91,8 +102,12 @@ public class Squirrel extends JFrame implements ActionListener {
     {
 	if (OS.indexOf("mac") >= 0) {
 	    BORDER_GAP = -6;
+	    SS_WIDTH = Cell.PREFERRED_WIDTH * COLS + 200;
+	    SS_HEIGHT = Cell.PREFERRED_HEIGHT * COLS * 2;
 	} else {
 	    BORDER_GAP = 0;
+	    SS_WIDTH = Cell.PREFERRED_WIDTH * COLS + 200;
+	    SS_HEIGHT = Cell.PREFERRED_HEIGHT * COLS * 2;	    
 	}
     }
 
@@ -132,6 +147,17 @@ public class Squirrel extends JFrame implements ActionListener {
 	fileMenu.add( fileMenu_Save );
 	mb.add(fileMenu);
 
+	JMenu editMenu = new JMenu("Edit");
+	JMenuItem editMenu_Sort = new JMenuItem("Sort...");
+	editMenu_Sort.setActionCommand("sort");	
+	editMenu_Sort.addActionListener(this);
+	editMenu.add( editMenu_Sort );
+	JMenuItem editMenu_SelectAll = new JMenuItem("Select All");
+	editMenu_SelectAll.setActionCommand("selectAll");
+	editMenu_SelectAll.addActionListener(this);
+	editMenu.add( editMenu_SelectAll );
+	mb.add(editMenu);
+
 	// creates data analysis menu
 	JMenu dataMenu = new JMenu("Data");
 	JMenuItem dataMenu_Graph = new JMenuItem("Graph");
@@ -149,8 +175,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	rngMenu_uniform.addActionListener(this);
 	rngMenu.add( rngMenu_uniform );
 	JMenuItem rngMenu_normal = new JMenuItem("Normal Distribution");
-	rngMenu_uniform.setActionCommand("rngNormal");
-	rngMenu_uniform.addActionListener(this);
+	rngMenu_normal.setActionCommand("rngNormal");
+	rngMenu_normal.addActionListener(this);
 	rngMenu.add( rngMenu_normal );
 	mb.add(rngMenu);		
 
@@ -165,6 +191,32 @@ public class Squirrel extends JFrame implements ActionListener {
 	functions = new ArrayList<String>();
 	functions.add("=SUM(");
 	functions.add("=MEAN(");
+    }
+
+    public void initializeTop()
+    {
+	top = new JPanel(new BorderLayout());
+
+	currentCellInfo = new JPanel(new FlowLayout());
+	currentCellID = new JTextField(7);
+	currentCellID.setHorizontalAlignment(JTextField.CENTER);
+	currentCellID.setEnabled(false);
+	currentCellInfo.add( currentCellID );
+	currentCellText = new JTextField(70);
+	currentCellText.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    cells.get(toCellNum( currentCellID.getText() )).setValue(currentCellText.getText());
+		}
+	    });
+	currentCellInfo.add( currentCellText );	
+
+	top.add( currentCellInfo, BorderLayout.LINE_END );
+				       
+	c.gridx = 0;
+	c.gridy = 0;
+	c.gridwidth = 1;
+	c.gridheight = 1;
+	pane.add( top,c );
     }
 
     /**
@@ -189,9 +241,14 @@ public class Squirrel extends JFrame implements ActionListener {
 
 
 	JScrollPane scr = new JScrollPane( ss, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
-	scr.setPreferredSize(new Dimension( Cell.PREFERRED_WIDTH * COLS + 200, Cell.PREFERRED_HEIGHT * COLS * 2 ));
+	scr.setPreferredSize(new Dimension( SS_WIDTH, SS_HEIGHT ));
+
+	c.gridx = 0;
+	c.gridy = 1;
+	c.gridwidth = 1;
+	c.gridheight = 10;
 			     
-	pane.add(scr);
+	pane.add(scr, c);
     }
 
     
@@ -249,8 +306,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
 	Cell colLabel = cells.get( selected.getCellNum() % COLS );
 
-	//lightLabels.add( rowLabel.highlight() );
-	//lightLabels.add( colLabel.highlight() );
+	lightLabels.add( rowLabel.highlight() );
+	lightLabels.add( colLabel.highlight() );
     }
 
     /**
@@ -282,6 +339,12 @@ public class Squirrel extends JFrame implements ActionListener {
 	    }
 	}
 
+	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
+	Cell colLabel = cells.get( selected.getCellNum() % COLS );
+
+	lightLabels.add( rowLabel.highlight() );
+	lightLabels.add( colLabel.highlight() );
+	
 	updateTexts();
 	return true;
     }
@@ -439,7 +502,8 @@ public class Squirrel extends JFrame implements ActionListener {
      */
     private void updateTexts()
     {
-	cells.get(0).setValue(selected.toString() + ": " + selected.getValue());
+	currentCellID.setText( selected.toString() );
+	currentCellText.setText( selected.getValue() );
 
 	// math labels sum and mean count, respectively
 	int s = 0; 
@@ -546,16 +610,15 @@ public class Squirrel extends JFrame implements ActionListener {
 	JTextField outputRange = new JTextField(10);
 	output.add(outputRange);
 
+	/*
 	// creates "sort by" dropdown
 	JPanel sort = new JPanel();
 	sort.setLayout(new FlowLayout( FlowLayout.LEADING ));
 	sort.add(new JLabel("sort by:")); // DOES NOT WORK
 	JComboBox<String> sortOptions = new JComboBox<>(new String[] { "none", "ascending", "descending" });
 	sortOptions.setEditable(false);
-
-	// chart creation check box (histogram-exclusive)
-	JCheckBox chart = new JCheckBox("Chart");
-
+	*/
+	
 	// creates the default buttons "Ok" and "Cancel
 	JPanel defaultButtons = new JPanel();
 	JButton ok = new JButton("Ok");
@@ -579,12 +642,26 @@ public class Squirrel extends JFrame implements ActionListener {
 			    JOptionPane.showMessageDialog( null, "Line graphs only take one column or one row of inputs.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
 			}
 			break;
+		    case 'B':
+		        // checks if the input is two columns
+			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
+			    {
+				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
+				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+				} else {
+				    makeBarGraph( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
+				}
+			    } else {
+			    // ERROR: histogramInput
+			    JOptionPane.showMessageDialog( null, "Bar graphs take two columns of input; the first is the data; the second is the labels.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
+			}
+			break;	
 		    case 'H':
 			// checks if the input is two columns
 			if ( Math.abs( inputRange.getText().charAt(0) - inputRange.getText().charAt( inSeparator+1 )) == 1 )
 			    {
 				if ( !inputRange.getText().matches("\\w\\d+:\\w\\d+") ) {
-				    JOptionPane.showMessageDialog( null, "Output must match the pattern \"\\w\\d+:\\w\\d+.\"", "Output Pattern Error", JOptionPane.ERROR_MESSAGE );
+				    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
 				} else {
 				    makeHistogram( toCellNum(outputRange.getText().substring( 0,outputRange.getText().indexOf(":") )));
 				}
@@ -593,7 +670,7 @@ public class Squirrel extends JFrame implements ActionListener {
 			    JOptionPane.showMessageDialog( null, "Histograms take two columns of input; the first is the data; the second is the bin.", "Graph Input Error", JOptionPane.ERROR_MESSAGE );
 			}
 			break;
-		    }		    
+		    }
 		
 		    graphFrame.dispose();
 		}
@@ -605,13 +682,15 @@ public class Squirrel extends JFrame implements ActionListener {
 	p.setLayout( new GridLayout(0,1) );
 	p.add( new JLabel(s) );
 	p.add(input);
+	/*
 	switch ( s.charAt(0) ) {
 	case 'L': break; // line graph
 	case 'B': p.add(sortOptions); break; // bar graph
 	case 'S': break; // scatter graph
 	case 'P': p.add(sortOptions); break; // pie graph
-	case 'H': p.add(output); p.add(chart); p.add(sortOptions); break; // histogram
-	}
+	case 'H': p.add(output); p.add(sortOptions); break; // histogram
+	}*/
+	if ( s.charAt(0) == 'H' ) p.add(output);
 	p.add(defaultButtons);
     }
 
@@ -674,6 +753,13 @@ public class Squirrel extends JFrame implements ActionListener {
 	lineGraph.pack();
 	lineGraph.setVisible(true);
     }
+
+    /**
+     * Makes a bar graph.
+     */
+    public void makeBarGraph()
+    {
+	
 
     /**
      * Makes a histogram with a 2-colum input.
@@ -833,12 +919,6 @@ public class Squirrel extends JFrame implements ActionListener {
 
     /**
      * Writes uniform distribution of random numbers onto the spreadsheet.
-     *
-     * @param nv number of new variables (columns)
-     * @param rn number of random numbers (rows)
-     * @param lb lower bound of numbers
-     * @param ub upper bound of numbers
-     * @param op output starting point
      */
     public void runUniformDistribution()
     {
@@ -969,18 +1049,52 @@ public class Squirrel extends JFrame implements ActionListener {
 	    rngFrame = new JFrame( s );
 	    rngFrame.setLocation( 200, 200 );
 	    rngContainer = rngFrame.getContentPane();
-	    rng = new JPanel( new GridLayout( 0, 1 ));
 	    
-	    if (s.equals( "rngUniform" )) {
-		runUniformDistribution();
-	    } else if (s.equals( "rngNormal" )) {
+	    rng = new JPanel( new GridLayout( 0, 1 ));
+	    if (s.equals( "rngNormal" )) {
 		runNormalDistribution();
 	    }
+	    if (s.equals( "rngUniform" )) {
+		runUniformDistribution();
+	    }
+	    
 
 	    rngContainer.add( rng );
 	    rngFrame.pack();
 	    rngFrame.setVisible(true);
+	} else if ( s.equals("sort") ) {
+	    sortFrame = new JFrame( s );
+	    sortFrame.setLocation( 300, 300 );
+	    sortPane = sortFrame.getContentPane();
+
+	    sort = new JPanel(new FlowLayout());
+	    JLabel l = new JLabel("Enter a range to sort:");
+	    sort.add(l);
+	    JTextField t = new JTextField(10);
+	    t.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+			t.setText( toInputRange() ); // if any aleready highlighted stuff, then this will catch it
+			if (t.getText().matches("\\w\\d+:\\w\\d+")) {
+			    highlightInputRange( t.getText() );
+			} else {
+			    JOptionPane.showMessageDialog( null, "Input must match the pattern \"\\w\\d+:\\w\\d+.\"", "Input Pattern Error", JOptionPane.ERROR_MESSAGE );
+			    return;
+			}
+			ArrayList<Double> values = new ArrayList<Double>();
+			for ( int i = 0; i < highlighted.size(); i++ ) {
+			    values.add( highlighted.get(i).getDoubleValue() );
+			}
+			Collections.sort(values);
+			for ( int i = 0; i < highlighted.size(); i++ ) {
+			    highlighted.get(i).setValue(values.get(i));
+			}
+		    }
+		});
+	    sort.add(t);
+	    JButton b = new JButton("Sort");
+	    sort.add(b);
 	}
+	    
     }
 	
     public static void main(String[] args)
