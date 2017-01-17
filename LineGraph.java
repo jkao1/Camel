@@ -2,16 +2,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
-
 import javax.swing.*;
-
 import java.awt.*;
+
+/**
+ *@author Hovercraft Full Of Eels
+ *@url http://stackoverflow.com/questions/8693342/drawing-a-simple-line-graph-i *n-java
+ */
 
 public class LineGraph extends JPanel {
     
     private static final int MAX_SCORE = 20;
-    private static final int PREF_W = 800;
-    private static final int PREF_H = 650;
+    private static final int GRAPH_W = 800;
+    private static final int GRAPH__H = 650;
     private static final int BORDER_GAP = 30;
     private static final Color GRAPH_COLOR = Color.black;
     private static final Color GRAPH_POINT_COLOR = Color.red;
@@ -37,8 +40,8 @@ public class LineGraph extends JPanel {
 	
 	List<Point> graphPoints = new ArrayList<Point>();
 	for (int i = 0; i < scores.size(); i++) {
-	    int x1 = (int) (i * xScale + BORDER_GAP);
-	    int y1 = (int) ((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP);
+	    int x1 = (int)(i * xScale + BORDER_GAP);
+	    int y1 = (int)((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP);
 	    graphPoints.add(new Point(x1, y1));
 	}
 	
@@ -86,9 +89,10 @@ public class LineGraph extends JPanel {
 	    g2.fillOval(x, y, ovalW, ovalH);
 	}
     }
-    
+
+    //Creates the set dimensions for the graph
     public Dimension getPreferredSize() {
-	return new Dimension(PREF_W, PREF_H);
+	return new Dimension(GRAPH_W, GRAPH_H);
     }
 
      private static void createAndShowGui(){
