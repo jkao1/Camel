@@ -202,6 +202,29 @@ public class Squirrel extends JFrame implements ActionListener {
 	top = new JPanel(new BorderLayout());
 
 	style = new JPanel(new FlowLayout());
+	GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	Font[] fonts = e.getAllFonts(); // gets fonts
+	String[] allFonts = new String[fonts.length];
+	for (int i = 0; i < fonts.length; i++) { // stores fonts
+	    allFonts[i] = fonts[i].getFontName();
+	}
+	JComboBox f = new JComboBox(allFonts);
+	f.setMaximumRowCount(10); // for scroll pane (max count is now 10)
+	f.setActionCommand("fontName");
+	f.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    String font = (String) (f.getSelectedItem());
+		    selected.setFontName(font);
+		}
+	    });
+	style.add(f);
+	String[] fontSizes = { "6", "7", "8", "9", "10", "11", "12", "14", "18", "24", "36" };
+	JComboBox s = new JComboBox(fontSizes);
+	
+
+
+	top.add(style, BorderLayout.PAGE_START);
+
 
 	currentCellInfo = new JPanel(new FlowLayout());
 	currentCellID = new JTextField(7);
@@ -216,7 +239,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	    });
 	currentCellInfo.add( currentCellText );	
 
-	top.add( currentCellInfo, BorderLayout.LINE_END );
+	top.add( currentCellInfo, BorderLayout.PAGE_END );
 				       
 	c.gridx = 0;
 	c.gridy = 0;
@@ -1162,6 +1185,12 @@ public class Squirrel extends JFrame implements ActionListener {
 		    cells.get(i).highlight();
 		    highlighted.add(cells.get(i));
 		}
+	    }
+	} else if ( s.indexOf("font") >= 0 ) {	    
+	    if (s.equals("fontName")) {
+		JComboBox fonts = (JComboBox) e.getSource();
+		String font = (String) fonts.getSelectedItem();
+		selected.setFontName(font);
 	    }
 	}
 	    

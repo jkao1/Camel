@@ -151,6 +151,10 @@ public class Cell implements Comparable<Cell> {
 	    setValue("");
 	}
     }
+
+    public void setFontName(String s) {
+	textField.setFont( new Font(s, Font.PLAIN, textField.getFont().getSize()));
+    }
     
     public void setValue(int v) {
 	textField.setText(String.valueOf(v));
