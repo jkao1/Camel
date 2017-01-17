@@ -1130,8 +1130,10 @@ public class Squirrel extends JFrame implements ActionListener {
 	    sort = new JPanel(new FlowLayout());
 	    JLabel l = new JLabel("Enter a range to sort:");
 	    sort.add(l);
-	    JTextField t = new JTextField(10);
-	    t.addActionListener(new ActionListener() {
+	    JTextField t = new JTextField(10);	  
+	    sort.add(t);
+	    JButton b = new JButton("Sort");
+	    b.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 			t.setText( toInputRange() ); // if any aleready highlighted stuff, then this will catch it
 			if (t.getText().matches("\\w\\d+:\\w\\d+")) {
@@ -1150,11 +1152,17 @@ public class Squirrel extends JFrame implements ActionListener {
 			}
 		    }
 		});
-	    sort.add(t);
-	    JButton b = new JButton("Sort");
 	    sort.add(b);
+	    sortPane.add(sort);
 	    sortFrame.pack();
 	    sortFrame.setVisible(true);
+	} else if ( s.equals("selectAll") ) {
+	    for (int i = COLS + 1; i < ROWS*COLS; i++) {		
+		if ( !cells.get(i).isLabel() ) {
+		    cells.get(i).highlight();
+		    highlighted.add(cells.get(i));
+		}
+	    }
 	}
 	    
     }
