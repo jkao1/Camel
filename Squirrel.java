@@ -32,6 +32,7 @@ public class Squirrel extends JFrame implements ActionListener {
     
     private ArrayList<Cell> cells; // stores all cells
     private ArrayList<Cell> highlighted; // stores highlighted cells
+    private ArrayList<Cell> lightLabels; // stores highlighted labels
     private ArrayList<String> functions; // stores available math functions
     private ArrayList<String> labels; // stores histogram labels for graph
     
@@ -171,6 +172,7 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	cells = new ArrayList<Cell>();
 	highlighted = new ArrayList<Cell>();
+	lightLabels = new ArrayList<Cell>();
 
 	for (int i = 0; i < ROWS*COLS; i++) initializeCell(i);
 	
@@ -223,6 +225,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	selected.unselect();
 	for (Cell h : highlighted) h.dehighlight();
 	highlighted.clear();
+	for ( Cell l : lightLabels ) l.dehighlight();
+	lightLabels.clear();
 
 	if (c.getCellNum() == 0) {
 	    selected = cells.get(c.getCellNum() + COLS + 1);
@@ -244,8 +248,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
 	Cell colLabel = cells.get( selected.getCellNum() % COLS );
 
-	highlighted.add( rowLabel.highlight() );
-	highlighted.add( colLabel.highlight() );
+	//lightLabels.add( rowLabel.highlight() );
+	//lightLabels.add( colLabel.highlight() );
     }
 
     /**
@@ -257,6 +261,8 @@ public class Squirrel extends JFrame implements ActionListener {
 
 	for ( Cell h : highlighted ) h.dehighlight();
 	highlighted.clear();
+	for ( Cell l : lightLabels ) l.dehighlight();
+	lightLabels.clear();
 	// switches a % COLS and b % COLS to maintain top-left/bottom-right endpoints
 	int a = Math.min(x,y);
 	int b = Math.max(x,y);
@@ -274,11 +280,6 @@ public class Squirrel extends JFrame implements ActionListener {
 		highlighted.add(cells.get(i));
 	    }
 	}
-	Cell rowLabel = cells.get( (selected.getCellNum() / COLS) * COLS );
-	Cell colLabel = cells.get( selected.getCellNum() % COLS );
-
-	highlighted.add( rowLabel.highlight() );
-	highlighted.add( colLabel.highlight() );
 
 	updateTexts();
 	return true;
@@ -688,19 +689,20 @@ public class Squirrel extends JFrame implements ActionListener {
 	    } else if ( i % 2 == 0 ) {
 		data.add( highlighted.get(i).getDoubleValue() );
 	    } else {
+		if ( highlighted.get(i).getDoubleValue() == 0.0 ) highlighted.get(i).setValue("adsf");
 		binRange.add( highlighted.get(i).getDoubleValue() );
 	    }
 	}
 
 	Collections.sort(data);
 	Collections.sort(binRange);
-
+	
 	int b = 0; // index to loop through bin
 	int c = 0; // stores count for each bin range
 	for (int d = 0; d < data.size(); d++)
 	    {
 		if ( b >= binRange.size() ) {
-		    bin.add( data.size() - d + 1 ); // adds the count of remaining data values
+		    bin.add( data.size() - d ); // adds the count of remaining data values
 		    break;
 		}
 	    
@@ -715,9 +717,6 @@ public class Squirrel extends JFrame implements ActionListener {
 
 		if ( d == data.size()-1 ) {
 		    bin.add(c);
-		    for (int l = 0; l < binRange.size() - bin.size() + 1; l++) {
-			bin.add( 0 );
-		    }
 		}	    
 	    }
        	
@@ -727,7 +726,6 @@ public class Squirrel extends JFrame implements ActionListener {
 	for (int n : bin) sum += (double) n;	
 
 	decorateTable(start);
-
 	int end = start + bin.size() * COLS + HISTOGRAM_TABLE_WIDTH + 1;
 	for (int i = start + COLS; i < end; i++) {
 	    switch ( i % COLS ) {
@@ -737,7 +735,12 @@ public class Squirrel extends JFrame implements ActionListener {
 		    labels.add(l);
 		    cells.get(i).setValue( l );
 		} else {
-		    String l = binRange.get(b-1) + " to " + binRange.get(b);
+		    String l;
+		    if ( b == binRange.size() ) {
+			l = "more";
+		    } else {
+			l = binRange.get(b-1) + " to " + binRange.get(b);
+		    }
 		    labels.add(l);
 		    cells.get(i).setValue( l );
 		}
@@ -771,6 +774,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	JFrame histogram = new JFrame(HISTOGRAM);
 	histogram.getContentPane().add(h);
 	histogram.setSize( 400,400 );
+	histogram.setLocation( 400,400 );
 	histogram.setVisible(true);
     }
 
@@ -853,10 +857,10 @@ public class Squirrel extends JFrame implements ActionListener {
 	JTextField upperBound = new JTextField(20);
 	rng.add(ub);
 	rng.add(upperBound);
-	JLabel sd = new JLabel( "Seed:" );
-	JTextField seed = new JTextField(20);
-	rng.add(sd);
-	rng.add(seed);
+	JLabel op = new JLabel( "Output cell:" );
+	JTextField output = new JTextField(20);
+	rng.add(op);
+	rng.add(output);
 
 	JButton ok = new JButton("OK");
 	ok.addActionListener( new ActionListener() {
@@ -864,7 +868,9 @@ public class Squirrel extends JFrame implements ActionListener {
 		    runRandomNumbers( Integer.parseInt( newVariables.getText() ),
 				      Integer.parseInt( randomNumbers.getText() ),
 				      Double.parseDouble( lowerBound.getText() ),
-				      Double.parseDouble( upperBound.getText() ) );
+				      Double.parseDouble( upperBound.getText() ),
+				      3 );
+				      //Integer.parseInt( toCellNum( output.getText())) );
 		}
 	    });
 	rng.add(ok);
@@ -888,10 +894,11 @@ public class Squirrel extends JFrame implements ActionListener {
      * @param rn number of random numbers (rows)
      * @param lb lower bound of numbers
      * @param ub upper bound of numbers
+     * @param op output starting point
      */
-    public void runRandomNumbers(int nv, int rn, double lb, double ub)
+    public void runRandomNumbers(int nv, int rn, double lb, double ub, int op)
     {
-	int start = COLS + 1;
+	int start = COLS + 1 + op;
 	for (int r = 0; r < nv; r++) {
 	    for (int c = 0; c < rn; c++) {
 		try {
