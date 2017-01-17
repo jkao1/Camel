@@ -2,6 +2,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 import javax.swing.*;
 
 public class ScatterGraph extends JPanel { 
@@ -54,7 +55,7 @@ public class ScatterGraph extends JPanel {
 	}
 	
 	// and for x axis
-	xMax = Collections.max(xvalues,null);
+	int xMax = Collections.max(xvalues,null);
 	for (int i = 0; i < xMax; i++) {
 	    int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (xMax - 1) + BORDER_GAP;
 	    int x1 = x0;
