@@ -2,6 +2,8 @@
 
 Squirrel is a software program designed by Jason Kao and William Soe. It is capable of creating and editing spreadsheets, saved with a .txt extension. General uses of Squirrel include cell-based calculation, random number generation, and various graphing tools.
 
+Disclaimer: JAVA 8 ONLY!!
+
 ##Working Features
 - menu bar to access certain features
 - with custom FileManager class, Squirrel is able to create new files, save current files, and open old files (with .txt extension)
