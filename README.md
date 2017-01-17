@@ -1,2 +1,3 @@
 # Squirrel
-The Spreadsheet Editor and Processor
+The Spreadsheet Editor and Data Plotter
+
