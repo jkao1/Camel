@@ -30,6 +30,7 @@ public class Squirrel extends JFrame implements ActionListener {
     private GridBagConstraints c;
     private JLabel count, sum, mean; // for selected areas	
     private Cell selected; // selected cell
+    private JPanel style;
     private JPanel currentCellInfo;
     private JTextField currentCellID, currentCellText;
 
@@ -42,6 +43,10 @@ public class Squirrel extends JFrame implements ActionListener {
     private ArrayList<String> labels; // stores histogram labels for graph
     
     // used for graph input body
+    private static final int GRAPH_X = 400;
+    private static final int GRAPH_Y = 400;
+    private static final int GRAPH_WIDTH = 400;
+    private static final int GRAPH_HEIGHT = 400;
     private static final String GREET = "Greet";
     private static final String LINE_GRAPH = "Line Graph";
     private static final String BAR_GRAPH = "Bar Graph";
@@ -195,6 +200,8 @@ public class Squirrel extends JFrame implements ActionListener {
     public void initializeTop()
     {
 	top = new JPanel(new BorderLayout());
+
+	style = new JPanel(new FlowLayout());
 
 	currentCellInfo = new JPanel(new FlowLayout());
 	currentCellID = new JTextField(7);
@@ -786,15 +793,33 @@ public class Squirrel extends JFrame implements ActionListener {
 	JFrame barGraph = new JFrame(BAR_GRAPH);
 		
 	barGraph.getContentPane().add(b);
-	barGraph.setSize( 400, 400);
-	barGraph.setLocation(150,150);
+	barGraph.setSize(GRAPH_WIDTH, GRAPH_HEIGHT);
+	barGraph.setLocation(GRAPH_X,GRAPH_Y);
 	barGraph.pack();
 	barGraph.setVisible(true);
     }
 
     public void makeScatterGraph()
     {
-	List<I
+	List<Integer> x = new ArrayList<Integer>();
+	List<Integer> y = new ArrayList<Integer>();
+	for (int i = 0; i < highlighted.size(); i++) {
+	    if (i % 2 == 0) {
+		x.add( highlighted.get(i).getIntValue() );
+	    } else {
+		y.add( highlighted.get(i).getIntValue() );
+	    }
+	}
+
+	ScatterGraph s = new ScatterGraph( x, y );
+	JFrame scatterGraph = new JFrame(SCATTER_GRAPH);
+
+	scatterGraph.getContentPane().add(s);
+	scatterGraph.setSize( GRAPH_WIDTH, GRAPH_HEIGHT);
+	scatterGraph.setLocation(GRAPH_X,GRAPH_Y);
+	scatterGraph.pack();
+	scatterGraph.setVisible(true);
+    }
 
     /**
      * Makes a histogram with a 2-colum input.
@@ -1128,6 +1153,8 @@ public class Squirrel extends JFrame implements ActionListener {
 	    sort.add(t);
 	    JButton b = new JButton("Sort");
 	    sort.add(b);
+	    sortFrame.pack();
+	    sortFrame.setVisible(true);
 	}
 	    
     }

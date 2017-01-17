@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.*;
 
-public class ScatterGraph extends JPanel {
+public class ScatterGraph extends JPanel { 
     private static final int MAX_SCORE = 20;
     private static final int PREF_W = 800;
     private static final int PREF_H = 650;
