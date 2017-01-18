@@ -6,6 +6,7 @@ public class Cell implements Comparable<Cell> {
     public static final int PREFERRED_HEIGHT = 26;
     public static final int PREFERRED_WIDTH = 70;
     public static final Color LABEL_COLOR = Color.LIGHT_GRAY;
+    public static final Color DEFAULT_COLOR = Color.WHITE;
     private final Font bold;
     private final Font reg;
 
@@ -13,7 +14,7 @@ public class Cell implements Comparable<Cell> {
  
     private int cellNum;
     private boolean isLabel;
-    private boolean isEditable;
+    private boolean isEditable = false;
     private boolean hasError;
     public int fontSize;
     public String fontName;
@@ -23,7 +24,8 @@ public class Cell implements Comparable<Cell> {
 	textField = t;
 	cellNum = i;
 	isLabel = true;
-	isEditable = false;
+
+	textField.setBackground( Color.WHITE);
 	
 	fontName = textField.getFont().getName();
 	fontSize = textField.getFont().getSize();
@@ -64,7 +66,7 @@ public class Cell implements Comparable<Cell> {
     public Cell highlight() {
 	if (isLabel()) {
 	    textField.setBackground(Color.GRAY);
-	} else if (textField.getBackground().equals(Color.WHITE)) {
+	} else if ( textField.getBackground().equals(DEFAULT_COLOR) ) {
 	    textField.setBackground(new Color(178,215,254));
 	}
 	return this;
@@ -113,10 +115,26 @@ public class Cell implements Comparable<Cell> {
 	return isEditable;
     }
 
+    public boolean isBold() {
+	return textField.getFont().isBold();
+    }
+
+    public boolean isItalic() {
+	return textField.getFont().isItalic();
+    }
+
     public int getCellNum() {
 	return cellNum;
     }
 
+    public String getFontName() {
+	return textField.getFont().getName();
+    }
+
+    public int getFontSize() {
+	return textField.getFont().getSize();
+    }
+    
     public JTextField getTextField() { // why -JK
 	return textField;
     }

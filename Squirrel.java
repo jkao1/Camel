@@ -314,8 +314,6 @@ public class Squirrel extends JFrame implements ActionListener {
     }
     
     /**
-     * TODO Column label highlighting
-     * 
      * Selects a cell and clears all other selections.
      * If Cell c is a row label, the cell directly to the right will be selected and the row will be highlighted.
      * If Cell c is a column label, the cell directly underneath will be selected and the column will be highlighted.
@@ -330,12 +328,13 @@ public class Squirrel extends JFrame implements ActionListener {
 	for ( Cell l : lightLabels ) l.dehighlight();
 	lightLabels.clear();
 
-	if (c.currentStyle == Font.BOLD) bold.setSelected(true);
+	if (c.isBold()) bold.setSelected(true);
 	else bold.setSelected(false);
-	if (c.currentStyle == Font.ITALIC) italic.setSelected(true);
+	if (c.isItalic()) italic.setSelected(true);
 	else italic.setSelected(false);
-	f.setSelectedItem(c.fontName.replaceAll("\\s+",""));
-	s.setSelectedItem(String.valueOf(c.fontSize));	
+	
+	f.setSelectedItem( c.getFontName() );
+	s.setSelectedItem(String.valueOf( f.getSize() ));
         
 	if (c.getCellNum() == 0) {
 	    selected = cells.get(c.getCellNum() + COLS + 1);
@@ -636,13 +635,14 @@ public class Squirrel extends JFrame implements ActionListener {
      * @param p JPanel the components are added to.
      * @param s identifies graph type, as different GraphInputs have different components.
      */
-    public void createAndAddDefault(JPanel p, String s)
+    public void createAndAddDefault(JPanel p, String graphName)
     {
+	final String s = graphName;
 	// creates input range
-	final JPanel input = new JPanel();
+	JPanel input = new JPanel();
 	input.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
 	input.add(new JLabel("input range:"));
-	JTextField inputRange = new JTextField(10);
+	final JTextField inputRange = new JTextField(10);
 	inputRange.setText( toInputRange() );
 	input.add(inputRange);
 
@@ -658,7 +658,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	JPanel output = new JPanel();
 	output.setLayout(new FlowLayout( FlowLayout.LEADING ));
 	output.add(new JLabel("output:"));
-	JTextField outputRange = new JTextField(10);
+	final JTextField outputRange = new JTextField(10);
 	output.add(outputRange);
 
 	/*
@@ -1014,23 +1014,23 @@ public class Squirrel extends JFrame implements ActionListener {
     public void runUniformDistribution()
     {
 	JLabel nv = new JLabel( "Number of new variables:*" );
-	JTextField newVariables = new JTextField(20);
+	final JTextField newVariables = new JTextField(20);
 	rng.add(nv);
 	rng.add(newVariables);
 	JLabel rn = new JLabel( "Random numbers count:*" );
-	JTextField randomNumbers = new JTextField(20);
+	final JTextField randomNumbers = new JTextField(20);
 	rng.add(rn);
 	rng.add(randomNumbers);
 	JLabel lb = new JLabel( "Lower bound:*" );
-	JTextField lowerBound = new JTextField(20);
+	final JTextField lowerBound = new JTextField(20);
 	rng.add(lb);
 	rng.add(lowerBound);
 	JLabel ub = new JLabel( "Upper bound:*" );
-	JTextField upperBound = new JTextField(20);
+	final JTextField upperBound = new JTextField(20);
 	rng.add(ub);
 	rng.add(upperBound);
 	JLabel op = new JLabel( "Output cell*:" );
-	JTextField output = new JTextField(20);
+	final JTextField output = new JTextField(20);
 	rng.add(op);
 	rng.add(output);
 
@@ -1073,23 +1073,23 @@ public class Squirrel extends JFrame implements ActionListener {
     public void runNormalDistribution()
     {
 	JLabel nv = new JLabel( "Number of new variables:*" );
-	JTextField newVariables = new JTextField(20);
+	final JTextField newVariables = new JTextField(20);
 	rng.add(nv);
 	rng.add(newVariables);
 	JLabel rn = new JLabel( "Random numbers count:*" );
-	JTextField randomNumbers = new JTextField(20);
+	final JTextField randomNumbers = new JTextField(20);
 	rng.add(rn);
 	rng.add(randomNumbers);
 	JLabel mn = new JLabel( "Mean (must be double):*" );
-	JTextField mean = new JTextField(20);
+	final JTextField mean = new JTextField(20);
 	rng.add(mn);
 	rng.add(mean);
 	JLabel st = new JLabel( "Standard deviation (must be double):*" );
-	JTextField std = new JTextField(20);
+	final JTextField std = new JTextField(20);
 	rng.add(st);
 	rng.add(std);
 	JLabel op = new JLabel( "Output cell*:" );
-	JTextField output = new JTextField(20);
+	final JTextField output = new JTextField(20);
 	rng.add(op);
 	rng.add(output);
 
@@ -1161,7 +1161,7 @@ public class Squirrel extends JFrame implements ActionListener {
 	    sort = new JPanel(new FlowLayout());
 	    JLabel l = new JLabel("Enter a range to sort:");
 	    sort.add(l);
-	    JTextField t = new JTextField(10);	  
+	    final JTextField t = new JTextField(10);	  
 	    sort.add(t);
 	    JButton b = new JButton("Sort");
 	    b.addActionListener(new ActionListener() {
