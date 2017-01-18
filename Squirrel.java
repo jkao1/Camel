@@ -639,7 +639,7 @@ public class Squirrel extends JFrame implements ActionListener {
     public void createAndAddDefault(JPanel p, String s)
     {
 	// creates input range
-	JPanel input = new JPanel();
+	final JPanel input = new JPanel();
 	input.setLayout(new FlowLayout( FlowLayout.LEADING )); // left-aligned
 	input.add(new JLabel("input range:"));
 	JTextField inputRange = new JTextField(10);
