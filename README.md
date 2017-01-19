@@ -34,3 +34,5 @@ For line graphs, the input range must be one column.
 For bar graphs, the input range must be two columns: the first being the bar name, the second being the data (INTEGERS ONLY).
 For scatter graphs, the input range must be two columns--x and y values.
 For histograms, the input range must be two columns: the first being the data, the second being the bin.
+
+2010 lines. 
