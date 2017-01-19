@@ -2,7 +2,7 @@
 
 Squirrel is a software program designed by Jason Kao and William Soe. It is capable of creating and editing spreadsheets, saved with a .txt extension. General uses of Squirrel include cell-based calculation, random number generation, and various graphing tools.
 
-Disclaimer: JAVA 8 ONLY!!
+Now compatible with Java 7!
 
 ##Working Features
 - menu bar to access certain features
@@ -17,7 +17,7 @@ Disclaimer: JAVA 8 ONLY!!
 ##Unresolved Bugs
 - histogram table output range can only take an output range which starts in the 'A' column
 - the first time in checking the checkbox "bold", it italicizes the text instead.
-- font sizes/names/styles aren't remembered in each cell
+- font sizes/names/styles aren't remembered in each cell in non-Mac OS
 - styled cells are not saved in file
 
 ##How to Run
