@@ -4,7 +4,7 @@ Squirrel is a software program designed by Jason Kao and William Soe. It is capa
 
 Now compatible with Java 7!
 
-##Working Features
+## Working Features
 - menu bar to access certain features
 - with custom FileManager class, Squirrel is able to create new files, save current files, and open old files (with .txt extension)
 - able to create histograms, bar charts, scatter plots, and line graphs
@@ -14,18 +14,18 @@ Now compatible with Java 7!
 - spreadsheet is in a JScrollPane, allowing infinite rows/columns.
 - minor UI features: selecting a row or column labels highlights the entire row or column, UI is customized based on OS, 
 
-##Unresolved Bugs
+## Unresolved Bugs
 - histogram table output range can only take an output range which starts in the 'A' column
 - the first time in checking the checkbox "bold", it italicizes the text instead.
 - font sizes/names/styles aren't remembered in each cell in non-Mac OS
 - styled cells are not saved in file
 
-##How to Run
+## How to Run
 ```
 javac Squirrel.java
 java Squirrel
 ```
-##How to Use Squirrel
+## How to Use Squirrel
 
 Squirrel's basic functionality works as any other spreadsheet editor: click to choose a cell, and then enter in a value. Cells can take in any values, even characters, but only numbers will run the graphs.
 
